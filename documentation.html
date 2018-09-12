@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+<head>
+    <title>LuaSnip Documentation</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src='tool/asciidoctor.min.js'></script>
+    <script src='tool/prism.js'></script>
+    <script>
+       function generate(){
+        var asciidoctor = Asciidoctor();
+        var c = asciidoctor.convert(window.frames.documentation_source.document.body.lastChild.lastChild.data);
+        document.body.innerHTML += '<div class="asciidoctorrender">' + c + '</div>';
+        Prism.highlightAll();
+      }
+    </script>
+    <style type="text/css">
+
+body{
+  margin:40px auto;
+  max-width:40em;
+  line-height:1.4em;
+  padding:0 10px;
+  color: #000000;
+  background-color:#ffffff;
+}
+
+code {
+  background-color:#eeeeee;
+}
+
+.listingblock {
+  background-color:#eeeeee;
+  margin: 0em;
+  padding: .1em 1em;
+  line-height:1em;
+  border-radius: .3em;
+  display: inline-block;
+}
+
+/* PRISM */
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #838383;
+}
+
+.token.punctuation {
+	color: #586e75; /* base01 */
+}
+
+.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted,
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.url,
+.token.inserted {
+	color: #0061b4;
+}
+
+.token.entity {
+	color: #657b83; /* base00 */
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+	color: #858500;
+}
+
+.token.function {
+	color: #378401;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+	color: #cb4b16; /* orange */
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+
+    </style>
+</head>
+<body onload="generate()">
+</body>
+<iframe name='documentation_source' src='documentation.adoc' style="display:none"></iframe>
+</html>

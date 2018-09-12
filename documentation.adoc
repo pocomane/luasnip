@@ -1,0 +1,7153 @@
+
+[#top]
+= LuaSnip
+
+== LuaSnip
+
+LuaSnip is a collection of simple link:#reference_rendez_vous[utility funtions]
+for lua. It is strongly inspired by https://github.com/aiq/luazdf[Lua Zero
+Dependency Functions].
+
+In this documentation we will refer to a single functionality as 'module'.  The
+LuaSnip core features are:
+
+- No external dependencies
+- Pure lua, no C, no external commands
+- Simple and short modules
+- The sources and decumentation of each module are contained in a single,
+  self-consistent file: just drop into your project
+- Only the last official lua version will be always supported
+- Central documentation containing all the source: copy and paste as code snippets
+- Optionally: LuaRocks spec file?
+
+Each module can be imported with the standard lua 'require' function and most
+of them consists of a single function.
+
+To keep each module self-contained we have to avoid dependency also between
+LuaSnip modules. However, sometimes, we really need to use another LuaSnip
+module. In these cases we just copy the needed code in the target source. To
+keep all the references up to date, a small <<luasniputil,utility>> is used.
+
+Some other utilities and showcases are listed in the <<tool_rendez_vous>> section.
+
+Note - Only the last official lua version is supported. This let us to include
+implemetations that relies on features not present in previous version, e.g.
+SHA256. We made this choise also because we do not not want to increase the lua
+ecosystem fagmentation.
+
+== License
+
+All the code and documentation is released under the
+http://unlicense.org/[Unlicense]. You are pratically allowed to do anything you
+want with this code, and you have not any obligation, as described in the
+COPYING.txt file.
+
+Some code is not part of LuaSnip and have a different license. The proper
+license is described at the top of the file tha contains it. E.g. in the `tool`
+directory there is some library needed for the <<playground,playground>>.
+
+Return to <<top>>
+
+== Status
+
+LuaSnip is a collection of (very) small and (mostly) independent modules, so
+maybe it does not make any sense to speak of an "Overall Status". However here
+there is a list of issue that should be solved before the hypothetical release
+of LuaSnip 1.0. More realistically, this list will never be empty.
+
+// TODO - the TODO list follows
+- Simplify searchluakeyword : infinite-loop detection only ?
+- Split from searchluakeyword: move the comment and string detection in a dedicated module ?
+- Refactor names: argument and return value names should be more coherent in all the modules
+- Refactor examples: only few representative examples should be included in the documentation ?
+- Improve locktable : per-field read/write constraints ????
+- Refactor tests: use "Strict" !
+- Add a LuaRocks spec ?
+- Add a new module: getsource (like the one in the stepdebug example) ?
+- Add a new module: deepcopy ?
+- Add a new module: tabclear ?
+- Add a new module: linecoltoindex / indextolinecol ?
+- Add a new module: stringlineiterator ?
+- Add a new module: memoize ?
+- Add a new module: tabsearch ?
+- Add a new module: class / proto ?
+- Add a new module: functional ?
+- Add a new module: other array ops ?
+- Add a new module: other table ops ?
+- Add a new module: convert rawtag_table -> rawtag_string ???
+- Test in stepdebug: Test stepdebug'next'
+- Test in stepdebug: test argument to debug handle function (stack position of the code)
+- Refactor stepdebug: an additional step is performend on the 'end' of a block (also if skipped); remove it (specially when skipped)? how ?
+- Refactor luasniputility: CLEAN-UP ALL THAT MESS !!!
+- Improve luasniputility: automatically add in the documantation a list of all the dependencies of a module ?
+
+Return to <<top>>
+
+[#tool_rendez_vous]
+== Tools
+
+In the `tool` folder there are some tools intended as developments utilities
+or LuaSnip showcases. Some of this showcases could be useful in the real world.
+
+- <<playground>> that let you to quickly try LuaSnip
+- <<climint>> that let you to embed lua code in documents
+- <<debugger_stdinout>> for lua
+- <<luasniputil>> to work with LuaSnip, i.e. keep snippet reference uptodate
+and running tests
+
+Return to <<top>>
+
+[#playground]
+=== In-Browser playground
+
+The `tool/playground.html` file contains an in-browser editor and a Lua VM. By
+default LuaSnip is loaded in the `luasnip` global table so you can quickly test
+LuaSnip features.
+
+This app is powered by:
+
+- https://github.com/fengari-lua/fengari[Fengari], a lua VM implementation in javascript.
+- https://ace.c9.io[ACE], a code editor implemented in html5/javascript.
+
+Return to <<tool_rendez_vous>>
+
+// [SNIP:tool_reference[
+[#climint]
+=== Template expander
+
+It is a command line template system. The template code is lua. For full
+documentation, run without arguments. It will generate `out.html` containing
+the manual.
+
+It uses <<templua>> to expand the template and <<cliparse>> to parse the
+command line arguments. With <<uniontab>> in your template, you can provide
+default arguments.
+
+
+Return to <<tool_rendez_vous>>
+
+[#debugger_stdinout]
+=== Command line debugger
+
+The 'debugger_stdinout' module provide a full command line debugger for lua. It
+is based on 'stepdebug' module of Luasnip. It install a step-debug handler that
+read from the standard input and passes the line to 'stepdebug', so you can
+refer to <<stepdebug>> documentation for a list of accepted commands.
+
+As described in the <<stepdebug>> documentataion, it does not support classical
+breakpoint through filename and line number, but the execution can be
+explicitally stopped in the debugged source code with somethig like 
+
+```
+LD = require 'debug_stdinout' ; LD"break"
+```
+
+Moreover the 'localbind' module of Luasnip is exposed in the 'L' global, so you
+can access locals and upvalues of the current executed line with simple
+expressions like `print(L.a_local_variable)`. Values can be changed with the
+intuitive syntax `L.a_local_variable = "New value"`. Also deeper stack
+inspections are possible with expressions like
+`print(L(1).a_caller_local_variable)`.
+
+No command line history or completion is supported.
+
+
+Return to <<tool_rendez_vous>>
+
+[#luasniputil]
+=== Utility script
+
+The main use for this script is to propagate all the change to a LuaSnip module
+to any other module that depends on that. The same mechanism is also used to
+update all the documentation or generate the amalgamation of all the modules,
+that can be found in `tool\luasnip.lua`.
+
+Moreover it can run the test suites.
+
+When called without any arguments, all the utility will be run in an
+appropriate order.
+
+==== Test suite
+
+Each module came with one ore more test files named `test/module.ex1.lua`,
+`test/module.ex2.lua` and so on. The source of the first test file is also
+included in this documentation as an usage example.
+
+The output of each test is in the TAP format. you can use the
+`luasniputility.lua` with `test` argument to automatically run all the test and
+count how many fails you get. This script uses the `modules.txt` to decide
+which test to run, or alternatively you can pass the name of a single module to
+run all the tests of that module.
+
+When making changes to a source file, make sure to run the
+<<Injection utility>> before to re-run the tests. It will copy the changes
+where they are needed.
+
+If you pass the single argument `amalgam` to the script, then all the tests
+will be run but using the single amalgamated `luasnip.lua` file generated by
+the <<Injection utility>>.
+
+==== Injection utility
+
+LuaSnip modules files do not need one each other. This could be obtained
+removing any code dependency. However, when this is not possible, LuaSnip
+policy is to copy the code of the dependency module wherever it is needed.
+
+This is automatically done by `luasniputil` when passing the `generate` command
+line option. If no other arguments are presetn it will propagate any change in
+the sources and in the documentation.
+
+Be careful, it update the source/documentation IN-PLACE, so it is recomanded to
+take a backup of any changes before running it.
+
+This utility uses `modules.txt` to decide what modules to load. So, if for
+example a module is added, a line must be added to that file.
+
+In the source/documentation, the injected code is placed between two tags. When
+this tool is run all the text between this tags are deleted and substituted
+with the text into the referred file. So any change between two of this tags
+are lost. The correct way to proceede is making the change into the referred
+file.
+
+The tags are like `LUASNIP-module_name-start` and `LUASNIP-module_name-end`, and
+must be prepended with the comment line sequence, i.e. `--` for lua files and
+`//` for asciidoc. For example in the source code you can find:
+
+```
+--LUASNIP-module_name-start
+
+Referred Source Code for module named 'module_name'
+
+--LUASNIP-module_name-end
+```
+
+To add a new dependency in a module, just place the two tags without any content,
+then run the inject utility. It will insert the referred code.
+
+Note: this tools generate also the global `src/luasnip.lua`; in this case no
+expansion is performed: it just overwrite all the contents with the new
+generated code.
+
+
+Return to <<tool_rendez_vous>>
+
+
+// ]SNIP:tool_reference]
+
+[#reference_rendez_vous]
+== Module index
+
+The following modules are implemented. A section identifier is also reported:
+in the `src/luasnip.lua` amalgamation it is used to collect the functions (e.g.
+    `tab.combinetab`).
+
+- TAB - These modules work on tables: +
+// [SNIP:function_index_section_tab[
+<<combinetab>> <<deepsame>> <<differencetab>> <<flatarray>> <<intersecationtab>> <<locktable>> <<toposort>> <<uniontab>> 
+// ]SNIP:function_index_section_tab]
+
+- CLI - These modules deal with command line interface: +
+// [SNIP:function_index_section_cli[
+<<cliparse>> <<escapeshellarg>> <<shellcommand>> 
+// ]SNIP:function_index_section_cli]
+
+- PARSE - These modules parse or convert data: +
+// [SNIP:function_index_section_parse[
+<<bitpad>> <<csvish>> <<csvishout>> <<hexdecode>> <<hexencode>> <<jsonish>> <<jsonishout>> <<lambda>> <<rawhtml>> <<rawmark>> <<subbytebase>> <<templua>> 
+// ]SNIP:function_index_section_parse]
+
+- FS - These modules work with the file system: +
+// [SNIP:function_index_section_fs[
+<<appendfile>> <<clearfile>> <<copyfile>> <<filenamesplit>> <<isreadable>> <<pathpart>> <<readfile>> 
+// ]SNIP:function_index_section_fs]
+
+- DEB - These modules are useful for debug, test or logging: +
+// [SNIP:function_index_section_deb[
+<<localbind>> <<logline>> <<stepdebug>> <<tapfail>> <<taptest>> <<timeprof>> <<valueprint>> 
+// ]SNIP:function_index_section_deb]
+
+- TYPE - These modules define or check new types: +
+// [SNIP:function_index_section_type[
+<<argcheck>> <<intern>> <<iscallable>> <<isinteger>> <<tuple>> 
+// ]SNIP:function_index_section_type]
+
+- STR - These modules operate on, or generate strings: +
+// [SNIP:function_index_section_str[
+<<searchluakeyword>> <<serialize>> <<sha2>> <<trimstring>> 
+// ]SNIP:function_index_section_str]
+
+- ITER - These modules can be used to sort or iterate: +
+// [SNIP:function_index_section_iter[
+<<countiter>> <<keysort>> 
+// ]SNIP:function_index_section_iter]
+
+Moreover, in
+// [SNIP:function_index_section_internal[
+<<testhelper>> 
+// ]SNIP:function_index_section_internal]
+you can find some code that is not really part of LuaSnip, but it is used
+somewhere else in this documentation (e.g. in tests).
+
+Return to <<top>>
+
+== Module Reference
+
+// [SNIP:function_reference[
+[#appendfile]
+=== appendfile
+
+[source,lua]
+----
+function appendfile( path, data [, prefix [, suffix]] ) --> res, err
+----
+
+This function will append the datas to a file.
+
+The file path is specified by the `path` string, while the `data` can be passed
+as a single string or an array of strings i.e. multiple chunks to be appended.
+
+Two strings can be optionally passed: `prefix` and `suffix`. They will be
+written before and after each chunk of data. 
+
+This function will return `true` if it successed, otherwise it will return `nil`
+plus an error message.
+
+==== Code
+
+[source,lua]
+------------
+local function appendfile( path, data, prefix, suffix ) --> res, err
+
+   local function writeorclose( f, data )
+      local res, err = f:write( data )
+      if err then f:close() end
+      return res, err
+   end
+
+   local d, derr = io.open( path, "a+b" )
+   if derr then
+      return nil, "Can not create or open destination file. "..derr
+   end
+
+   local ok, err = d:seek( "end" )
+   if err then
+      d:close()
+      return nil, err
+   end
+
+   if "string" == type( data ) then
+      data = { data }
+   end
+
+   -- Output loop
+   for i = 1, #data do
+
+      if prefix then
+         ok, err = writeorclose( d, prefix )
+         if err then return ok, err end
+      end
+
+      ok, err = writeorclose( d, data[ i ] )
+      if err then return ok, err end
+
+      if suffix then
+         ok, err = writeorclose( d, suffix )
+         if err then return ok, err end
+      end
+   end
+
+   return d:close()
+end
+
+return appendfile
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local appendfile = require "appendfile"
+local t = require "testhelper"
+
+t( appendfile( "appendfile.txt", "123" ), true )
+t( t.readfile( "appendfile.txt" ), "123" )
+
+t( appendfile( "appendfile.txt", "456" ), true )
+t( t.readfile( "appendfile.txt" ), "123456" )
+
+t( appendfile( "appendfile.txt", { "7","8" } ), true )
+t( t.readfile( "appendfile.txt" ), "12345678" )
+
+t( appendfile( "appendfile.txt", {"9","10"}, "<", ">" ), true )
+t( t.readfile( "appendfile.txt" ), "12345678<9><10>" )
+
+os.remove( "appendfile.txt" )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#argcheck]
+=== argcheck
+
+[source,lua]
+----
+function argcheck( specTab , ... ) --> wrapFunc
+----
+
+This function return error if the argument specification in the table `specTab`
+does not match with the rest of the arguments.
+
+`specTab` must be an array of strings. Each one is the expected lua type of a
+following argument (as returned from the standard `type` function). The number
+of the following arguments must be equal to the length of the array.
+
+The main use case is as the first line of a user defined function. In that
+case an error corresponds to wrong arguments passed by the caller of the
+caller of `argcheck`. So its stack position is reported as the source of the
+error i.e. two stack level above `argcheck`.
+
+==== Code
+
+[source,lua]
+------------
+local function argcheck( specTab, ... ) --> wrapFunc
+  local arg = table.pack(...)
+  local argn = arg.n
+  if #specTab ~= argn then error('Invalid number of arguments. Must be '.. #specTab..' not '.. argn ..'.', 3) end
+  for a = 1, argn do
+    local argtype, exptype = type(arg[a]), specTab[a] 
+    if argtype ~= exptype then
+      error('Invalid argument #'..a..' type. Must be '..exptype..' not '..argtype..'.', 2)
+    end
+  end
+end
+
+return argcheck
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local a = require 'argcheck'
+local t = require 'testhelper'
+
+local function argcheck(...) return t.filterr(a, ...) end
+
+t( argcheck({}), nil )
+t( argcheck({}, 1), 'Invalid number of arguments. Must be 0 not 1.' )
+
+t( argcheck({'number'}, 1), nil )
+t( argcheck({'number'}, 'a'), 'Invalid argument #1 type. Must be number not string.' )
+t( argcheck({'boolean'}, 'a'), 'Invalid argument #1 type. Must be boolean not string.' )
+t( argcheck({'string'}, false), 'Invalid argument #1 type. Must be string not boolean.' )
+t( argcheck({'table'}, false), 'Invalid argument #1 type. Must be table not boolean.' )
+
+t( argcheck({'number','string','boolean'}, 1, 'a', false), nil )
+t( argcheck({'number','string','boolean'}, 1, false, false), 'Invalid argument #2 type. Must be string not boolean.' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#bitpad]
+=== bitpad
+
+[source,lua]
+----
+function bitpad( padInt, bitInt, inStr [, outmapSeq] [, inmapSeq] [,offsetInt]) --> outStr, supbitInt
+----
+
+Add or remove padding from the byte sequence in the string `inStr`. `padInt` is the 
+number of bit to add or remove, while `bitInt` it the number of bit after which
+the insertion/removal is repeated. If `inStr` is positive the bits are added,
+otherwise they are removed.
+
+For example, `bitpad( 1, 2, ...` will add 1 padding bit each 2 input bit,
+while `bitpad( -1, 2, ...` will remove one bit each 2 input bit.
+
+The `offsetInt` argument specify the first bit that must be added or
+removed. The very first bit is used by default.
+
+All the added bit will be set to `0`, while bit of any value can be removed.
+
+The tow optional parameter `outmapSeq` and `inmapSeq` are two maps that will be
+applied to each byte, before any processing (`inmapSeq`) or after all the
+processing (`outMapSeq`)
+
+The ouput will be returned in the `outStr` string. If the last bit do not fill
+a byte, the appropriate number of `0` will be added at end of the data. The
+number of added `0` is returned as the last returned value `supbitInt`.
+
+==== Code
+
+[source,lua]
+------------
+local function bitpad( pad, bit, str, map, imap, off )
+  if not bit then bit = 1 end
+  if not pad then pad = 8 - (bit % 8) end
+  local result = ''
+
+  local removing = false
+  if pad < 0 then
+    pad = - pad
+    removing = true
+  end
+
+  local out_count = 0
+  local appending = false
+  local procbit = pad
+  if off then
+    appending = true
+    procbit = off
+  end
+  local store = 0
+  local i = 0
+  local inlast = 0
+  local inbit = 0
+
+  -- Bitloop
+  while true do
+
+    -- Get new input byte as needed
+    if inbit <= 0 then
+      i = i + 1
+      inlast = str:byte(i)
+      if not inlast then break end
+      if imap then
+        local x = imap[inlast+1]
+        inlast = (x and x:byte()) or inlast
+      end
+      inbit = 8
+    end
+
+    -- Calculate number of appendable bits
+    local appbit = procbit
+    if appbit > inbit then appbit = inbit end
+    if appbit + out_count > 8 then appbit = 8 - out_count end
+
+    -- Make space into the output for the next bits
+    if not removing or appending then
+      store = (store << appbit) & 0xFF
+      out_count = out_count + appbit
+    end
+
+    -- Copy the next bits from the input
+    if appending then
+      local mask = ((~0) << (8-appbit)) & 0xFF
+      store = store | ((mask & inlast ) >> (8- appbit))
+    end
+
+    -- Discard from the input the bits that were already processed
+    if removing or appending then
+      inbit = inbit - appbit
+      inlast = (inlast << appbit) & 0xFF
+    end
+
+    -- Select bit handle mode for the next iteration
+    procbit = procbit - appbit
+    if procbit <= 0 then
+      if appending then
+        appending = false
+        procbit = pad
+      else
+        appending = true
+        procbit = bit
+      end
+    end
+
+    -- Generate output byte
+    if out_count >= 8 then
+        result = result .. (map and map[store+1] or string.char(store))
+      store = 0
+      out_count = 0
+    end
+  end
+
+  -- Generate odd-bit byte
+  local bitadd = 0
+  if out_count > 0 then
+    bitadd = 8 - out_count
+    store = (store << bitadd) & 0xFF
+    result = result .. (map and map[store+1] or string.char(store))
+  end
+
+  return result, bitadd
+end
+
+return bitpad
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local bitpad = require 'bitpad'
+local t = require 'testhelper'
+
+t( bitpad(0, 0, ''), '', t.bytesame )
+
+t( bitpad(8, 8, '\x0F\x0F\x0F'), '\0\x0F\0\x0F\0\x0F', t.bytesame )
+
+t( bitpad(7, 1, '\x0F'), '\x00\x00\x00\x00\x01\x01\x01\x01', t.bytesame )
+t( bitpad(15, 1, '\x0F'), '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x01\x00\x01\x00\x01', t.bytesame )
+
+t( bitpad(6, 2, '\x0F'), '\x00\x00\x03\x03', t.bytesame )
+t( bitpad(4, 4, '\x0F'), '\x00\x0F', t.bytesame )
+
+t( bitpad(5, 3, '\x0F'), '\x00\x03\x06', t.bytesame )
+t( bitpad(5, 3, '\x0F\x0F'), '\x00\x03\x06\x00\x07\x04', t.bytesame )
+t( bitpad(5, 3, '\x0F\x81'), '\x00\x03\x07\x00\x00\x04', t.bytesame )
+
+t( bitpad(12, 4, '\xFF'), '\x00\x0F\x00\x0F', t.bytesame )
+
+t( bitpad(2, 2, '\xFF'), '\x33\x33', t.bytesame )
+
+t( bitpad(3, 3, '\xFF'), '\x1C\x71\x80', t.bytesame )
+t( bitpad(3, 3, '\xFF\xFF'), '\x1C\x71\xC7\x1C\x40', t.bytesame )
+
+t( bitpad(-1, 1, '\xFF'), '\xF0', t.bytesame )
+t( bitpad(-1, 1, '\xFF\xFF'), '\xFF', t.bytesame )
+t( bitpad(-1, 1, '\xFF\xFF\xFF'), '\xFF\xF0', t.bytesame )
+
+t( bitpad(-2, 1, '\xFF'), '\xC0', t.bytesame )
+t( bitpad(-2, 1, '\xFF\xFF'), '\xF8', t.bytesame )
+t( bitpad(-2, 1, '\xFF\xFF\xFF'), '\xFF', t.bytesame )
+
+t( bitpad(-7, 1, '\x01\x01\x01\x01\x01\x01\x01\x01'), '\xFF', t.bytesame )
+
+t( bitpad(-4, 4, '\xFF'), '\xF0', t.bytesame )
+t( bitpad(-4, 4, '\xFF\xFF'), '\xFF', t.bytesame )
+t( bitpad(-4, 4, '\xFF\xFF\xFF'), '\xFF\xF0', t.bytesame )
+
+t( bitpad(-4, 4, (bitpad(4, 4, '\x13'))), '\x13', t.bytesame )
+t( bitpad(-2, 3, (bitpad(2, 3, '\x13'))), '\x13\x00', t.bytesame ) -- additional padding
+
+t( bitpad(4, 4, '\x01\x00'), '\x00\x01\x00\x00', t.bytesame )
+t( bitpad(4, 4, '\x01\x00', {'\xFF'}), '\xFF\x01\xFF\xFF', t.bytesame )
+t( bitpad(4, 4, '\x01\x00', {'\xFF','\xF0'}), '\xFF\xF0\xFF\xFF', t.bytesame )
+
+t( bitpad(-4, 4, '\x00\x01'), '\x01', t.bytesame )
+t( bitpad(-4, 4, '\x00\x01', {'\x00','\xFF'}), '\xFF', t.bytesame )
+
+t( bitpad(4, 4, '\x01\x00'), '\x00\x01\x00\x00', t.bytesame )
+t( bitpad(4, 4, '\x01\x00', nil, {'\x02',}), '\x00\x01\x00\x02', t.bytesame )
+t( bitpad(4, 4, '\x01\x00', nil, {'\x02','\xFF'}), '\x0F\x0F\x00\x02', t.bytesame )
+
+t( bitpad(-4, 4, '\x01\x00'), '\x10', t.bytesame )
+t( bitpad(-4, 4, '\x01\x00', nil, {'\x02','\x01'}), '\x12', t.bytesame )
+
+t( bitpad(16, 8, '\x01\x01'), '\x00\x00\x01\x00\x00\x01', t.bytesame )
+t( bitpad(-16, 8, '\xFF\xFF\x00\xFF\xFF\x00'), '\x00\x00', t.bytesame )
+
+t( bitpad(4, 12, '\xFF\xFF\xFF'), '\x0F\xFF\x0F\xFF', t.bytesame )
+t( bitpad(-4, 12, '\x0F\xFF\x0F'), '\xFF\xFF', t.bytesame )
+
+local _,b 
+
+_, b = bitpad(1, 8, '\x00') t( b, 7 )
+_, b = bitpad(1, 8, '\x00\x00') t( b, 6 )
+_, b = bitpad(1, 8, '\x00\x00\0\0\0\0\0') t( b, 1 )
+_, b = bitpad(1, 8, '\x00\x00\0\0\0\0\0\0') t( b, 0 )
+
+_, b = bitpad(-1, 8, '\x00') t( b, 1 )
+_, b = bitpad(-1, 8, '\x00\x00') t( b, 2 )
+_, b = bitpad(-1, 8, '\x00\x00\0\0\0\0\0') t( b, 7 )
+_, b = bitpad(-1, 8, '\x00\x00\0\0\0\0\0\0') t( b, 0 )
+
+t( bitpad(4, 4, '\xFF\xFF\xFF'), '\x0F\x0F\x0F\x0F\x0F\x0F', t.bytesame )
+t( bitpad(4, 4, '\xFF\xFF\xFF',nil,nil,4), '\xF0\xF0\xF0\xF0\xF0\xF0', t.bytesame )
+t( bitpad(4, 4, '\xFF\xFF\xFF',nil,nil,2), '\xC3\xC3\xC3\xC3\xC3\xC3', t.bytesame )
+t( bitpad(4, 4, '\xFF\xFF\xFF',nil,nil,3), '\xE1\xE1\xE1\xE1\xE1\xE1', t.bytesame )
+t( bitpad(-4, 4, '\x0F\x0F\x0F\x0F\x0F\x0F'), '\xFF\xFF\xFF', t.bytesame )
+t( bitpad(-4, 4, '\xF0\xF0\xF0\xF0\xF0\xF0',nil,nil,4), '\xFF\xFF\xFF', t.bytesame )
+t( bitpad(-4, 4, '\xC3\xC3\xC3\xC3\xC3\xC3',nil,nil,2), '\xFF\xFF\xFF', t.bytesame )
+t( bitpad(-4, 4, '\xE1\xE1\xE1\xE1\xE1\xE1',nil,nil,3), '\xFF\xFF\xFF', t.bytesame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#clearfile]
+=== clearfile
+
+[source,lua]
+----
+function clearfile( pathStr ) --> statusBool, errorStr
+----
+
+Create a empty file at path specified by the `pathStr` string. If the file
+exists its content will be deleted.
+
+It will return `true` if the file is created/cleared correctly. Nil otherwise,
+with the additional error string `errorStr`.
+
+==== Code
+
+[source,lua]
+------------
+local function clearfile( pathStr ) --> statusBool, errorStr
+  local f, err = io.open( pathStr, 'wb' )
+  if not f or err then return nil, err end
+  local s, err = f:write( '' )
+  f:close()
+  if not s then return nil, err end
+  return true
+end
+
+return clearfile
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local clearfile = require 'clearfile'
+local t = require 'testhelper'
+
+t.removefile( 'tmp.txt' )
+clearfile'tmp.txt'
+t( t.readfile'tmp.txt', '' )
+
+t.writefile( 'tmp.txt', 'xxx' )
+clearfile'tmp.txt'
+t( t.readfile'tmp.txt', '' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#cliparse]
+=== cliparse
+
+[source,lua]
+----
+function cliparse( argArr [, defaultStr] ) --> parsedTab
+----
+
+Simple function to parse command line arguments, that must be passed as the array
+of string `arrArg`.
+
+All the arguments are collected in the output `parsedTab`. Each flag or option
+became a key of the table, while some arguments may be collected as values.
+Three type of arguments are supported:
+
+- `-aBc` - Will generate a key for each character (e.g. 'a') with an
+empty-table value.
+- `--key` - a key will be generate with the whole identifier (e.g. 'key') and
+an empty table is used as value; if the next argument does not start with '-'
+it will be appended in the table.
+- `--key=value`, `--key:value`, `-key=value` or `-key:value` - will generate a
+key with the suffix (e.g. 'key'); a table
+will be generated as value, containing the found suffix (e.g. 'value').
+  
+For the last two forms, if the same key is found more time, each value is
+appended into the table.
+
+All the arguments not associated to any key, will be collected under the
+default empty string (i.e. ''). The additional argument string `defaultStr` can
+be used to override this default.
+
+==== Code
+
+[source,lua]
+------------
+local function addvalue( p, k, value )
+  local prev = p[k]
+  if not prev then prev = {} end
+  if 'table' ~= type(value) then
+    prev[1+#prev] = value
+  else
+    for v = 1, #value do
+      prev[1+#prev] = value[v]
+    end
+  end
+  p[k] = prev
+end
+
+local function cliparse( args, default_option )
+
+  if not args then args = {} end
+  if not default_option then default_option = '' end
+  local result = {}
+
+  local append = default_option
+  for _, arg in ipairs(args) do
+    if 'string' == type( arg ) then
+      local done = false
+
+      -- CLI: --key=value, --key:value, -key=value, -key:value
+      if not done then
+        local key, value = arg:match('^%-%-?([^-][^ \t\n\r=:]*)[=:]([^ \t\n\r]*)$')
+        if key and value then
+          done = true 
+          addvalue(result, key, value)
+        end
+      end
+    
+      -- CLI: --key
+      if not done then
+        local keyonly = arg:match('^%-%-([^-][^ \t\n\r=:]*)$')
+        if keyonly then
+          done = true
+          if not result[keyonly] then
+            addvalue(result, keyonly, {})
+          end
+          append = keyonly
+        end
+      end
+
+      -- CLI: -kKj
+      if not done then
+        local flags = arg:match('^%-([^-][^ \t\n\r=:]*)$')
+        if flags then
+          done = true
+          for i = 1, #flags do
+            local key = flags:sub(i,i)
+            addvalue(result, key, {})
+          end
+        end
+      end
+
+      -- CLI: value
+      if not done then
+        addvalue(result, append, arg)
+        append = default_option
+      end
+    end
+  end
+
+  return result
+end
+
+return cliparse
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local cliparse = require 'cliparse'
+local t = require 'testhelper'
+
+t( cliparse(), {}, t.deepsame )
+t( cliparse({}), {}, t.deepsame )
+t( cliparse({'a'}), {['']={'a'}}, t.deepsame )
+t( cliparse({'a','b'}), {['']={'a','b'}}, t.deepsame )
+
+t( cliparse({'-a'}), {['a']={}}, t.deepsame )
+t( cliparse({'-a','b'}), {['a']={},['']={'b'}}, t.deepsame )
+t( cliparse({'-a','-b','c'}), {['a']={},['b']={},['']={'c'}}, t.deepsame )
+
+t( cliparse({'-ab','c'}), {['a']={},['b']={},['']={'c'}}, t.deepsame )
+
+t( cliparse({'--aa'}), {['aa']={}}, t.deepsame )
+t( cliparse({'--aa','c'}), {['aa']={'c'}}, t.deepsame )
+t( cliparse({'--aa','c','d'}), {['aa']={'c'},['']={'d'}}, t.deepsame )
+
+t( cliparse({'--aa','--bb'}), {['aa']={},['bb']={}}, t.deepsame )
+
+t( cliparse({'--aa','b','c','--aa','d'}), {['aa']={'b','d'},['']={'c'}}, t.deepsame )
+
+t( cliparse({'--aa=b','c'}), {['aa']={'b'},['']={'c'}}, t.deepsame )
+t( cliparse({'--aa:b','c'}), {['aa']={'b'},['']={'c'}}, t.deepsame )
+t( cliparse({'--aa=b=c','d'}), {['aa']={'b=c'},['']={'d'}}, t.deepsame )
+
+t( cliparse({'-a=b','c'}), {['a']={'b'},['']={'c'}}, t.deepsame )
+t( cliparse({'-a:b','c'}), {['a']={'b'},['']={'c'}}, t.deepsame )
+t( cliparse({'-aa=b','c'}), {['aa']={'b'},['']={'c'}}, t.deepsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#combinetab]
+=== combinetab
+
+[source,lua]
+----
+function combinetab( firstTab, secondTab[, ...], combFunc )
+----
+
+The `combFunc` function will be called for each combination of the input table
+list `firstTab, secondTab, ...`.
+
+A single combination is generated selecting for each key of any input table,
+the value from one of the tables. All the combinations will be considered
+exactly one time.
+
+==== Code
+
+[source,lua]
+------------
+local function combinetab(...)
+  local n = select('#',...)
+  local f = select(n,...)
+  n = n -1
+  c = {}
+  cc = 0
+  for i=1,n do
+    for k in pairs((select(i,...))) do
+      if not c[k] then
+        c[1+#c] = k
+        cc = cc + 1
+        c[k] = true
+      end
+    end
+  end
+  table.sort( c )
+  local s = {}
+  for i = 1,cc do s[i] = 1 end
+  while s[cc] <= n do
+    local a = {}
+    for i = 1,cc do
+      local k = c[i]
+      a[k] = select(s[i],...)[k]
+    end
+    f(a)
+    s[1] = s[1] + 1
+    for i = 2,cc do -- carry
+      if s[i-1] <= n then
+        break
+      else
+        s[i-1] = 1
+        s[i] = s[i] + 1
+      end
+    end
+  end
+end
+
+return combinetab
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local combinetab = require 'combinetab'
+local t = require 'testhelper'
+
+local r, n
+local function tres()
+  r = {}
+  n = 0
+end
+local function tcol(x)
+  local t = {}
+  for k,v in pairs(x) do t[k] = v end
+  n = n + 1
+  r[n] = t
+end
+
+tres()
+combinetab({k='a'},{k='b'}, tcol)
+t( #r, 2 )
+t( r[1], {k='a'}, t.deepsame )
+t( r[2], {k='b'}, t.deepsame )
+
+tres()
+combinetab({k='a',x='a'},{k='b'}, tcol)
+t( #r, 4 )
+t( r[1], {k='a',x='a'}, t.deepsame )
+t( r[2], {k='b',x='a'}, t.deepsame )
+t( r[3], {k='a'}, t.deepsame )
+t( r[4], {k='b'}, t.deepsame )
+
+tres()
+combinetab({k='a'},{k='b',x='b'}, tcol)
+t( #r, 4 )
+t( r[1], {k='a'}, t.deepsame )
+t( r[2], {k='b'}, t.deepsame )
+t( r[3], {k='a',x='b'}, t.deepsame )
+t( r[4], {k='b',x='b'}, t.deepsame )
+
+tres()
+combinetab({k='a'},{k='b'},{k='c'}, tcol)
+t( #r, 3 )
+t( r[1], {k='a'}, t.deepsame )
+t( r[2], {k='b'}, t.deepsame )
+t( r[3], {k='c'}, t.deepsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#copyfile]
+=== copyfile
+
+[source,lua]
+----
+function copyfile( src, dst ) --> res, err
+----
+
+This function copy the file at the path specified by the `src` string to to the
+file at the
+path specified by the `dst` string.
+
+It will return `true` if the copy successes, otherwise `nil` plus an error string.
+
+==== Code
+
+[source,lua]
+------------
+local function copyfile( src, dst ) --> ok, err
+
+   local function checkerror( ... )
+      local msg = ""
+      for m = 1, select( "#", ... ) do
+         local p = select( m, ... )
+         if p ~= nil then
+         msg = msg..p..". "
+         end
+      end
+      if msg == "" then return true end
+      return nil, msg
+   end
+
+   local s, serr = io.open( src, "rb" )
+   if serr then
+      return checkerror( "Can not open source file", serr )
+   end
+ 
+   local d, derr = io.open( dst, "wb" )
+   if not d then
+      s, serr = s:close()
+      return checkerror( "Can not create destination file" , derr, serr )
+   end
+
+   -- Copy loop
+   while true do
+      buf, serr = s:read( 1024 )
+      if serr or not buf then break end
+      ok, derr = d:write( buf )
+      if derr then break end
+   end
+   if serr or derr then
+      return checkerror( "Error while copying", serr, derr )
+   end
+
+   s, serr = s:close()
+   d, derr = d:close()
+   return checkerror( serr, derr )
+end
+
+return copyfile
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local copyfile = require "copyfile"
+local t = require "testhelper"
+
+local inpath = "intmp.txt"
+local outpath = "outtmp.txt"
+local data = ( "01f" ):rep( 512 )
+
+t.writefile( inpath, data )
+t( copyfile( inpath, outpath ), true )
+t( t.readfile( outpath ), data )
+
+os.remove( inpath )
+os.remove( outpath )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#countiter]
+=== countiter
+
+[source,lua]
+----
+local function countiter( ... ) --> countInt
+----
+
+Count the number of iteration generated by a iterator. The argument must be the
+same varargs a `for in` loop. It will return the number of iteration.
+
+E.g. `countiter(pairs(tab))` will count the number of key in the table `tab`.
+
+==== Code
+
+[source,lua]
+------------
+local function countiter( ... ) --> countInt
+  local countInt = 0
+  if select('#', ...) ~= 0 then
+    for _ in ... do
+      countInt = countInt + 1
+    end
+  end
+  return countInt
+end
+
+return countiter
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local countiter = require 'countiter'
+local t = require 'testhelper'
+
+t( countiter(), 0 )
+t( countiter( pairs{}), 0 )
+t( countiter( pairs{ 1, 2, c='2' }), 3 )
+t( countiter( ipairs{ 1, 2, c='2' }), 2 )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#csvish]
+=== csvish
+
+[source,lua]
+----
+function csvish( csvStr ) --> datTab
+----
+
+This is a very simple parser for a Comma Separed Value (CSV) file format. The
+record separator is the newline, while the field separator is the semicolon. A
+field containing a separators can be quoted with the double quote. The double
+quote itself can be escaped with `""`.
+
+It takes the `csvStr` string containing the CSV data, and it return the table
+`datTab` containing the same data as an array. Each item represents a CSV
+record. The item is an array by itself containing the fields as a string.
+
+==== Code
+
+[source,lua]
+------------
+local function string_char_to_decimal( c )
+  return string.format( '\\%d', c:byte( 1,1 ))
+end
+
+local function string_decimal_to_char( d )
+  return string.char( tonumber( d ))
+end
+
+local function csvish( csv )
+
+  -- Protect quoted text
+  local csv = csv:gsub('"(.-)"', function( quote )
+    if quote == '' then return string_char_to_decimal( '"' ) end
+    return quote:gsub('[\\\n\r;"]', string_char_to_decimal )
+  end)
+
+  local result = {}
+
+  -- Loop over records and fields
+  for line in csv:gmatch('([^\n\r]*)') do
+    local record
+    for field in line:gmatch('([^;]*)') do
+
+      -- New record as needed
+      if not record then
+        record = {}
+        result[1+#result] = record
+      end
+
+      -- Expand quoted/protected text
+      field = field:gsub('\\(%d%d?%d?)', string_decimal_to_char)
+
+      -- Append the new field
+      record[1+#record] = field
+    end
+  end
+
+  return result
+end
+
+return csvish
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local csvish = require 'csvish'
+local t = require 'testhelper'
+
+t( csvish'', {{''}}, t.deepsame )
+t( csvish'aa', {{'aa'}}, t.deepsame )
+t( csvish'aa;bb', {{'aa','bb'}}, t.deepsame )
+
+t( csvish'aa;bb;;cc', {{'aa','bb','','cc'}}, t.deepsame )
+t( csvish'aa;bb;', {{'aa','bb',''}}, t.deepsame )
+t( csvish';', {{'',''}}, t.deepsame )
+t( csvish';;', {{'','',''}}, t.deepsame )
+
+t( csvish'aa\nbb', {{'aa'},{'bb'}}, t.deepsame )
+t( csvish'aa\nbb\ncc', {{'aa'},{'bb'},{'cc'}}, t.deepsame )
+t( csvish'aa\nbb\n', {{'aa'},{'bb'},{''}}, t.deepsame )
+t( csvish'aa\n', {{'aa'},{''}}, t.deepsame )
+t( csvish'aa\n\nbb', {{'aa'},{''},{'bb'}}, t.deepsame )
+t( csvish'\n', {{''},{''}}, t.deepsame )
+
+t( csvish'aa\n;\nbb', {{'aa'},{'',''},{'bb'}}, t.deepsame )
+
+t( csvish'"aa";bb', {{'aa','bb'}}, t.deepsame )
+t( csvish'"aa;bb"', {{'aa;bb'}}, t.deepsame )
+t( csvish'"aa;bb";cc', {{'aa;bb','cc'}}, t.deepsame )
+t( csvish'"aa;bb";cc;"dd;ee"', {{'aa;bb','cc','dd;ee'}}, t.deepsame )
+
+t( csvish'"aa"bb', {{'aabb'}}, t.deepsame )
+t( csvish'aa"bb"', {{'aabb'}}, t.deepsame )
+t( csvish'aa"bb"cc', {{'aabbcc'}}, t.deepsame )
+t( csvish'aa"bb"cc;dd', {{'aabbcc','dd'}}, t.deepsame )
+t( csvish'zz;aa"bb"cc', {{'zz','aabbcc'}}, t.deepsame )
+
+t( csvish'aa""bb', {{'aa"bb'}}, t.deepsame )
+t( csvish'aa""', {{'aa"'}}, t.deepsame )
+t( csvish'""aa', {{'"aa'}}, t.deepsame )
+t( csvish'aa;bb""', {{'aa','bb"'}}, t.deepsame )
+t( csvish'""aa;bb', {{'"aa','bb'}}, t.deepsame )
+
+t( csvish'aa"\n"bb', {{'aa\nbb'}}, t.deepsame )
+t( csvish'aa"\r"bb', {{'aa\rbb'}}, t.deepsame )
+t( csvish'aa"\n\r"bb', {{'aa\n\rbb'}}, t.deepsame )
+t( csvish'aa";"bb', {{'aa;bb'}}, t.deepsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#csvishout]
+=== csvishout
+
+[source,lua]
+----
+function csvishout( datTab[, outFunc] ) --> csvStr
+----
+
+Generate the Comma Separed Value (CSV) rapresentation `csvStr` of the input array
+`datTab`. The ouput will be CSV string containing a list record. Each record is
+itself a list of fields. The record separator is the newline while the field
+separator is the semicolon.
+
+If a field contains a newlines ora a semicolons, it will be quoted with double
+quote (`"`). The double quote itself will be escaped with the sequence
+`""`.
+
+If an `outFunc` is passed, it is called on each output row. It this case the
+returned value will be always nil.
+
+==== Code
+
+[source,lua]
+------------
+local function csvishout( tab, outFunc )
+  local result = ''
+  for _, record in ipairs(tab) do
+    if 'table' == type(record) then
+      local first = true
+      for _, field in ipairs(record) do
+        if not first then result = result .. ';' end
+        first = false
+        field = tostring(field)
+        if field:match('[;\n"]') then
+          field = field:gsub('"','""')
+          field = '"' .. field .. '"'
+        end
+        result = result .. field
+      end
+      result = result .. '\n'
+      if outFunc then
+        outFunc(result)
+        result = ''
+      end
+    end
+  end
+  if outFunc then return nil end
+  return result
+end
+
+return csvishout
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local csvishout = require 'csvishout'
+local t = require 'testhelper'
+
+t( csvishout{}, '' )
+t( csvishout{{}}, '\n' )
+t( csvishout{{},{}}, '\n\n' )
+
+t( csvishout{{1}}, '1\n' )
+t( csvishout{{'a'}}, 'a\n' )
+t( csvishout{{1,2}}, '1;2\n' )
+t( csvishout{{'',2}}, ';2\n' )
+
+t( csvishout{{1,2,3}}, '1;2;3\n' )
+t( csvishout{{1,2,3},{1,2,3}}, '1;2;3\n1;2;3\n' )
+t( csvishout{{1,2,3},{1,2}}, '1;2;3\n1;2\n' )
+t( csvishout{{1,2,3},{1,2}}, '1;2;3\n1;2\n' )
+
+t( csvishout{{1},{},{2}}, '1\n\n2\n' )
+
+t( csvishout{{';'}}, '";"\n' )
+t( csvishout{{'\n'}}, '"\n"\n' )
+t( csvishout{{'a"b'}}, '"a""b"\n' )
+
+t( csvishout{{';','ok'}}, '";";ok\n' )
+t( csvishout{{'\n','ok'}}, '"\n";ok\n' )
+t( csvishout{{'"','ok'}}, '"""";ok\n' )
+t( csvishout{{'ok"ok','ok'}}, '"ok""ok";ok\n' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#deepsame]
+=== deepsame
+
+[source,lua]
+----
+function deepsame( firstTab, secondTab ) --> sameBool
+----
+
+Deep comparison of the two tables `firstTab` and `secondTab`. It will return
+`true` if they contain recursively the same data, otherwise `false`.
+
+==== Code
+
+[source,lua]
+------------
+local deepsame
+
+local function keycheck( k, t, s )
+  local r = t[k]
+  if r ~= nil then return r end
+  if 'table' ~= type(k) then return nil end
+  for tk, tv in pairs( t ) do
+    if deepsame( k, tk, s ) then
+      r = tv
+      break
+    end
+  end
+  return r
+end
+
+function deepsame( a, b, s )
+  if not s then s = {} end
+  if a == b then return true end
+  if 'table' ~= type( a ) then return false end
+  if 'table' ~= type( b ) then return false end
+
+  if s[ a ] == b or s[ b ] == a then return true end
+  s[ a ] = b
+  s[ b ] = a
+
+  for ak, av in pairs( a ) do
+    local o = keycheck( ak, b, s )
+    if o == nil then return false end
+  end
+
+  for bk, bv in pairs( b ) do
+    local o = keycheck( bk, a, s )
+    if o == nil then return false end
+
+    if not deepsame( bv, o, s ) then return false end
+  end
+
+  s[ a ] = nil
+  s[ b ] = nil
+  return true
+end
+
+return deepsame
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local deepsame = require 'deepsame'
+local t = require 'testhelper'
+
+t( deepsame({}, {}), true )
+t( deepsame({1}, {1}), true )
+t( deepsame({1}, {2}), false )
+
+t( deepsame({1,2}, {1}), false )
+t( deepsame({1}, {1,2}), false )
+
+t( deepsame({[{1}]=1}, {[{1}]=1}), true )
+t( deepsame({[{1}]=1}, {[{2}]=1}), false )
+t( deepsame({[{1}]=1}, {[{1}]=2}), false )
+
+t( deepsame({{}}, {{}}), true )
+t( deepsame({{1}}, {{1}}), true )
+t( deepsame({{1}}, {{2}}), false )
+
+t( deepsame({{1},{2}}, {{1}}), false )
+t( deepsame({{1}}, {{1},{2}}), false )
+
+t( deepsame({[{{1}}]={1}}, {[{{1}}]={1}}), true )
+t( deepsame({[{{1}}]={1}}, {[{{2}}]={1}}), false )
+t( deepsame({[{{1}}]={1}}, {[{{1}}]={2}}), false )
+
+local a = {y={}}
+local x = {}
+x.y = x
+local w = {}
+w.y = w
+local z = {y={}}
+z.y.y = z
+
+t( deepsame(a, x), false )
+t( deepsame(x, a), false )
+t( deepsame(x, w), true )
+t( deepsame(w, x), true )
+t( deepsame(x, z), true )
+t( deepsame(z, x), true )
+
+t( deepsame( { false }, { false } ), true )
+
+-- Table with multiple cycle
+local atab = {}
+atab.kv = {}
+atab[atab.kv] = atab.kv
+atab[atab.kv][atab.kv] = atab[atab.kv]
+local btab = {}
+btab.kv = {}
+btab[btab.kv] = btab.kv
+btab[btab.kv][btab.kv] = btab[btab.kv]
+t( t.deepsame( atab, btab ), true )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#differencetab]
+=== differencetable
+
+[source,lua]
+----
+function differencetab( firstTab, secondTab ) --> differenceTab
+----
+
+It returns a table that contain the keys present in the `firstTab` table but
+not in the `secondTab` table.
+
+No checks are performed on the associated values.
+
+==== Code
+
+[source,lua]
+------------
+local function differencetab( firstTab, secondTab ) --> differenceTab
+  local differenceTab = {}
+  if not firstTab then return differenceTab end
+  if not secondTab then
+    for k, v in pairs(firstTab) do differenceTab[k] = v end
+    return differenceTab
+  end
+  for k, v in pairs(firstTab) do
+    if not secondTab[k] then
+      differenceTab[k] = v
+    end
+  end
+  return differenceTab
+end
+
+return differencetab
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local differencetab = require 'differencetab'
+local t = require 'testhelper'
+
+t( differencetab(), {}, t.deepsame )
+t( differencetab({}), {}, t.deepsame )
+t( differencetab({},{}), {}, t.deepsame )
+
+t( differencetab({a='a'}), {a='a'}, t.deepsame )
+t( differencetab({},{a='a'}), {}, t.deepsame )
+
+t( differencetab({a='a'},{b='b'}), {a='a'}, t.deepsame )
+t( differencetab({a='a'},{a='b'}), {}, t.deepsame )
+
+t( differencetab({a='a',b='b',c='c'},{a='A',d='d'}), {b='b',c='c'}, t.deepsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#escapeshellarg]
+=== escapeshellarg
+
+[source,lua]
+----
+function escapeshellarg( str ) --> esc
+----
+
+Adds double quotes around the `str` string and quotes/escapes any existing
+double quotes allowing you to pass the result `esc` string directly to a shell
+function and having it be treated as a single safe argument.
+
+This function should be used to escape individual arguments to shell functions
+coming from user input.
+
+==== Code
+
+[source,lua]
+------------
+local quote_function
+
+local function escapeshellarg( str ) --> esc
+
+  local function posix_quote_argument(str)
+    if not str:match('[^%a%d%.%-%+=/,:]') then
+      return str
+    else
+      str = str:gsub( "[$`\"\\]", "\\%1" )
+      return '"' .. str .. '"'
+    end
+  end
+
+  local function windows_quote_argument(str)
+    str = str:gsub('[%%&\\^<>|]', '^%1')
+    str = str:gsub('"', "\\%1")
+    str = str:gsub('[ \t][ \t]*', '"%1"')
+    return str
+  end
+
+  if not quote_function then
+    quote_function = windows_quote_argument
+    local shell = os.getenv('SHELL')
+    if shell then
+      if '/' == shell:sub(1,1) and 'sh' == shell:sub(-2, -1) then
+        quote_function = posix_quote_argument
+      end
+    end
+  end
+
+  return quote_function(str)
+end
+
+return escapeshellarg
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local escapeshellarg = require "escapeshellarg"
+local t = require "testhelper"
+
+local lua, argdumputil, outpath = t.argdumputil()
+local p = lua..' '..argdumputil..' '
+local d
+
+d = [[Hello's world]]
+os.execute( p..escapeshellarg( d ))
+t( t.readfile(outpath), d )
+
+d = [[use a " to mark]]
+os.execute( p..escapeshellarg( d ))
+t( t.readfile(outpath), d )
+
+d = [[should escape \]]
+os.execute( p..escapeshellarg( d ))
+t( t.readfile(outpath), d )
+
+d = [[special $PATH]]
+os.execute( p..escapeshellarg( d ))
+t( t.readfile(outpath), d )
+
+d = [[special %PATH%]]
+os.execute( p..escapeshellarg( d ))
+t( t.readfile(outpath), d )
+
+d = [[redirect>o.txt]]
+os.execute( p..escapeshellarg( d ))
+t( t.readfile(outpath), d )
+
+d = [[redirect<i.txt]]
+os.execute( p..escapeshellarg( d ))
+t( t.readfile(outpath), d )
+
+d = [[pipe|extcmd]]
+os.execute( p..escapeshellarg( d ))
+t( t.readfile(outpath), d )
+
+d = [[<]]
+os.execute( p..escapeshellarg( d ))
+t( t.readfile(outpath), d )
+
+d = [[>]]
+os.execute( p..escapeshellarg( d ))
+t( t.readfile(outpath), d )
+
+t( escapeshellarg'-i', '-i' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#filenamesplit]
+=== filenamesplit
+
+[source,lua]
+----
+function filenamesplit( filepathStr ) --> pathStr, nameStr, extStr
+----
+
+Split a file path string `filepathStr` into the following strings: the folder
+path `pathStr`, filename `nameStr` and extension `extStr`.
+
+Note that `pathStr` contains the trailing separator, and the `extStr` contains
+the dot prefix. In this way you can get the original string cocatenating the
+three results.
+
+The valid path separators in the string are '/' and '\'.
+
+==== Code
+
+[source,lua]
+------------
+local function filenamesplit( str ) --> pathStr, nameStr, extStr
+  if not str then str = '' end
+  
+  local pathStr, rest = str:match('^(.*[/\\])(.-)$')
+  if not pathStr then
+    pathStr = ''
+    rest = str
+  end
+
+  if not rest then return pathStr, '', '' end
+
+  local nameStr, extStr = rest:match('^(.*)(%..-)$')
+  if not nameStr then
+    nameStr = rest
+    extStr = ''
+  end
+
+  return pathStr, nameStr, extStr
+end
+
+return filenamesplit
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local filenamesplit = require 'filenamesplit'
+local t = require 'testhelper'
+
+t( {filenamesplit()}, {'','',''}, t.deepsame )
+t( {filenamesplit''}, {'','',''}, t.deepsame )
+
+t( {filenamesplit'path/name.ext'}, {'path/','name','.ext'}, t.deepsame )
+
+t( {filenamesplit'/path/path/name.ext'}, {'/path/path/','name','.ext'}, t.deepsame )
+t( {filenamesplit'path/name.name.ext'}, {'path/','name.name','.ext'}, t.deepsame )
+
+t( {filenamesplit'name.ext'}, {'','name','.ext'}, t.deepsame )
+t( {filenamesplit'path/.ext'}, {'path/','','.ext'}, t.deepsame )
+t( {filenamesplit'path/name'}, {'path/','name',''}, t.deepsame )
+
+t( {filenamesplit'path//name.ext'}, {'path//','name','.ext'}, t.deepsame )
+t( {filenamesplit'path/name..ext'}, {'path/','name.','.ext'}, t.deepsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#flatarray]
+=== flatarray
+
+[source,lua]
+----
+function flatarray( inTab[, depthInt] ) --> outTab
+----
+
+Recursively expands the nested array in the input array `inTab` array and
+return the result in the `outTab` array. The max depth level `depthInt` can be
+passed.
+
+==== Code
+
+[source,lua]
+------------
+local function flatarray( inTab, depthInt ) --> outTab
+  local outTab = {}
+  local n = 0
+  local redo = false
+  for _, v in ipairs( inTab ) do
+    if 'table' == type(v) then
+      for _, w in ipairs( v ) do
+        n = n + 1
+        outTab[n] = w
+        if 'table' == type(w) then redo = true end
+      end
+    else
+      n = n + 1
+      outTab[n] = v
+    end
+  end
+  if not redo then return outTab end
+  if depthInt and depthInt <= 1 then return outTab end
+  return flatarray( outTab, depthInt and depthInt-1 )
+end
+
+return flatarray
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local flatarray = require 'flatarray'
+local t = require 'testhelper'
+
+t( flatarray{}, {}, t.deepsame )
+t( flatarray{1}, {1}, t.deepsame )
+t( flatarray{1,2,3,4}, {1,2,3,4}, t.deepsame )
+
+t( flatarray{1,{2,3},4}, {1,2,3,4}, t.deepsame )
+
+t( flatarray{1,{{2,3}},4}, {1,2,3,4}, t.deepsame )
+
+t( flatarray({1,{{2,3}},4}, 1), {1,{2,3},4}, t.deepsame )
+
+t( flatarray{1,{2,{3}},{{4}}}, {1,2,3,4}, t.deepsame )
+
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#hexdecode]
+=== hexdecode
+
+[source,lua]
+----
+function hexdecode( inputStr ) --> hexStr
+----
+
+This function will encode an ASCII Hexadecimal string `inputStr` into a binary
+sequence.
+
+The input string must be composed of a sequence of digit or upper case letters
+from 'A' to 'F'.
+
+For each two bytes in the input, a byte of the output `hexStr` string is
+generated.
+
+==== Code
+
+[source,lua]
+------------
+local function hexdecode( hexStr ) --> dataStr
+  return hexStr:gsub( "..?", function( h )
+    return string.char(tonumber(h, 16))
+  end)
+end
+
+return hexdecode
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local hexdecode = require 'hexdecode'
+local t = require 'testhelper'
+
+t( hexdecode '00', '\x00' )
+t( hexdecode '0000', '\x00\x00' )
+
+t( hexdecode 'FF', '\xFF' )
+t( hexdecode 'FFFF', '\xFF\xFF' )
+
+t( hexdecode '10BA', '\x10\xBA' )
+
+t( hexdecode 'F', '\x0F' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#hexencode]
+=== hexencode
+
+[source,lua]
+----
+function hexencode( inputStr ) --> binStr
+----
+
+This function will return the hexadecimal rapresentation `binStr` of the data
+passed as the input string `inputStr`. The input is interpreted as binary data,
+whyle the output will be a string composed by an even sequence of digit or
+upper case
+letters from 'A' to 'F'. Each pair represent a subsequent byte in the input
+string.
+
+==== Code
+
+[source,lua]
+------------
+local function hexencode( dataStr ) --> hexStr
+  return dataStr:gsub( ".", function( c )
+    return string.format( "%02X", string.byte( c ))
+  end)
+end
+
+return hexencode
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local hexencode = require 'hexencode'
+local t = require 'testhelper'
+
+t( hexencode '\x00', '00' )
+t( hexencode '\x00\x00', '0000' )
+
+t( hexencode '\xFF', 'FF' )
+t( hexencode '\xFF\xFF', 'FFFF' )
+
+t( hexencode '\x10\xBA', '10BA' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#intern]
+=== intern
+
+[source,lua]
+----
+function intern( ... ) --> `refTab`
+----
+
+This function interns the list of arguments, i.e. it generates a reference
+table `refTab` for each possible list. When it is called multiple times with
+the same list, it will return the same reference.  All the reference are
+automatically garbage collected when no more used.
+
+==== Inspired by
+
+* http://lua-users.org/wiki/SimpleTuples
+
+==== Code
+
+[source,lua]
+------------
+local function intern() --> reference
+
+  local rawget, rawset, select, setmetatable =
+    rawget, rawset, select, setmetatable, select
+  local NIL, NAN = {}, {}
+
+  local internmeta = {
+    __index = function() error('Can not access interned content directly.', 2) end,
+    __newindex = function() error('Can not cahnge or add contents to a intern.', 2) end,
+  }
+
+  local internstore = setmetatable( {}, { __mode = "kv" } )
+
+  -- A map from child to parent is used to protect the internstore table's contents.
+  -- In this way, they will he collected only when all the cildren are collected
+  -- in turn.
+  local parent = setmetatable( {}, { __mode = 'k' })
+
+  return function( ... )
+    local currentintern = internstore
+    for a = 1, select( '#', ... ) do
+
+      -- Get next intern field. Replace un-storable contents.
+      local tonext = select( a, ... )
+      if tonext ~= tonext then tonext = NAN end
+      if tonext == nil then tonext = NIL end
+
+      -- Get or create the correspondent sub-intern
+      local subintern = rawget( currentintern, tonext )
+      if subintern == nil then
+
+        subintern = setmetatable( {}, internmeta )
+        parent[subintern] = currentintern
+        rawset( currentintern, tonext, subintern )
+      end
+
+      currentintern = subintern 
+    end
+    return currentintern
+  end
+end
+
+return intern
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local intern = require 'intern'
+local t = require 'testhelper'
+
+t( type( intern() ), 'function' )
+
+local int = intern()
+
+t( type( int( 1 )), 'table' )
+t( int( 1 ), int( 2 ), t.diff )
+
+t( type( int( 1, nil, 0/0, 3 )), 'table' )
+t( int( 1, nil, 0/0, 3 ), int( 1, nil, 0/0, 3 ))
+
+t( int( 1, nil, 0/0, 3 ), int( 1, nil, 0/0 ), t.diff )
+t( int( 1, nil, 0/0, 3 ), int( 1, nil ), t.diff )
+t( int( 1, nil, 0/0, 3 ), int( 1 ), t.diff )
+  
+t( int( 1, nil, 0/0, 3 ), int( 1, nil, 0/0, 2 ), t.diff)
+t( int( 1, nil, 0/0, 3 ), int( 1, nil, 0, 3 ), t.diff)
+t( int( 1, nil, 0/0, 3 ), int( 1, '', 0/0, 3 ), t.diff)
+t( int( 1, nil, 0/0, 3 ), int( 4, nil, 0/0, 3 ), t.diff)
+
+-- Multiple store
+local alt = intern()
+t( type( alt( 1, nil, 0/0, 3 )), 'table' )
+t( alt( 1, nil, 0/0, 3 ), alt( 1, nil, 0/0, 3 ))
+t( alt( 1, nil, 0/0, 3 ), int( 1, nil, 0/0, 3 ), t.diff )
+
+-- Garbage collection test
+
+local gccount = 0
+local x = int( true, false )
+x = setmetatable( x, {__gc=function(t) gccount = gccount + 1 end} )
+
+-- No collection if some reference is still around
+collectgarbage('collect')
+t( gccount, 0 )
+
+-- Automatic collection
+x = nil
+collectgarbage('collect')
+t( gccount, 1 )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#intersecationtab]
+=== intersecationtab
+
+[source,lua]
+----
+function intersecationtab( firstTab, secondTab, selectFunc ) --> intersecationTab
+----
+
+Creates the `intersecationTab` table that contain the keys shared by the
+`firstTab` and `secondTab` tables. By default, the value of the first table
+will be used as value in the result.
+
+The `selectFunc` function may be optionally passed to select which value to
+associate to the key.  It will be called with the two value associated to the
+same key in the two argument table.  Its result will be used in the
+intersecation table.
+
+==== Code
+
+[source,lua]
+------------
+local function intersecationtab( firstTab, secondTab, selectFunc ) --> intersecationTab
+  local intersecationTab = {}
+  if not firstTab or not secondTab then return intersecationTab end
+  for k, v in pairs(firstTab) do
+    local o = secondTab[k]
+    if o then
+      if not selectFunc then
+        intersecationTab[k] = v
+      else
+        intersecationTab[k] = selectFunc(v, o)
+      end
+    end
+  end
+  return intersecationTab
+end
+
+return intersecationtab
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local intersecationtab = require 'intersecationtab'
+local t = require 'testhelper'
+
+t( intersecationtab(), {}, t.deepsame )
+t( intersecationtab({}), {}, t.deepsame )
+t( intersecationtab({},{}), {}, t.deepsame )
+
+t( intersecationtab({a='a'}), {}, t.deepsame )
+t( intersecationtab({},{a='a'}), {}, t.deepsame )
+
+t( intersecationtab({a='a'},{b='b'}), {}, t.deepsame )
+t( intersecationtab({a='a'},{a='b'}), {a='a'}, t.deepsame )
+
+t( intersecationtab({a='a'},{a='b'},function(a,b) return a..b end), {a='ab'}, t.deepsame )
+
+t( intersecationtab({a='a',b='b',c='c'},{a='A',d='d'}), {a='a'}, t.deepsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#iscallable]
+=== iscallable
+
+[source,lua]
+----
+function iscallable( var ) --> res
+----
+
+This function will return `true` if `var` is callable through the standard function call
+syntax. Otherwise it will return `false`.
+
+==== Code
+
+[source,lua]
+------------
+local function iscallable_rec( mask, i )
+
+   if "function" == type( i ) then return true end
+
+   local mt = getmetatable( i )
+   if not mt then return false end
+   local callee = mt.__call
+   if not callee then return false end
+
+   if mask[ i ] then return false end
+   mask[ i ] = true
+
+   return iscallable_rec( mask, callee )
+end
+
+local function iscallable( var ) --> res
+   return iscallable_rec( {},  var )
+end
+
+return iscallable
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local iscallable = require "iscallable"
+local t = require "testhelper"
+
+t( iscallable( 0 ),              false )
+t( iscallable( "" ),             false )
+t( iscallable( true ),           false )
+t( iscallable( {} ),             false )
+t( iscallable( function() end ),  true )
+
+local calltab_a = {}
+setmetatable( calltab_a, { __call = function() end } )
+
+t( iscallable( calltab_a ), true )
+
+local calltab_b = {}
+setmetatable( calltab_b, { __call = calltab_a } )
+
+t( iscallable( calltab_b ), true )
+
+local rectab_a = {}
+local rectab_b = {}
+setmetatable( rectab_a, { __call = rectab_b } )
+setmetatable( rectab_b, { __call = rectab_a } )
+
+t( iscallable( rectab_b ), false )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#isinteger]
+=== isinteger
+
+[source,lua]
+----
+function isinteger( i ) --> res
+----
+
+It returns `true` if the argument `i` is an integer or not. Otherwise `false`.
+
+==== Code
+
+[source,lua]
+------------
+local function isinteger( i ) --> res
+   if "number" ~= type( i ) then return false end
+   local i, f = math.modf( i )
+   return ( 0 == f )
+end
+
+return isinteger
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local isinteger = require "isinteger"
+local t = require "testhelper"
+
+t( isinteger( 1 ),      true )
+t( isinteger( 0 ),      true )
+t( isinteger( 1.1 ),   false )
+t( isinteger( "1" ),   false )
+t( isinteger( true ),  false )
+t( isinteger( { 1 } ), false )
+t( isinteger(),        false )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#isreadable]
+=== isreadable
+
+[source,lua]
+----
+function isreadable( path ) --> res
+----
+
+Return `true` if the input `path` string points to a readable file. `false`
+otherwise.
+
+==== Code
+
+[source,lua]
+------------
+local function isreadable( path ) --> res
+   local f = io.open(path, "r" )
+   if not f then return false end
+   f:close()
+   return true
+end
+
+return isreadable
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local isreadable = require "isreadable"
+local t = require "testhelper"
+
+io.open( "isreadable.txt", "wb" ):close()
+t( isreadable( "isreadable.txt" ), true )
+
+os.remove( "isreadable.txt" )
+t( isreadable( "isreadable.txt" ), false )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#jsonish]
+=== jsonish
+
+[source,lua]
+----
+function jsonish( jsonStr ) --> dataTab
+----
+
+This function parses the json-like string `jsonStr` to the lua table `dataTab`.
+It does not perform any validation. The parser is not fully JSON compliant,
+however it is very simple and it should work in most the cases.
+
+This function internally works by trasforming the string into a valid lua table
+literal. For this reasons it accept also some syntax that is not actually valid
+JSON, e.g. mixed array/hash syntax: `{1, "a":"b"}.
+
+==== Code
+
+[source,lua]
+------------
+-- local function json_to_table_literal(s)
+--   s = s:gsub("\\u(%d%d%d%d)","\\u{%1}")
+--   local function do_json_list(s,is_list)
+--     if is_list then s = s:sub(2,-2) end
+--     s = s:gsub("(%b[])()",do_json_list)
+--     if is_list then s = '{' .. s ..'}' end
+--     return s
+--   end
+--   return do_json_list(s):gsub('("[%w_-]-"):','[%1]=')
+-- end
+
+local function json_to_table_literal(s)
+  s = s:gsub("\\[uU](%x%x%x%x)","\\u{%1}")
+  s = s:gsub('("[^"]*")', function(a)
+    return a:gsub('[%[%]]', function (b)
+      return string.format('\\u{%x}', b:byte())
+    end)
+  end)
+  s = s:gsub('%[','{')
+  s = s:gsub('%]','}')
+  s = s:gsub('("[%w_-]-"):','[%1]=')
+  return s
+end
+
+local function json_to_table(s)
+  local loader, e =
+    load('return '..json_to_table_literal(s), 'jsondata', 't', {})
+  if not loader or e then return nil, e end
+  local dataTab, e = loader()
+  if not dataTab or e then return nil, e end
+  return dataTab
+end
+
+return json_to_table
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local jsonish = require 'jsonish'
+local t = require 'testhelper'
+
+t( jsonish '', nil )
+t( jsonish '1', 1 )
+t( jsonish 'true', true )
+t( jsonish '"hi"', "hi" )
+t( jsonish '"h\\u005Di"', "h]i" )
+
+t( jsonish '{}', {}, t.deepsame )
+t( jsonish '{"hello":"world"}', {hello="world"}, t.deepsame )
+t( jsonish '[1,2,3]', {1,2,3}, t.deepsame )
+
+t( jsonish '{"hello":{"wor":"ld"}}', {hello={wor="ld"}}, t.deepsame )
+t( jsonish '[1,2,[3,4]]', {1,2,{3,4}}, t.deepsame )
+
+t( jsonish '["a","b]","c"]', {"a","b]","c"}, t.deepsame )
+t( jsonish '["a","[b","c"]', {"a","[b","c"}, t.deepsame )
+t( jsonish '["a","[b","c]"]', {"a","[b","c]"}, t.deepsame )
+t( jsonish '["a",["b","c"]]', {"a",{"b","c"}}, t.deepsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#jsonishout]
+=== jsonishout
+
+[source,lua]
+----
+function jsonishout( inputValue ) --> jsonStr
+----
+
+Generate the JSON-like string `jsonStr` from the lua value `inputValue`. Only
+number or string keys are allowed in a table value. The value can be a table
+itself; any other value will be converted to string.
+
+If a table value contains only number key, a JSON array will be generated. If
+it contains only string key a JSON object will be generated istead. Empty table
+or mix table will produce an array.
+
+Any table that has a metatable will always generate a JSON object, so you can
+use an empty table with an empty metatable to generate an empty JSON obkec.
+This access the tables with common lua `[]` operator, so metatable can be used
+to hook into the generator behaviour.
+
+==== Code
+
+[source,lua]
+------------
+local function quote_json_string(str)
+  return '"'
+    .. str:gsub('(["\\%c])',
+      function(c)
+        return string.format('\\x%02X', c:byte()) 
+      end)
+    .. '"'
+end
+
+local table_to_json
+
+local function table_to_json_rec(result, t)
+
+  if 'number' == type(t) then
+    result[1+#result] = tostring(t)
+    return
+  end
+
+  if 'table' ~= type(t) then
+    result[1+#result] = quote_json_string(tostring(t))
+    return
+  end
+
+  local isarray = false
+  if not getmetatable(t) then
+    local hasindex, haskey = false, false
+    for _ in ipairs(t) do hasindex = true break end
+    for _ in pairs(t) do haskey = true break end
+    isarray = hasindex or not haskey
+  end
+
+  if isarray then
+    result[1+#result] = '['
+    local first = true
+    for _,v in ipairs(t) do
+      if not first then result[1+#result] = ',' end
+      first = false
+      table_to_json_rec(result, v)
+    end
+    result[1+#result] = ']'
+
+  else
+    result[1+#result] = '{'
+    local first = true
+    for k,v in pairs(t) do
+
+      if 'number' ~= type(k) or 0 ~= math.fmod(k) then -- skip integer keys
+        k = tostring(k)
+        if not first then result[1+#result] = ',' end
+        first = false
+      
+        -- Key
+        result[1+#result] = quote_json_string(k)
+        result[1+#result] = ':'
+
+        -- Value
+        table_to_json_rec(result, v)
+      end
+    end
+
+    result[1+#result] = '}'
+  end
+end
+
+table_to_json = function(t)
+  local result = {}
+  table_to_json_rec(result, t)
+  return table.concat(result)
+end
+
+return table_to_json
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local jsonishout = require 'jsonishout'
+local t = require 'testhelper'
+
+t( jsonishout(1), '1' )
+t( jsonishout'', '""' )
+t( jsonishout'hi', '"hi"' )
+
+t( jsonishout{}, "[]" )
+t( jsonishout{1}, '[1]' )
+t( jsonishout{2,1}, '[2,1]' )
+t( jsonishout{2,1,{}}, '[2,1,[]]' )
+
+t( jsonishout{a=1}, '{"a":1}' )
+t( jsonishout{a=1,b=2}, "^{[^,]*,[^,]*}$", t.patsame )
+t( jsonishout{a=1,b=2}, '"a":1', t.patsame )
+t( jsonishout{a=1,b=2}, '"b":2', t.patsame )
+
+local empty = setmetatable({},{})
+t( jsonishout(empty), '{}' )
+t( jsonishout{a=empty}, '{"a":{}}' )
+
+t( jsonishout{1,2,a=1}, '[1,2]' )
+
+t( jsonishout{{a=1},{1}}, '[{"a":1},[1]]' )
+
+t( jsonishout'\"', '"\\x22"' )
+t( jsonishout'\n', '"\\x0A"' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#keysort]
+=== keysort
+
+[source,lua]
+----
+function keysort( inTab ) --> outArr
+----
+
+This function return the list of all the keys of the input `inTab`
+table. The keys are alphabetically sorted. String keys came before any
+other key. Other key are sorted with respect to their string
+representation, i.e. `tostring` is internally used.
+
+==== Code
+
+[source,lua]
+------------
+local sort, tostring, type, ipairs, pairs =
+  table.sort, tostring, type, ipairs, pairs
+
+local function keysort( inTab ) --> outArr
+  local outArr = {}
+  local nonstring = {}
+  for k in pairs(inTab) do
+    if type(k) == 'string' then
+      outArr[1+#outArr] = k
+    else
+      local auxkey = tostring(k)
+      nonstring[1+#nonstring] = auxkey
+      nonstring[auxkey] = k
+    end
+  end
+  sort(outArr)
+  sort(nonstring)
+  for _,v in ipairs(nonstring) do
+    outArr[#outArr+1] = nonstring[v]
+  end
+  return outArr
+end
+
+return keysort
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local keysort = require 'keysort'
+local t = require 'testhelper'
+
+t( keysort{}, {}, t.deepsame )
+t( keysort{a=9}, {'a'}, t.deepsame )
+t( keysort{[1]=0}, {1}, t.deepsame )
+
+t( keysort{a=9,b=9}, {'a','b'}, t.deepsame )
+t( keysort{b=9,a=9,}, {'a','b'}, t.deepsame )
+
+t( keysort{[1]=9,[2]=9}, {1,2}, t.deepsame )
+t( keysort{[2]=9,[1]=9}, {1,2}, t.deepsame )
+t( keysort{[3]=9,[20]=9}, {20,3}, t.deepsame )
+
+t( keysort{[1]=9,["1"]=9,}, {'1',1}, t.deepsame )
+
+t( keysort{[1]=9,["1"]=9,}, {'1',1}, t.deepsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#lambda]
+=== lambda
+
+[source,lua]
+----
+function lambda( def ) --> func, err
+----
+
+Allows to define functions using a compact lambda-like syntax. It parse the
+`def` string and returns the lua function `func` that execute the input code.
+In case of error it return `nil` plus the `err` error string.
+
+This function internally works by expanding the following patterns into a
+standard lua function definition.
+Then it is parsed by the common Lua _load_/_loadstring_ function.
+
+The fundamental expanded pattern is 'prologue|statement;expression'.
+
+It generate a function that has 'prologue' as nominal arguments.
+It can be a comma separated list, like in 'x,y,z|statement;expression'.
+
+Then the 'statement' will be injected as the function body.
+It must be a sequence of lua statements like in
+'prologue|for k = 1,10 do print(k) end print("ok");expression'.
+
+At end of the function the 'expression' will be returned.
+So it must be a valid Lua expression like in 'prologue|statement;math.random(2)'.
+
+When the 'prologue' is missing, a default one will be used consisting of the
+first 6 alphabet letters.
+'expression' must always be given but the 'statement' and the separation ';' can
+be missing.
+Indeed, in the main use case, prologue and statement will be missing and only
+the expression will be given.
+
+==== Code
+
+[source,lua]
+------------
+local load = load
+local memo = setmetatable( {}, { __mode = "kv" } )
+
+local function lambda( def ) --> func, err
+
+   -- Check cache
+   local result = memo[def]
+   if result then return result end
+
+   -- Find the body and symbolic arguments
+   local symb, body = def:match( "^(.-)|(.*)$" )
+   if not arg or not body then
+      symb = "a,b,c,d,e,f,..."
+      body = def
+   end
+
+   -- Split statements from the last expression
+   local stat, expr = body:match( "^(.*;)([^;]*)$" )
+
+   -- Generate standard lua function definition
+   local func = "return( function( "..symb..")"
+   if not expr or expr == "" then
+      func = func.."return "..body
+   else
+      func = func..stat.."return "..expr
+   end
+   func = func.." end )( ... )"
+
+   -- Generate the function
+   local result, err = load( func, "lambda", "t" )
+   if result and not err then
+     memo[def] = result
+   end
+   return result, err
+end
+
+return lambda
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local lambda = require "lambda"
+local t = require "testhelper"
+
+-- lambda-like syntax
+t( 1, lambda"x|x+1"( 0 ) )
+
+-- multiple arguments
+t( 4, lambda"x,y|x+y"( 1, 3 ) )
+
+-- additional statement, only the last expression is returned
+t( 3, lambda"x| x=x+1; x+1"( 1 ) )
+
+-- default args are a,b,c,d,e,f,...( vararg )
+t( 1, lambda"a+1"( 0 ) )
+
+-- Memo
+local m = lambda'a+1'
+t( m, lambda'a+1' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#localbind]
+=== localbind
+
+[source,lua]
+----
+function localbind( [levelInt [, execStr] ) --> bindTab, typeTab
+----
+
+It allows to inspect or change upvalues or local variable of any
+function on the stack. This function is useful for debugging, e.g. it
+can be stored in a global variable and so the user can recall it from
+a `debug.debug()` sesssion.
+
+The returned `bindTab` table contains all the locals, upvalues and globals as
+seen from the target function. A change to a value in the table will
+be propagated to the correspondent local variale or upvalue or global.
+
+The __call metamethod of `bindTab` is set so you can call the table with a
+variable name; it will return `local`, `upvalue` or `global` depending on the
+type of the binding.
+
+Varargs are not supported.
+
+The optional `levelInt` index specifies the level on the stack where there is
+the target function. 1 means the function calling localbind. If nil it will
+default to 1. When selecting the value of this parameter, we should be careful
+to tail recursion call that just take one stack position for the caller and the
+callee.
+
+Note tath if a function does not access any global variable, the standard lua
+compiler will not add a global reference into the compiled function. So the
+code
+
+```
+G = 1
+(function()
+  localbind( 1 ).G = 2
+end)()
+print( G )
+```
+
+will print `1`, while
+
+```
+G = 1
+(function()
+  local l = print
+  localbind( 1 ).G = 2
+end)()
+print( G )
+```
+
+will print `2`.
+
+Moreover it is impossible to access an upvalue that was not compiled into the
+function. So when the code try to access a upper-level variables that was not
+accessed also in the function body, it will fallback to a global. E.g.
+
+```
+y = 0
+local x, y = 1, 1
+(function()
+  local z = x
+  print(localbind( 1 ).x, localbind( 1 ).y)
+end)()
+```
+
+will print `1 0`
+
+==== Code
+
+[source,lua]
+------------
+local pairs = pairs
+local setmetatable = setmetatable
+local getinfo = debug.getinfo
+local getupvalue = debug.getupvalue
+local setupvalue = debug.setupvalue
+local getlocal = debug.getlocal
+local setlocal = debug.setlocal
+
+-- Return the stack index to access the i-th function, counting from the bottom.
+-- Default argument is 1 and it correspond the the last lua (non C)
+-- function on the stack.
+local function stackfrombottom( level )
+  if not level then level = 1 end
+  local result = 1
+  while getinfo(result) do
+    result = result + 1
+  end
+  -- Note: the last non-nil getinfo refers to the C core; the
+  --       second-last is the first lua function.
+  return result - level - 2
+end
+
+local function localbind( stacklevel )
+  stacklevel = stacklevel or 1
+  local blevel = stackfrombottom() - stacklevel
+	local func = getinfo( stackfrombottom( blevel ) ).func
+  local global = {} -- Fake global when no global is compiled-in
+
+  local function bindget( req, cache )
+
+    -- Retrieve the locals
+    local l = stackfrombottom( blevel )
+    i = 0;
+    while true do
+      i = i + 1
+      local key, value = getlocal(l, i)
+      if not key then break end
+      if not key:match'^%(%*' then
+        if values then values[key] = value end
+        if cache and not cache[key] then cache[key] = value end
+        if req == key then return value, 'local', i, l-1 end
+      end
+    end
+
+    -- Retrieve the upvalues
+    i = 0;
+    while true do
+      i = i + 1
+      local key, value = getupvalue(func, i)
+      if not key then break end
+      if values then values[key] = value end
+      if key == '_ENV' then 
+        global = value 
+      end -- Search for the "Global table"
+      if cache and not cache[key] then cache[key] = value end
+      if req == key then return value, 'upvalue', i, l-1 end
+    end
+
+    -- Retrieve the globals
+    if global then 
+     for key, value in pairs(global) do
+      if values then values[key] = value end
+      if cache and not cache[key] then cache[key] = value end
+      if req == key then return value, 'global', key, stackfrombottom(blevel)-1 end
+    end end
+
+    -- Not found
+    return nil, 'nil', nil, stackfrombottom(blevel)-1
+  end
+
+  local function bindset( key, value )
+    local _, type, index, l = bindget( key )
+
+    -- Mutating a local
+    if type and type == 'local' then
+      setlocal( l, index, value )
+    end
+
+    -- Mutating an upvalue
+    local func = getinfo(l).func
+    if type and type == 'upvalue' then
+      setupvalue( func, index, value )
+    end
+
+    -- Mutating a global
+    if not type or type == 'global' or type == 'nil' then
+      if global then global[key] = value end
+    end
+  end
+
+  return setmetatable({}, { -- Binding proxy
+    __pairs = function( self )
+      local p={}
+      bindget({},p)
+      return pairs(p)
+    end,
+    __call = function( self, key )
+      local v, t = bindget(key)
+      return t or 'nil', v
+    end,
+    __index = function( self, key )
+      return (bindget( key ))
+    end,
+    __newindex = function( self, key, value )
+      bindset( key, value )
+    end
+  })
+end
+
+return localbind
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local localbind = require 'localbind'
+local t = require 'testhelper'
+
+-- Accessing local variable
+;(function()
+  local L = {}
+  local lb = localbind( 1 )
+  t( lb.L, L )
+  lb.L = 1
+  t( lb.L, 1 )
+  t( L, 1 )
+end)()
+
+-- Accessing upvalue
+local U = 1
+;(function()
+  local lb = localbind( 1 )
+  t( lb.U, 1 )
+  lb.U = 2
+  t( lb.U, 2 )
+  t( U, 2 )
+end)()
+
+-- Accessing deeper stack position
+local U = 'u'
+;(function()
+  local L = U -- just to let U be linked in the compiled function
+  L = 'l'
+  t( localbind(1).L, 'l' )
+  t( localbind(1).U, 'u' )
+  ;(function()
+    t( localbind(2).L, 'l' )
+    t( localbind(2).U, 'u' )
+    ;(function()
+      t( localbind(3).L, 'l' )
+      t( localbind(3).U, 'u' )
+      localbind(3).L = 'L'
+      localbind(3).U = 'U'
+      t( localbind(3).U, 'U' )
+      t( localbind(3).L, 'L' )
+    end)();
+    t( localbind(2).U, 'U' )
+    t( localbind(2).L, 'L' )
+  end)();
+  t( localbind(1).U, 'U' )
+  t( localbind(1).L, 'L' )
+  t( L, 'L' )
+end)();
+
+-- Accessing global when no global is compiled-in
+G = 1
+;(function()
+  local lb = localbind(1)
+  t( lb.G, nil )
+  lb.G = 2
+  t( lb.G, 2 )
+  t( lb._ENV, nil )
+end)()
+t( G, 1 )
+
+-- Accessing global (compiled-in)
+G = 1
+local e = _ENV
+;(function()
+  local L = print -- print referred to let the global be linked in the compiled function
+  local lb = localbind(1)
+  t( lb.G, 1 )
+  lb.G = 2
+  t( lb.G, 2 )
+  t( lb._ENV, e )
+end)()
+t( G, 2 )
+
+-- Check variable type
+G = 1
+local U = 1
+;(function()
+  -- Note: global is linked due to t and localbind reference
+  local L
+  L = U -- U referred to let it be linked in the compiled function
+  local lb = localbind(1)
+  t( lb('L'), 'local' )
+  t( lb('U'), 'upvalue' )
+  t( lb('G'), 'nil' )
+end)()
+
+-- Check global variable type
+G = 1
+local U = 1
+;(function()
+  -- Note: global is linked due to t and localbind reference
+  local L
+  L = U -- U referred to let it be linked in the compiled function
+  L = print -- print referred to let the global be linked in the compiled function
+  local lb = localbind(1)
+  t( lb('L'), 'local' )
+  t( lb('U'), 'upvalue' )
+  t( lb('G'), 'global' )
+end)()
+
+-- Accessing different global (compiled-in)
+local chunkglobal = _ENV
+local testglobal = {G=1}
+G = 3
+_ENV = testglobal
+;(function()
+  -- Note: global is linked due to t and localbind reference
+  local lb = localbind(1)
+  t( lb.G, 1 )
+  t( G, 1 )
+  lb.G = 2
+  t( lb.G, 2 )
+  t( G, 2 )
+  t( lb._ENV, _ENV )
+end)(localbind, t)
+_ENV = chunkglobal
+t( G, 3 )
+t( testglobal.G, 2 )
+
+-- Accessing hidden upvalue
+local h = {}
+local auxFunc, auxTest
+do
+  local H = h
+  auxFunc = function( auxFunc )
+    local L = H -- H referred just to be compiled into the funcition
+    auxFunc()
+    return 1 -- just to avoid tail recursion
+  end
+  auxTest = function() return H end
+end
+auxFunc(function()
+  local lb = localbind( 2 )
+  t( lb.H, h )
+  lb.H = 1
+  t( lb.H, 1 )
+  t( lb('H'), 'upvalue' )
+end)
+t( auxTest(), 1 )
+
+-- Binding iterator
+local chunkglobal = _ENV
+local testglobal = {type=type, pairs=pairs}
+local iter = {}
+local count = 0
+_ENV = testglobal
+;(function()
+  local lb = localbind(1)
+  for k, v in pairs(lb) do
+    count = count + 1
+    iter[k] = lb(k)..' '..type(v)
+  end
+end)(localbind, t)
+_ENV = chunkglobal
+t( iter._ENV, 'upvalue table' )
+t( iter.count, 'upvalue number' )
+t( iter.lb, 'local table' )
+t( iter.iter, 'upvalue table' )
+t( iter.localbind, 'upvalue function' )
+t( iter.pairs, 'global function' )
+t( iter.type, 'global function' )
+t( count, 7 )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#locktable]
+=== locktable
+
+[source,lua]
+----
+function locktable( inTab [, modeStr ...] ) --> protectTab
+----
+
+Return the `protectTab` proxy table: each operation on it will be actually
+performed on the `inTab` input table. A list of string can be optionally passed
+to forbid some kind of operation. If an operation is forbidden, when trying to
+perform it on `protectTab`, an error will be thrown.
+
+The avaiable limitation are:
+
+- 'readnil': error if try to read a empty key
+- 'writenil': error if try to write an empty key
+- 'read': error if try to read any key
+- 'write': error if try to write any key
+- 'iterate': error if try to iterate with `pairs` or `ipairs`
+- 'full': all the previous
+
+Any of this limitation specifier can be as optiontional alrgument. More
+limitation can be passed as variadic argument list.
+
+A typical usage is the protection of the environment to check the access to a
+undefined global:
+
+```
+_ENV = locktable( _ENV, 'readnil' )
+local a = True --> this rises an error, while normally just nil was put in a
+```
+
+==== Code
+
+[source,lua]
+------------
+local error, setmetatable = error, setmetatable
+
+local function iterate( )
+  error('Iteration on fielad was forbidden', 2)
+end
+
+local function readall( )
+  error('Access of any field was forbidden', 2)
+end
+
+local function writeall( )
+  error('Change of any field was forbidden', 2)
+end
+
+local function locktable( inTab, ... ) --> lockedTab
+
+  local function readnil( s, k )
+    local v = inTab[k]
+    if nil == v then
+      error('Read of nil field was forbidden', 2) end
+    return v
+  end
+
+  local function writenil( s, k, v )
+    if nil == inTab[k] then 
+      error('Write of nil field was forbidden', 2)
+    end
+    inTab[k] = v
+  end
+
+  local metatable = {
+    __newindex = function(s, k, v) inTab[k] = v end,
+    __index = function(s,k) return inTab[k] end,
+    __pairs = function(...) return pairs(inTab, ...) end,
+    __ipairs = function(...) return ipairs(inTab, ...) end,
+  }
+
+  for _, locktype in ipairs({...}) do
+
+    if locktype == 'readnil' or locktype == 'full' then
+      metatable.__index = readnil
+    end
+    
+    if locktype == 'writenil' or locktype == 'full' then
+      metatable.__newindex = writenil
+    end
+
+    if locktype == 'iterate' or locktype == 'full' then
+      metatable.__pairs = iterate
+      metatable.__ipairs = iterate
+    end
+
+    if locktype == 'read' or locktype == 'full' then
+      metatable.__index = readall
+    end
+
+    if locktype == 'write' or locktype == 'full' then
+      metatable.__newindex = writeall
+    end
+  end
+
+  return setmetatable( {}, metatable )
+end
+
+return locktable
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local locktable = require 'locktable'
+local t = require 'testhelper'
+
+local err = t.filterr
+
+local l = { a = 1 }
+l = locktable( l, 'readnil' )
+t( l.a, 1 )
+t( err(function() return l.b end), nil, t.diff )
+t( err(function() l.b = 2 end), nil )
+t( err(function() l.a = 2 end), nil )
+
+local l = { a = 1 }
+l = locktable( l, 'writenil' )
+t( l.a, 1 )
+t( l.b, nil )
+t( err(function() l.b = 2 end), nil, t.diff )
+t( err(function() l.a = 2 end), nil )
+
+local l = { a = 1 }
+l = locktable( l, 'readnil', 'writenil' )
+t( l.a, 1 )
+t( err(function() return l.b end), nil, t.diff )
+t( err(function() l.b = 2 end), nil, t.diff )
+t( err(function() l.a = 2 end), nil )
+
+local w = locktable( {a=1}, 'readnil', 'writenil', 'write' )
+t( w.a, 1 )
+t( err(function() return w.b end), nil, t.diff )
+t( err(function() w.b = 2 end), nil, t.diff )
+t( err(function() w.a = 2 end), nil, t.diff )
+
+local w = locktable( {a=1}, 'write' )
+t( w.a, 1 )
+t( w.b, nil )
+t( err(function() w.b = 2 end), nil, t.diff )
+t( err(function() w.a = 2 end), nil, t.diff )
+
+local r = locktable( {a=1}, 'read' )
+t( err(function() return r.a end), nil, t.diff )
+t( err(function() return r.b end), nil, t.diff )
+t( err(function() r.b = 2 end), nil )
+t( err(function() r.a = 2 end), nil )
+
+local l = {a=1}
+local f = locktable( l, 'full' )
+t( err(function() return f.a end), nil, t.diff )
+t( err(function() return f.b end), nil, t.diff )
+t( err(function() f.b = 2 end), nil, t.diff )
+t( err(function() f.a = 2 end), nil, t.diff )
+t( err(function() return l.a end), nil )
+t( err(function() return l.b end), nil )
+t( err(function() l.b = 2 end), nil )
+t( err(function() l.a = 2 end), nil )
+
+local l = {}
+local f = locktable( l, 'write' )
+t( err(function() f.a = 2 end), nil, t.diff )
+t( l.a, nil )
+t( f.a, nil )
+t( err(function() l.a = 1 end), nil )
+t( l.a, 1 )
+t( f.a, 1 )
+t( err(function() f.a = 2 end), nil, t.diff )
+t( l.a, 1 )
+t( f.a, 1 )
+
+local l = { a = 1 }
+l = locktable( l, 'readnil', 'writenil' )
+t( l.a, 1 )
+t( err(function() return l.b end), nil, t.diff )
+t( err(function() l.b = 2 end), nil, t.diff )
+t( err(function() l.a = 2 end), nil )
+
+local l = { a = 1 }
+l = locktable( l, 'iterate' )
+t( err(function() for _ in pairs(l) do end end), nil, t.diff )
+
+local function strict() _ENV = locktable( _ENV, 'readnil' ) end
+global_a = 1
+strict()
+t( global_a, 1 )
+t( err(function() return global_b end), nil, t.diff )
+t( err(function() global_b = 2 end), nil )
+t( err(function() global_a = 2 end), nil )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#logline]
+=== logline
+
+[source,lua]
+----
+function logline( level [, ...] ) --> line, err
+----
+
+This function adds common useful information to the data that you want to
+output.
+
+When called with the single 'level' argument, it will set the global verbosity
+level.  When called with additional arguments it will generate the log string
+`line`.  However the string will be generated only if the first argument, the
+line log level, is smaller than the global verbosity level.  In this way you
+can dinamically enable or disable log messages in critical part of the code.
+
+The verbosity level can be given in two way: as an integer or as a string
+representing the verbosity class.
+
+The allowed verbosity classes are:
+
+- *ERROR* <-> 25
+- *DEBUG* <-> 50
+- *INFO* <-> 75
+- *VERBOSE* <-> 99
+
+Each class will be considered to cantain any integer level just below it, e.g.
+26, 30 and 50 all belongs to the *DEBUG* class.
+When specifying the verbosity level as a class name, the higher belonging
+integer will be used.
+
+All the other vararg are appended to the generated log line.
+
+The data included in the log are:
+
+- Date
+- Time
+- _os.clock()_ result
+- Incremental number
+- Verbosity level of the log line
+- Source position of function call
+- Additional info in the arguments
+
+Note 1: The verbosity level will be reported both as number that as the
+symbolic class name.
+
+Note 2: if the caller is a tail call or a function with a name that starts or
+ends with _log_, the position used will be the one of the caller of the caller
+(and so on).
+
+Note 2: in case of error `nil` will be returned, plus the `err` error string
+
+==== Code
+
+[source,lua]
+------------
+local skip_lower_level = 25
+local log_count = 0
+
+local level_list =  {
+   { 25, "ERROR" },
+   { 50, "DEBUG" },
+   { 75, "INFO"} ,
+   { 99, "VERBOSE" }
+}
+
+local level_map
+local function update_level_map()
+   level_map = {}
+   for k,v in ipairs( level_list ) do
+      level_map[ v[ 2 ] ] = v
+   end
+end
+
+update_level_map()
+
+local function logline( level, ... ) --> line
+   -- Classify log level
+   local level_class
+   if "string" == type( level ) then
+      level_class = level_map[ level:upper() ]
+      if level_class then level = level_class[ 1 ] end
+   elseif "number" == type( level ) then
+      local level_num = #level_list
+      for k = 1, level_num do
+         if k == level_num or level <= level_list[k][1] then
+            level_class = level_list[k] 
+            break
+         end
+      end
+   else
+      return nil, "Invalid type for argument #1"
+   end
+   
+   if not level_class then
+      return nil, "Invalid symbolic log level"
+   end
+
+   local n = select( "#", ... )
+   --  Single argument mode: set log level
+   if n == 0 then
+      skip_lower_level = level
+      return
+   end
+
+   -- Multiple argument mode: generate log line
+
+   -- Skip if the current log level is too small
+   if skip_lower_level < level then
+      return
+   end
+   log_count = log_count + 1
+
+   -- Get info about the function in the correct stack position
+   local d = debug.getinfo( 2 )
+   local td = d
+   local stackup = 2
+   while true do
+      local n = td.name
+      if not n then break end
+      n = n:lower()
+      if  not n:match( "log$" )
+      and not n:match( "^log" )
+      and n ~= "" then
+         break
+      end
+      stackup = stackup + 1
+      td = debug.getinfo(stackup)
+   end
+   if td then d = td end
+
+   -- Log line common part
+   local line = os.date( "%Y/%m/%d %H:%M:%S" ).." "..os.clock().." "
+                ..log_count.." "..level_class[ 1 ].."."..level_class[ 2 ].." "
+                ..d.short_src:match( "([^/\\]*)$" )..":"..d.currentline.." | "
+
+   -- Append additional log info from arguments
+   for m = 1,n do
+      line = line..tostring( select( m, ... ) ).." | "
+   end
+
+   return line
+end
+
+return logline
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local logline = require "logline"
+local t = require 'testhelper'
+
+-- Default log level is 25 a.k.a. ERROR
+-- Only logline with smaller level will generate a message
+
+t( logline( 10, "test" ), "|", t.patsame )
+t( logline( 25, "test" ), "|", t.patsame )
+t( logline( 26, "test" ), nil, t.patsame )
+t( logline( 99, "test" ), nil, t.patsame )
+
+-- Change log level
+logline( 60 )
+t( logline( 10, "test" ), "|", t.patsame )
+t( logline( 60, "test" ), "|", t.patsame )
+t( logline( 61, "test" ), nil, t.patsame )
+t( logline( 99, "test" ), nil, t.patsame )
+
+-- Symbolic log level name
+
+logline( "error" )
+t( logline( 25, "test" ),        "|", t.patsame )
+t( logline( 26, "test" ),        nil, t.patsame )
+t( logline( "error", "test" ),   "|", t.patsame )
+t( logline( "debug", "test" ),   nil, t.patsame )
+t( logline( "info", "test" ),    nil, t.patsame )
+t( logline( "verbose", "test" ), nil, t.patsame )
+
+logline( "debug" )
+t( logline( 50, "test" ),        "|", t.patsame )
+t( logline( 51, "test" ),        nil, t.patsame )
+t( logline( "error", "test" ),   "|", t.patsame )
+t( logline( "debug", "test" ),   "|", t.patsame )
+t( logline( "info", "test" ),    nil, t.patsame )
+t( logline( "verbose", "test" ), nil, t.patsame )
+
+logline( "info" )
+t( logline( 75, "test" ),        "|", t.patsame )
+t( logline( 76, "test" ),        nil, t.patsame )
+t( logline( "error", "test" ),   "|", t.patsame )
+t( logline( "debug", "test" ),   "|", t.patsame )
+t( logline( "info", "test" ),    "|", t.patsame )
+t( logline( "verbose", "test" ), nil, t.patsame )
+
+logline( "verbose" )
+t( logline( 99, "test" ),        "|", t.patsame )
+t( logline( 100, "test" ),       nil, t.patsame )
+t( logline( "error", "test" ),   "|", t.patsame )
+t( logline( "debug", "test" ),   "|", t.patsame )
+t( logline( "info", "test" ),    "|", t.patsame )
+t( logline( "verbose", "test" ), "|", t.patsame )
+
+-- Message contains source position
+t( logline( 99, "test" ), "logline%.ex1%.lua:54", t.patsame ) -- he line 54 is this one
+
+-- In some case the caller source position is used:
+-- - Tail calls
+-- - Functions with names that start or end with "log"
+
+function wraplog( ... ) return logline( 99, ... ) end
+function wraplogfakebarrier( ... ) return logline( 99, ... ) end
+function wraplogbarrier( ... )
+   local res = logline( 99, ... ) -- line 63
+   return res
+end
+
+t( wraplog( "test" ),            "logline%.ex1%.lua:67", t.patsame ) -- line 67
+t( wraplogfakebarrier( "test" ), "logline%.ex1%.lua:68", t.patsame ) -- line 68
+t( wraplogbarrier( "test" ),     "logline%.ex1%.lua:63", t.patsame )
+
+-- The argument are appended to the result string
+t( logline( 99, "a", 1), "| a | 1 | $", t.patsame )
+
+print( "# "..logline( 80, "ok" ) )
+
+t( )
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#pathpart]
+=== pathpart
+
+[source,lua]
+----
+function pathpart( pathIn ) --> pathOut, errorStr
+----
+
+Convert between two path representation: the string one, and the array of
+strings one. `pathIn` may be any of them: the other will be generated as
+`pathOut`.  In case of error, `nil` plus the `errorStr` string is returned
+instead.
+
+While converting from string, any of the following path separator is valid:
+'\', '.'.
+
+While converting from array of string, the path separator from `package.config`
+is used.
+
+The strings in the array representation do not contain any path separator: each
+array entry correspond to a single path step, and contains exactly the folder
+name.
+
+==== Code
+
+[source,lua]
+------------
+local path_separator = package.config:sub(1,1)
+
+local function path_merge( pathTab )
+  return table.concat( pathTab, path_separator )
+end
+
+local function path_split( pathStr )
+  local result = {}
+  for c in pathStr:gmatch( '[^/\\]*' ) do
+    if c ~= '' then
+      result[1+#result] = c
+    end
+  end
+  return result
+end
+
+local function pathpart( pathIn ) --> pathOut, errorStr
+  local t = type(pathIn)
+  if 'table' == t then return path_merge( pathIn )
+  elseif 'string' == t then return path_split( pathIn )
+  else return nil, 'Invalid input type'
+  end
+end
+
+return pathpart
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local pathpart = require 'pathpart'
+local t = require 'testhelper'
+
+t( pathpart'', {}, t.deepsame )
+t( pathpart{}, '' )
+
+t( pathpart'path/name.ext', {'path','name.ext'}, t.deepsame )
+t( pathpart'path\\name.ext', {'path','name.ext'}, t.deepsame )
+
+t( pathpart'path/b/name.ext', {'path','b','name.ext'}, t.deepsame )
+t( pathpart'/path/name.ext', {'path','name.ext'}, t.deepsame )
+t( pathpart'path/name.ext/', {'path','name.ext'}, t.deepsame )
+
+local s = package.config:sub(1,1)
+
+t( pathpart{'path','name.ext'}, 'path'..s..'name.ext' )
+t( pathpart{'path','pathb','name.ext'}, 'path'..s..'pathb'..s..'name.ext' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#rawhtml]
+=== rawhtml
+
+[source,lua]
+----
+function rawhtml( htmlStr ) --> rawmarkStr
+----
+
+This function, togheter with `rawmark`, allows the parsing of html-like data.
+
+Infact, you can use this function to trasfrom the `htmlStr` string, containint
+html data, into the `rawmarkStr` string. This result can be oarsed with the
+<<rawmark>> module.
+
+No html validation is performed and actually the syntax is more permissive than
+the html one.
+
+The attribute of each tag is not parsed, but stored verbatim in the first
+sub-tag with the "attribute" type.
+
+==== Code
+
+[source,lua]
+------------
+local function rawhtml( inStr ) --> outStr
+  if inStr == '' then return '' end
+  local outStr = inStr
+  outStr = outStr:gsub('([{@}])',{['{']='{+}',['}']='{-}',['@']='{=}' })
+  outStr = outStr:gsub('<!%-%-','@=comment={')
+  outStr = outStr:gsub('%-%->','}')
+  outStr = outStr:gsub('<(/?)([^>]-)(/?)>',function(p,a,s)
+    a = a:gsub('^[ \t]*(.-)[ \t]*$','%1')
+    local a, b = a:match('^([^ \t]*)(.*)$')
+    if p == '/' then return '}' end
+    if s == '/' then s = '}' end
+    if b and b ~= '' then
+      b = b:gsub('^[ \t]*(.-)[ \t]*$','%1')
+      b = '@=attribute={'..b..'}'
+    end
+    return '@'..a..'{'..b..s
+
+  end)
+  return outStr
+end
+
+return rawhtml
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local rawhtml = require 'rawhtml'
+local t = require 'testhelper'
+
+t( rawhtml'', '' )
+t( rawhtml'{', '{+}' )
+t( rawhtml'}', '{-}' )
+t( rawhtml'@', '{=}' )
+
+t( rawhtml'<div>', '@div{' )
+t( rawhtml'</div>', '}' )
+t( rawhtml'<div/>', '@div{}' )
+
+t( rawhtml'<div>hi</div>', '@div{hi}' )
+t( rawhtml'<div><b>hi</b></div>', '@div{@b{hi}}' )
+t( rawhtml'@{}<div>x<b/>y</div>', '{=}{+}{-}@div{x@b{}y}' )
+
+t( rawhtml'<div x y z>', '@div{@=attribute={x y z}' )
+t( rawhtml'<div x y z >', '@div{@=attribute={x y z}' )
+t( rawhtml'<div x y z/>', '@div{@=attribute={x y z}}' )
+t( rawhtml'</div x y z>', '}' )
+
+t( rawhtml'<!--bla bla', '@=comment={bla bla' )
+t( rawhtml'bla bla-->', 'bla bla}' )
+t( rawhtml'<!--bla bla-->', '@=comment={bla bla}' )
+
+local r = require 'rawmark'
+
+t( r( rawhtml'<!--@{}--><div my-attr="hi">x< b  />y</div>' ), {type='default',{type='=comment=','@{}'},{type='div',{type='=attribute=','my-attr="hi"'},'x',{type='b',''},'y'}}, t.deepsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#rawmark]
+=== rawmark
+
+[source,lua]
+----
+function rawmark( dataStr ) --> parsedTab 
+----
+
+This function implement a raw markup language. It take an input `dataStr`
+string and generate the `parsedTab` table representation of it. The format of the
+input strigs is based on the following core expansion:
+
+`@type{data}`::
+Where `type` is the only metadata that can be added and `data` is the content.
+If `type` is not present, the default `default` will be used.  The type can be
+any sequence of letters, numbers and any of '_+-.,/=%'. The content can
+be any string. In the content the `@{}` is recursively expanded.
+
+Moreover, the escape sequence `{x}`, is replaced with `x`, where `x` is any
+single byte character. The only exceptions are:
+
+- `{=}` is expanded to `@`
+- `{+}` is expanded to `{`
+- `{-}` is expanded to `}`
+
+However, `{+}` and `{-}` are just needed to insert unbalanced `{` and `}`,
+otherwise `{=}` is enough to escape mark tags.
+
+The function will return a table with the only string key `type` containing
+`default`. All the other keys form a sequence of natural number from 1 to N. To
+each key is associated the string value for a verbatim content, or a sub-table
+in case of `@{}` sub-expansion. This sub-table is contructed at same way with
+the `type` field set to the metatada in the tag, or `default` if not present.
+
+For example the string
+
+[source]
+------------
+aaa@bbb{ccc}
+------------
+
+will be expanded to the lua table
+
+[source,lua]
+------------
+{ type='default', 'aaa', {type='bbb', 'ccc'} }
+------------
+
+==== Code
+
+[source,lua]
+------------
+local function rawmark(str, typ)
+  if not typ or typ == '' then typ = 'default' end
+  local result = {type = typ}
+
+  if str == '' then
+    result[1+#result] = str
+    return result
+  end
+
+  local cur = str
+  while cur and cur ~= '' do
+    -- Split verbatim and container parts
+    -- local ver, exp, res, typ = cur:match('^(.-)@(%b{})(.*)$')
+    local ver, typ, exp, res = cur:match('^(.-)@([A-Za-z0-9_/=,%.%-%+%%]*)(%b{})(.*)$')
+    if not ver then ver = cur end
+
+    -- Substitute escape sequences
+    ver = ver:gsub('{(.)}', function(c)
+      local escape = ({ ['+']='{', ['-']='}', ['=']='@' }) [c]
+      return escape or c
+    end)
+
+    if ver and ver ~= '' then result[1+#result] = ver end
+    if exp then result[1+#result] = rawmark(exp:sub(2,-2), typ) end
+
+    cur = res
+  end
+
+  return result
+end
+
+return rawmark
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local rawmark = require 'rawmark'
+local t = require 'testhelper'
+
+t( rawmark( '' ), { '', type='default' }, t.deepsame )
+t( rawmark( 'a' ), { 'a', type='default' }, t.deepsame )
+
+t( rawmark( '@{}' ), {{ '', type='default' }, type='default' }, t.deepsame )
+t( rawmark( '@{a}' ), {{ 'a', type='default' }, type='default' }, t.deepsame )
+
+t( rawmark( 'a@{}' ), { 'a', { "", type='default' }, type='default' }, t.deepsame )
+
+t( rawmark( 'a@{b}' ), { 'a', { "b", type='default' }, type='default' }, t.deepsame )
+t( rawmark( '@{b}a' ), {{ "b", type='default' }, 'a', type='default' }, t.deepsame )
+t( rawmark( 'a@{b}c' ), { 'a', { "b", type='default' }, 'c', type='default' }, t.deepsame )
+
+t( rawmark( '@{a}b@{c}' ), {{ "a", type='default' }, 'b', { "c", type='default' }, type='default' }, t.deepsame )
+t( rawmark( 'a@{b}@{c}' ), { "a", { "b", type='default' }, { "c", type='default' }, type='default' }, t.deepsame )
+t( rawmark( '@{a}@{b}c' ), {{ "a", type='default' }, { "b", type='default' }, "c", type='default' }, t.deepsame )
+
+t( rawmark( '@{@{a}}' ), {{{ 'a', type='default' }, type='default' }, type='default' }, t.deepsame )
+t( rawmark( '@{@{@{a}}}' ), {{{{ 'a', type='default' }, type='default' }, type='default' }, type='default' }, t.deepsame )
+t( rawmark( '@{@{a}}b@{@{c}}' ), {{{ 'a', type='default' }, type='default' }, 'b', {{ 'c', type='default' }, type='default' }, type='default' }, t.deepsame )
+
+t( rawmark( '',  't' ), { '', type='t' }, t.deepsame )
+t( rawmark( '@t{a}' ), {{ 'a', type='t' }, type='default' }, t.deepsame )
+t( rawmark( '@tt{a}b@TT2{c}', 't3' ), {{ "a", type='tt' }, 'b', { "c", type='TT2' }, type='t3' }, t.deepsame )
+
+t( rawmark( '@a-+_b{}' ), {{ '', type='a-+_b' }, type='default' }, t.deepsame )
+
+t( rawmark( '{+}' ), {'{', type='default' }, t.deepsame )
+t( rawmark( '{-}' ), {'}', type='default' }, t.deepsame )
+t( rawmark( '{=}' ), {'@', type='default' }, t.deepsame )
+
+t( rawmark( '{=}{+}{-}' ), {'@{}', type='default' }, t.deepsame )
+t( rawmark( '{=}{}' ), {'@{}', type='default' }, t.deepsame )
+t( rawmark( '{=}{+}}' ), {'@{}', type='default' }, t.deepsame )
+t( rawmark( '{=}{{-}' ), {'@{}', type='default' }, t.deepsame )
+
+t( rawmark( '{=}@{}' ), {'@', { '', type='default' }, type='default' }, t.deepsame )
+
+t( rawmark( '{a}' ), {'a', type='default' }, t.deepsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#readfile]
+=== readfile
+
+[source,lua]
+----
+local function readfile( pathStr, optStr ) --> readTabStr
+local function readfile( pathStr, optStr ) --> nil, errorStr
+----
+
+Read the file specified by the path string `pathStr`. Several read option may
+be provided. If the read results in a single chunk, a string is returned. If
+multiple chunks are avaiable, an array of string is returned.
+
+The avaiable read option string `optStr` are the same of the lua standard
+`io.read` function: for example the `l` option can be used to read each line
+separately, and to store it as an item of the returned array.
+
+In case of error, `nil` plus an error message string `errorStr` is returned.
+
+==== Code
+
+[source,lua]
+------------
+local function readfile( pathStr, optStr ) --> readTabStr
+  local f, err = io.open( pathStr, 'rb' )
+  if not f or err then return f, err end
+  if not optStr then optStr = 'a' end
+  local readTabStr = {}
+  while true do
+    local p = f:seek()
+    local r, err = f:read( optStr )
+    if err then return nil, err end
+    if p == f:seek() then break end
+    if r and r ~= '' then
+      readTabStr[1+#readTabStr] = r
+    end
+  end
+  if #readTabStr == 0 then return '' end
+  if #readTabStr == 1 then return readTabStr[1] end
+  return readTabStr
+end
+
+return readfile
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local readfile = require 'readfile'
+local t = require 'testhelper'
+
+t.writefile('tmp_1.txt', '')
+t( readfile('tmp_1.txt'), '' )
+
+t.writefile('tmp_1.txt', 'aaa\naaa')
+t( readfile('tmp_1.txt'), 'aaa\naaa' )
+
+t.writefile('tmp_1.txt', 'aaa\naaa')
+t( readfile('tmp_1.txt', 'l'), {'aaa','aaa'}, t.deepsame )
+
+t.writefile('tmp_1.txt', 'aaa\n')
+t( readfile('tmp_1.txt', 'l'), 'aaa' )
+
+t.writefile('tmp_1.txt', 'aaa\n\raaa')
+t( readfile('tmp_1.txt', 'L'), {'aaa\n','\raaa'}, t.deepsame )
+
+t.writefile('tmp_1.txt', 'aaaa')
+t( readfile('tmp_1.txt', 2), {'aa','aa'}, t.deepsame )
+
+t.writefile('tmp_1.txt', '1 1.2 -1e3')
+t( readfile('tmp_1.txt', 'n'), {1,1.2,-1e3}, t.deepsame )
+
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#searchluakeyword]
+=== searchluakeyword
+
+[source,lua]
+----
+function searchluakeyword( luaStr [, optStr] ) --> keywordTab, countInt
+----
+
+Count the number of lua keywords in the `luaStr` code string. It ignores the
+content of lua comments and strings. This function is ment to be run on valid
+lua code, so the common `load` lua function should be used first to check if
+the compilation successed.
+
+The main use case is the check of the presence of some lua structures to decide
+if run the code or not (e.g. for configuration files).
+
+An optional `optStr` string may be povided; it describes which keyword search
+for. It is a string, containing one of more of the following charactes, each
+corresponding to a class of keywords:
+
+- 'i': Keywords that may generate infinite loops e.g. "function" or any '::label::'
+- 'l': Keywords found in a limited loop e.g. "for"
+- 'v': Keywords that are value literal e.g. "nil"
+- 'b': Keywords that generate branched execution e.g. "if"
+- 'o': Keywords that are operators e.g. "and"
+- 's': Sequences of symbols that have special meaning in lua, e.g. '[' or '<<'
+
+When not provided, all the keywords will be searched except the symbols, i.e.
+'ilvbo' is the default option string.
+
+The result `keywordTab` table contains the found keywords. Each key is a
+keyword, and its value is a sequence of integer. Each integer is a byte
+position in the code where the begin of the keyword was found.
+
+Also an additional `countInt` integer return value is provaided, containing the
+the total number of keywords found.
+
+==== Code
+
+[source,lua]
+------------
+local clear_bracket_string_end
+
+local function clear_bracket_string_start( luaStr, init )
+  local s, e = luaStr:find('%[=*%[', init)
+  if not s then return luaStr end
+  return clear_bracket_string_end( luaStr, e-s-1, e )
+end
+
+function clear_bracket_string_end( luaStr, c, e )
+  local R = ']' .. ('='):rep(c) .. ']'
+  local S, E = luaStr:find(R, e, 'plain')
+  if not S then S, E = #luaStr, #luaStr end
+  local L = R:gsub('%]','[')
+  luaStr = luaStr:sub(1,e-c-2) .. L .. (' '):rep(S-e-1) .. R .. luaStr:sub(E+1)
+  return clear_bracket_string_start( luaStr, E+1 )
+end
+
+local function mask_fake_keyword( luaStr )
+  local function clear_middle_string( a, x, b ) return a..(' '):rep(#x)..b end
+  luaStr = luaStr:gsub('(%-%-)([^\n]*)(\n?)', clear_middle_string)
+  luaStr = luaStr:gsub([[(['"])(.-)(%1)]], clear_middle_string)
+  return clear_bracket_string_start( luaStr, 1 )
+end
+
+local function first_capture_list( luaStr, p )
+  local result = {}
+  local count = 0
+  for position in luaStr:gmatch(p) do
+    result[1+#result] = position
+    count = count + 1
+  end
+  if #result == 0 then return nil, 0 end
+  return result, count
+end
+
+local lua_keyword = {
+  i = { -- keywords that may generate infinite loops
+    "goto", "while", "repeat", "until", "in", "function", '::label::', },
+  l = { -- keywords found in a limited loop
+    "for", "break", },
+  v = { -- keywords that are value literal
+    "nil", "false", "true", },
+  b = { -- keywords that generate branched execution
+    "do", "end", "if", "then", "elseif", "else", },
+  o = { -- keywords that are operators
+    "and", "or", "not", },
+  s = { -- Special symbols
+    ';','{','}', '[',']', ',','...','(',')', ':', '.',
+    '=','+','-','*','/','//','^','%', '&','~','|','>>','<<', '..',
+    '<','<=','>','>=','==','~=', '-','#', },
+}
+
+-- local load = load
+
+local search_pattern
+
+local function searchluakeyword( luaStr, optionStr--[[, chunknameStr, envTab]] ) --> keywordTab
+  if not optionStr then optionStr = 'ilvbo' end
+  local keywordTab = {}
+
+  if not lua_keyword_ready then
+    search_pattern = {}
+    for t, m in pairs(lua_keyword) do
+      for _, k in pairs(m) do
+        if k:match('^%a') then
+          search_pattern[k] = '()%f[%a%d_]'..k..'%f[^%a%d_]'
+        elseif #k == 1 then
+          search_pattern[k] = '()%f[=~<>%'..k..']'..k:gsub('(.)','%%%1')..'%f[^=~<>%'..k..']'
+        else
+          search_pattern[k] = '()%f[%'..k:sub(1,1)..']'..k:gsub('(.)','%%%1')..'%f[^%'..k:sub(-1,-1)..']'
+        end
+      end
+    end
+    search_pattern['::label::'] = '()%f[:]::%a-::%f[^:]'
+  end
+
+  -- local exec, err = load( luaStr, chunknameStr, 't', envTab )
+  -- if not exec then exec = err end
+
+  luaStr = mask_fake_keyword( luaStr )
+
+  local count, c = 0, 0
+  for t, m in pairs(lua_keyword) do
+    if optionStr:find(t) then
+      for _, k in pairs(m) do
+        keywordTab[k], c = first_capture_list( luaStr, search_pattern[k] )
+        count = count + c
+      end
+    end
+  end
+
+  return keywordTab, count --, exec
+end
+
+return searchluakeyword
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local searchluakeyword = require 'searchluakeyword'
+local t = require 'testhelper'
+
+t( searchluakeyword'', {}, t.deepsame )
+
+t( searchluakeyword"do", {['do']={1}}, t.deepsame )
+t( searchluakeyword("<<",'s'), {['<<']={1}}, t.deepsame )
+t( searchluakeyword"::xxx::", {['::label::']={1}}, t.deepsame )
+t( searchluakeyword"::yy::", {['::label::']={1}}, t.deepsame )
+
+t( searchluakeyword"do do", {['do']={1,4}}, t.deepsame )
+t( searchluakeyword"dodo", {}, t.deepsame )
+t( searchluakeyword"ado", {}, t.deepsame )
+t( searchluakeyword"doa", {}, t.deepsame )
+t( searchluakeyword"do1", {}, t.deepsame )
+t( searchluakeyword"do_", {}, t.deepsame )
+
+t( searchluakeyword("for goto function nil false do and",'i'), {['goto']={5},['function']={10}}, t.deepsame )
+
+t( searchluakeyword"do -- do \n", {['do']={1}}, t.deepsame )
+t( searchluakeyword"do -- do \ndo", {['do']={1,11}}, t.deepsame )
+t( searchluakeyword"do -- do", {['do']={1}}, t.deepsame )
+
+t( searchluakeyword"do  do  end end", {['do']={1,5},['end']={9,13}}, t.deepsame )
+t( searchluakeyword"do 'do' end end", {['do']={1},['end']={9,13}}, t.deepsame )
+t( searchluakeyword'do "do" end end', {['do']={1},['end']={9,13}}, t.deepsame )
+t( searchluakeyword"do '\"do\"' end end", {['do']={1},['end']={11,15}}, t.deepsame )
+t( searchluakeyword'do "\'do\'" end end', {['do']={1},['end']={11,15}}, t.deepsame )
+t( searchluakeyword"do [[do]] end end", {['do']={1},['end']={11,15}}, t.deepsame )
+t( searchluakeyword"do [=[do]=] end end", {['do']={1},['end']={13,17}}, t.deepsame )
+t( searchluakeyword"do [==[do]=] end]==] end", {['do']={1},['end']={22}}, t.deepsame )
+t( searchluakeyword"do [[do end end", {['do']={1}}, t.deepsame )
+
+t( searchluakeyword"for", {['for']={1}}, t.deepsame )
+t( searchluakeyword"break", {['break']={1}}, t.deepsame )
+t( searchluakeyword"goto", {['goto']={1}}, t.deepsame )
+t( searchluakeyword"end", {['end']={1}}, t.deepsame )
+t( searchluakeyword"while", {['while']={1}}, t.deepsame )
+t( searchluakeyword"repeat", {['repeat']={1}}, t.deepsame )
+t( searchluakeyword"until", {['until']={1}}, t.deepsame )
+t( searchluakeyword"if", {['if']={1}}, t.deepsame )
+t( searchluakeyword"then", {['then']={1}}, t.deepsame )
+t( searchluakeyword"elseif", {['elseif']={1}}, t.deepsame )
+t( searchluakeyword"else", {['else']={1}}, t.deepsame )
+t( searchluakeyword"in", {['in']={1}}, t.deepsame )
+t( searchluakeyword"function", {['function']={1}}, t.deepsame )
+t( searchluakeyword"nil", {['nil']={1}}, t.deepsame )
+t( searchluakeyword"false", {['false']={1}}, t.deepsame )
+t( searchluakeyword"true", {['true']={1}}, t.deepsame )
+t( searchluakeyword"and", {['and']={1}}, t.deepsame )
+t( searchluakeyword"or", {['or']={1}}, t.deepsame )
+t( searchluakeyword"not", {['not']={1}}, t.deepsame )
+t( searchluakeyword(';'  ,'s'), {[';'  ]={1}}, t.deepsame )
+t( searchluakeyword('{'  ,'s'), {['{'  ]={1}}, t.deepsame )
+t( searchluakeyword('{'  ,'s'), {['{'  ]={1}}, t.deepsame )
+t( searchluakeyword('}'  ,'s'), {['}'  ]={1}}, t.deepsame )
+t( searchluakeyword('['  ,'s'), {['['  ]={1}}, t.deepsame )
+t( searchluakeyword(']'  ,'s'), {[']'  ]={1}}, t.deepsame )
+t( searchluakeyword('...','s'), {['...']={1}}, t.deepsame )
+t( searchluakeyword('('  ,'s'), {['('  ]={1}}, t.deepsame )
+t( searchluakeyword(')'  ,'s'), {[')'  ]={1}}, t.deepsame )
+t( searchluakeyword(':'  ,'s'), {[':'  ]={1}}, t.deepsame )
+t( searchluakeyword('.'  ,'s'), {['.'  ]={1}}, t.deepsame )
+t( searchluakeyword('='  ,'s'), {['='  ]={1}}, t.deepsame )
+t( searchluakeyword('+'  ,'s'), {['+'  ]={1}}, t.deepsame )
+t( searchluakeyword('-'  ,'s'), {['-'  ]={1}}, t.deepsame )
+t( searchluakeyword('*'  ,'s'), {['*'  ]={1}}, t.deepsame )
+t( searchluakeyword('/'  ,'s'), {['/'  ]={1}}, t.deepsame )
+t( searchluakeyword('//' ,'s'), {['//' ]={1}}, t.deepsame )
+t( searchluakeyword('^'  ,'s'), {['^'  ]={1}}, t.deepsame )
+t( searchluakeyword('%'  ,'s'), {['%'  ]={1}}, t.deepsame )
+t( searchluakeyword('&'  ,'s'), {['&'  ]={1}}, t.deepsame )
+t( searchluakeyword('~'  ,'s'), {['~'  ]={1}}, t.deepsame )
+t( searchluakeyword('|'  ,'s'), {['|'  ]={1}}, t.deepsame )
+t( searchluakeyword('>>' ,'s'), {['>>' ]={1}}, t.deepsame )
+t( searchluakeyword('<<' ,'s'), {['<<' ]={1}}, t.deepsame )
+t( searchluakeyword('..' ,'s'), {['..' ]={1}}, t.deepsame )
+t( searchluakeyword('<'  ,'s'), {['<'  ]={1}}, t.deepsame )
+t( searchluakeyword('<=' ,'s'), {['<=' ]={1}}, t.deepsame )
+t( searchluakeyword('>'  ,'s'), {['>'  ]={1}}, t.deepsame )
+t( searchluakeyword('>=' ,'s'), {['>=' ]={1}}, t.deepsame )
+t( searchluakeyword('==' ,'s'), {['==' ]={1}}, t.deepsame )
+t( searchluakeyword('~=' ,'s'), {['~=' ]={1}}, t.deepsame )
+t( searchluakeyword('-'  ,'s'), {['-'  ]={1}}, t.deepsame )
+t( searchluakeyword('#'  ,'s'), {['#'  ]={1}}, t.deepsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#serialize]
+=== serialize
+
+[source,lua]
+----
+function serialize( value, outfunc ) --> str
+----
+
+It serializes the lua value `value`.  The resulting `str` string can be parsed
+by the common Lua _load_/_loadstring_ function to restore the original value.
+It have not the Lua literal limitation for tables, as the one found in the
+_lualiteral_ function.  So it can handle tables with cycles or with a nest
+level higher than the max defined for the Lua literals (200).  It still can not
+handle _userdata_ and _lightuserdata_.
+
+If `outfunc` is passed, then nothing is returned. Instead `outfunc` will be
+called multiple times with a single string parameter: a chunk of the serialized
+data. They can be, for example, saved in a file one afther the other; the
+resulting file can be read the common lua _load_/_loadstring_ function
+
+==== Code
+
+[source,lua]
+------------
+local type = type
+
+local function basic_representation( value, outfunc )
+  local tv = type(value)
+  if "string" == tv then
+    outfunc(string.format( "%q", value ))
+    return true
+  elseif "table" ~= tv then
+    outfunc(tostring( value ))
+    return true
+  end
+  return false
+end
+
+local function serialize( value, outfunc ) --> str
+
+  -- Default ouput function
+  local result
+  if not outfunc then
+    result = {}
+    outfunc = function(dat) result[1+#result]=dat end
+  end
+
+  -- Basic/Flat type
+  if basic_representation( value, outfunc ) then
+    return result and table.concat(result) or nil
+  end
+
+  outfunc('((function() local T=\n{')
+
+  -- Table memo
+  local reference = { value }
+  local alias = { [value] = 'r' }
+  local function add_reference( tab )
+    if not alias[tab] then
+      reference[1+#reference]=tab
+      alias[tab] = 'T[' .. #reference .. ']'
+    end
+  end
+
+  -- Loop over all the tables
+  local t = 0
+  while true do
+    t = t + 1
+    local tab = reference[t]
+    if tab == nil then break end
+    if type(tab)=='table'then
+
+      outfunc('{')
+
+      -- Expand basic type or placeholder for the Array part
+      local already_seen = {}
+      for k, v in ipairs( tab ) do
+        if type(v) == 'table' then
+          add_reference( v )
+          outfunc('0,') -- Placeholder, it will be replaced
+        else
+          basic_representation( v, outfunc )
+          outfunc(',')
+        end
+        already_seen[k] = true
+      end
+
+      for k, v in pairs( tab ) do
+        if not already_seen[k] then
+
+          -- Mark for placeholder/nested expansion
+          local skip_expansion = false
+          if type(k) == 'table' then
+            add_reference( k )
+            skip_expansion = true
+          end
+          if type(v) == 'table' then
+            add_reference( v )
+            skip_expansion = true
+          end
+
+          -- Expand basic type for the Hash part
+          if not skip_expansion then
+            outfunc('[')
+            basic_representation( k, outfunc )
+            outfunc(']=')
+            basic_representation( v, outfunc )
+            outfunc(',')
+          end
+        end
+      end
+
+      outfunc('},')
+    end
+  end
+  
+  outfunc('}')
+  outfunc('\nlocal r=T[1]')
+
+  -- Override placeholders and nested table references
+  for _, tab in ipairs(reference) do
+    for k, v in pairs(tab) do
+      local table_key = (type(k) == 'table')
+      local table_value = (type(v) == 'table')
+      if table_key or table_value then
+        outfunc('\n')
+        outfunc(alias[tab])
+        outfunc('[')
+        if table_key then
+          outfunc(alias[k])
+        else
+          basic_representation( k, outfunc )
+        end
+        outfunc(']=')
+        if table_value then
+          outfunc(alias[v])
+        else
+          basic_representation( v, outfunc )
+        end
+      end
+    end
+  end
+
+  outfunc('\nreturn r end)())')
+
+  return result and table.concat(result) or nil
+end
+
+return serialize
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local serialize = require "serialize"
+local t = require "testhelper"
+
+local function reco( v )
+  return load( 'return ' .. serialize( v ) )()
+end
+
+-- Simple values
+t( reco( nil ), nil, t.deepsame )
+t( reco( true ), true, t.deepsame )
+t( reco( 1 ), 1, t.deepsame )
+t( reco( "hi" ), "hi", t.deepsame )
+t( reco( {} ), {}, t.deepsame )
+
+-- Table with values
+t( reco( { a = true, b = { "c", 1, { d = "e" } }, } ),
+         { a = true, b = { "c", 1, { d = "e" } }, },
+   t.deepsame )
+
+-- Table table key
+t( reco( { [ { ok = "ok" } ] = "ok", } ),
+         { [ { ok = "ok" } ] = "ok", },
+   t.deepsame )
+
+-- Multiple table values
+t( reco( { ["a"] = { [ "a" ] = "a", }, ["b"] = { [ "b" ] = "b", }, } ),
+         { ["a"] = { [ "a" ] = "a", }, ["b"] = { [ "b" ] = "b", }, },
+   t.deepsame )
+
+-- Mixed key/value Table
+t( reco( { ["ok"] = { [ { ok = "ok" } ] = "ok", }, } ),
+         { ["ok"] = { [ { ok = "ok" } ] = "ok", }, },
+   t.deepsame )
+
+-- Sequence
+t( reco( { 'a','b',{'c','d'},'e'} ),
+         { 'a','b',{'c','d'},'e'},
+   t.deepsame )
+
+-- Sequence with holes
+t( reco( { nil,nil,nil,'a',{'c','d'},} ),
+         { nil,nil,nil,'a',{'c','d'},},
+   t.deepsame )
+
+-- Table with reference
+local atab = { a = "a" }
+t( reco( { atab, a = atab, } ),
+         { atab, a = atab, },
+   t.deepsame )
+
+-- Sequence with tables
+local atab = {}
+t( reco( { 1, atab, 2, atab, 3,} ),
+         { 1, atab, 2, atab, 3,},
+   t.deepsame )
+
+-- Table with cycle
+atab = {}
+atab.a = {}
+atab.a.a = atab
+t( reco( atab ), atab, t.deepsame )
+
+-- Table with multiple cycle
+atab = {}
+atab.kv = {}
+atab[atab.kv] = atab.kv
+atab[atab.kv][atab.kv] = atab[atab.kv]
+t( reco( atab ), atab, t.deepsame )
+
+-- Too deep table
+local cur = atab
+for n = 1, 200 do
+   cur.q = {}
+   cur = cur.q
+end
+t( reco( atab ), atab, t.deepsame )
+
+-- Output function
+local atab = {'a',2,[{}]={},}
+local exp = serialize(atab)
+local got = ''
+t( serialize(atab, function(d) got = got .. d end), nil )
+t( got, exp )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#sha2]
+=== sha2
+
+[source,lua]
+----
+function sha2( dataStr[, bitsizeInt[, specTab ]] ) --> rawhashStr
+----
+
+Calculate a SHA-2 cryptographic hash of the `dataStr` string. The result
+`rawhashStr`  string contains the binary hash.
+
+By default the SHA-256 is used, so the hash is an array of 8 integers. The
+integers are stored as 32-bit big endian values. So the hash has a fixed length
+of 32 bytes.
+
+Message with incomplete byte can be processed passing the `bitsizeInt` bit
+count as the second argument. The default is 8 times the `dataStr` string
+length.
+
+The optional `specTab` argument is used to specify any SHA-2 algorythm. It can
+be one of the following integer that specify a standard SHA-2 hash algorythm:
+256, 224, 512 or 384.
+
+`specTab` can also be the an explicit table containing an array of integer. In
+this way also non-standard SHA-2 hash can be generated. The integers have the
+following meaning, in order:
+
+- 12 Rotation constants: at each encription round the SHA-2 will rotate the
+  previous value of a certain number of bits (e.g. for SHA-256: 7, 18, 17, 19, 3,
+  10, 6, 11, 25, 2, 13, 22)
+- Integer bit size. All the other variables will be 32 or 64 bit unsigned integers,
+  based on the value of this variable
+- Hash size (max 8) in integer size unit
+- Chunk size in byte
+- The 8 initial values for the hash
+- Any number of round constants: for each of them a encryption round is generated
+
+==== Inspired by
+
+This code is adapted from the pseudocode in the SHA-2 Wikipedia article:
+
+* https://en.wikipedia.org/wiki/SHA-2
+
+==== Code
+
+[source,lua]
+------------
+-- Note: Big-endian convention is used when parsing message block data from
+-- bytes to words, for example, the first word of the input message "abc" after
+-- padding is 0x61626380
+
+-- For non-8-bit-multiple message:
+-- It returns the pad description and the zero-padded odd bits
+local function sub_byte_suffix(message, L)
+  local fb = L % 8
+  if fb == 0 then return 0x80 end
+
+  fb = 7 - fb
+  local val = message:byte(-1,-1)
+  val = val >> fb
+  val = val | 1
+  val = val << fb
+  return val
+end
+
+-- calc the hash of a L-bits message
+local function sha2core(message, L, algospec)
+
+  -- Cache some values for speed
+  local o = 23
+  local r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12,
+    intsiz, hashtrunc, chunksize,
+    h0, h1, h2, h3, h4, h5, h6, h7,
+    k =
+      table.unpack(algospec)
+  local roundnum = #algospec - o
+  local sb = {}
+  for i = 1, 12 do sb[i] = 8 * intsiz - algospec[i] end
+  local l1, l2, l3, l4, l5, l6, l7, l8, l9, l10, l11, l12 = table.unpack(sb)
+  local summask = (( ~0 ) << ( 8 * intsiz )) ~ ( ~0 ) -- intsiz=4 -> summask=0xffffffff
+  local packspec = ">" .. ( 'I' .. intsiz ):rep( 16 ) -- intsiz=4 -> packspec=>I4I4... 16 times
+
+  -- Pre-processing: make the length a multiple of the chunk size; the original
+  -- lenght will be written in the last bytes
+  local addchar = sub_byte_suffix(message, L)
+  if 0x80 ~= addchar then message = message:sub(1,-2) end
+  message = message 
+    .. string.char(addchar)
+    .. ('\0'):rep(chunksize - ((#message + 1 + 2*intsiz) % chunksize))
+    .. string.pack('>I'..(2*intsiz), L)
+
+  -- Process the message in successive fixed-lenght chunks:
+  for pos = 1, #message, chunksize do
+      local w = {string.unpack(packspec, message, pos)}
+
+      -- Extend the first 16 words into the remaining words, one for each round
+      for i = 17, roundnum do
+
+          local a = w[i-15]
+          local aR7  = (a >> r1) | (a << l1) -- Right-Rotate a >> r1
+          local aR18 = (a >> r2) | (a << l2) -- Right-Rotate a >> r2
+          local b = w[i-2]
+          local bR17 = (b >> r3) | (b << l3) -- Right-Rotate b >> r3
+          local bR19 = (b >> r4) | (b << l4) -- Right-Rotate b >> r4
+
+          local s0 = aR7 ~ aR18 ~ (a >> r5)
+          local s1 = bR17 ~ bR19 ~ (b >> r6)
+          w[i] = (w[i-16] + s0 + w[i-7] + s1 ) & summask
+      end
+
+      -- Initialize working variables to current hash value:
+      local a, b, c, d, e, f, g, h = h0, h1, h2, h3, h4, h5, h6, h7
+
+      -- Compression function main loop:
+      for i = 1, roundnum do
+          local eR6  = (e >> r7)  | (e << l7) -- Right-Rotate e >> r7
+          local eR11 = (e >> r8)  | (e << l8) -- Right-Rotate e >> r8
+          local eR25 = (e >> r9)  | (e << l9) -- Right-Rotate e >> r9
+          local aR2  = (a >> r10) | (a << l10) -- Right-Rotate a >> r10
+          local aR13 = (a >> r11) | (a << l11) -- Right-Rotate a >> r11
+          local aR22 = (a >> r12) | (a << l12) -- Right-Rotate a >> r12
+
+          local S1 = eR6 ~ eR11 ~ eR25
+          local ch = (e & f) ~ ((~ e) & g)
+          local temp1 = h + S1 + ch + algospec[o+i] + w[i]
+          local S0 = aR2 ~ aR13 ~ aR22 
+          local maj = (a & b) ~ (a & c) ~ (b & c)
+          local temp2 = S0 + maj
+   
+          h = g
+          g = f
+          f = e
+          e = (d + temp1) & summask
+          d = c
+          c = b
+          b = a
+          a = (temp1 + temp2) & summask
+      end
+
+      -- Add the compressed chunk to the current hash value:
+      h0 = (h0 + a) & summask
+      h1 = (h1 + b) & summask
+      h2 = (h2 + c) & summask
+      h3 = (h3 + d) & summask
+      h4 = (h4 + e) & summask
+      h5 = (h5 + f) & summask
+      h6 = (h6 + g) & summask
+      h7 = (h7 + h) & summask
+  end
+
+  return string.pack( ">" .. ( 'I' .. intsiz ):rep( hashtrunc ),
+    h0, h1, h2, h3, h4, h5, h6, h7 )
+end
+
+local sha256_spec = {
+
+  -- Rotation constants
+  7, 18, 17, 19,
+  3, 10,
+  6, 11, 25,
+  2, 13, 22,
+
+  -- Integer bit size. All variables are 32 bit unsigned integers. The appended
+  -- message lengt is 32 bit. The additions are calculated modulo 2^32.
+  4,
+
+  -- Hash size (max 8) -- Integer size unit
+  8,
+
+  -- Chunk size -- byte
+  64,
+
+  -- Initial hash values:
+  -- (first 32 bits of the fractional parts of the square roots of the first 8 primes 2..19):
+  0x6a09e667,
+  0xbb67ae85,
+  0x3c6ef372,
+  0xa54ff53a,
+  0x510e527f,
+  0x9b05688c,
+  0x1f83d9ab,
+  0x5be0cd19,
+
+  -- Round constants:
+  -- (first 32 bits of the fractional parts of the cube roots of the first 64 primes 2..311):
+   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+   0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+   0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+   0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+   0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+   0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+   0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+   0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+}
+
+local sha224_spec = {
+
+  -- Rotation constants
+  7, 18, 17, 19,
+  3, 10,
+  6, 11, 25,
+  2, 13, 22,
+
+  -- Integer bit size. All variables are 32 bit unsigned integers. The appended
+  -- message lengt is 32 bit. The additions are calculated modulo 2^32.
+  4,
+
+  -- Hash size (max 8) -- Integer size unit
+  7,
+
+  -- Chunk size -- byte
+  64,
+
+  -- Initial hash values:
+  -- (The second 32 bits of the fractional parts of the square roots of the 9th through 16th primes 23..53)
+  0xc1059ed8,
+  0x367cd507,
+  0x3070dd17,
+  0xf70e5939,
+  0xffc00b31,
+  0x68581511,
+  0x64f98fa7,
+  0xbefa4fa4,
+
+  -- Round constants:
+  -- (first 32 bits of the fractional parts of the cube roots of the first 64 primes 2..311):
+   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+   0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+   0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+   0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+   0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+   0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+   0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+   0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
+}
+
+local sha512_spec = {
+
+  -- Rotation constants
+  1, 8, 19, 61,
+  7, 6,
+  14, 18, 41,
+  28, 34, 39,
+
+  -- Integer bit size. All variables are 64 bit unsigned integers. The appended
+  -- message lengt is 64 bit. The additions are calculated modulo 2^64.
+  8,
+
+  -- Hash size (max 8) -- Integer size unit
+  8,
+
+  -- Chunk size -- byte
+  128,
+  
+  -- Initial hash values:
+  -- (first 64 bits of the fractional parts of the square roots of the 9th-16th primes):
+  0x6a09e667f3bcc908,
+  0xbb67ae8584caa73b,
+  0x3c6ef372fe94f82b,
+  0xa54ff53a5f1d36f1,
+  0x510e527fade682d1,
+  0x9b05688c2b3e6c1f,
+  0x1f83d9abfb41bd6b,
+  0x5be0cd19137e2179,
+
+  -- Round constants:
+  -- (first 64 bits of the fractional parts of the cube roots of the first 80 primes 2..409):
+    0x428a2f98d728ae22, 0x7137449123ef65cd, 0xb5c0fbcfec4d3b2f, 0xe9b5dba58189dbbc, 0x3956c25bf348b538, 
+    0x59f111f1b605d019, 0x923f82a4af194f9b, 0xab1c5ed5da6d8118, 0xd807aa98a3030242, 0x12835b0145706fbe, 
+    0x243185be4ee4b28c, 0x550c7dc3d5ffb4e2, 0x72be5d74f27b896f, 0x80deb1fe3b1696b1, 0x9bdc06a725c71235, 
+    0xc19bf174cf692694, 0xe49b69c19ef14ad2, 0xefbe4786384f25e3, 0x0fc19dc68b8cd5b5, 0x240ca1cc77ac9c65, 
+    0x2de92c6f592b0275, 0x4a7484aa6ea6e483, 0x5cb0a9dcbd41fbd4, 0x76f988da831153b5, 0x983e5152ee66dfab, 
+    0xa831c66d2db43210, 0xb00327c898fb213f, 0xbf597fc7beef0ee4, 0xc6e00bf33da88fc2, 0xd5a79147930aa725, 
+    0x06ca6351e003826f, 0x142929670a0e6e70, 0x27b70a8546d22ffc, 0x2e1b21385c26c926, 0x4d2c6dfc5ac42aed, 
+    0x53380d139d95b3df, 0x650a73548baf63de, 0x766a0abb3c77b2a8, 0x81c2c92e47edaee6, 0x92722c851482353b, 
+    0xa2bfe8a14cf10364, 0xa81a664bbc423001, 0xc24b8b70d0f89791, 0xc76c51a30654be30, 0xd192e819d6ef5218, 
+    0xd69906245565a910, 0xf40e35855771202a, 0x106aa07032bbd1b8, 0x19a4c116b8d2d0c8, 0x1e376c085141ab53, 
+    0x2748774cdf8eeb99, 0x34b0bcb5e19b48a8, 0x391c0cb3c5c95a63, 0x4ed8aa4ae3418acb, 0x5b9cca4f7763e373, 
+    0x682e6ff3d6b2b8a3, 0x748f82ee5defb2fc, 0x78a5636f43172f60, 0x84c87814a1f0ab72, 0x8cc702081a6439ec, 
+    0x90befffa23631e28, 0xa4506cebde82bde9, 0xbef9a3f7b2c67915, 0xc67178f2e372532b, 0xca273eceea26619c, 
+    0xd186b8c721c0c207, 0xeada7dd6cde0eb1e, 0xf57d4f7fee6ed178, 0x06f067aa72176fba, 0x0a637dc5a2c898a6, 
+    0x113f9804bef90dae, 0x1b710b35131c471b, 0x28db77f523047d84, 0x32caab7b40c72493, 0x3c9ebe0a15c9bebc, 
+    0x431d67c49c100d4c, 0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817,
+}
+
+local sha384_spec = {
+
+  -- Rotation constants
+  1, 8, 19, 61,
+  7, 6,
+  14, 18, 41,
+  28, 34, 39,
+
+  -- Integer bit size. All variables are 64 bit unsigned integers. The appended
+  -- message lengt is 64 bit. The additions are calculated modulo 2^64.
+  8,
+
+  -- Hash size (max 8) -- Integer size unit
+  6,
+
+  -- Chunk size -- byte
+  128,
+  
+  -- Initial hash values:
+  -- (first 64 bits of the fractional parts of the square roots of the 9th-16th primes):
+  0xcbbb9d5dc1059ed8,
+  0x629a292a367cd507,
+  0x9159015a3070dd17,
+  0x152fecd8f70e5939,
+  0x67332667ffc00b31,
+  0x8eb44a8768581511,
+  0xdb0c2e0d64f98fa7,
+  0x47b5481dbefa4fa4,
+
+  -- Round constants:
+  -- (first 64 bits of the fractional parts of the cube roots of the first 80 primes 2..409):
+    0x428a2f98d728ae22, 0x7137449123ef65cd, 0xb5c0fbcfec4d3b2f, 0xe9b5dba58189dbbc, 0x3956c25bf348b538, 
+    0x59f111f1b605d019, 0x923f82a4af194f9b, 0xab1c5ed5da6d8118, 0xd807aa98a3030242, 0x12835b0145706fbe, 
+    0x243185be4ee4b28c, 0x550c7dc3d5ffb4e2, 0x72be5d74f27b896f, 0x80deb1fe3b1696b1, 0x9bdc06a725c71235, 
+    0xc19bf174cf692694, 0xe49b69c19ef14ad2, 0xefbe4786384f25e3, 0x0fc19dc68b8cd5b5, 0x240ca1cc77ac9c65, 
+    0x2de92c6f592b0275, 0x4a7484aa6ea6e483, 0x5cb0a9dcbd41fbd4, 0x76f988da831153b5, 0x983e5152ee66dfab, 
+    0xa831c66d2db43210, 0xb00327c898fb213f, 0xbf597fc7beef0ee4, 0xc6e00bf33da88fc2, 0xd5a79147930aa725, 
+    0x06ca6351e003826f, 0x142929670a0e6e70, 0x27b70a8546d22ffc, 0x2e1b21385c26c926, 0x4d2c6dfc5ac42aed, 
+    0x53380d139d95b3df, 0x650a73548baf63de, 0x766a0abb3c77b2a8, 0x81c2c92e47edaee6, 0x92722c851482353b, 
+    0xa2bfe8a14cf10364, 0xa81a664bbc423001, 0xc24b8b70d0f89791, 0xc76c51a30654be30, 0xd192e819d6ef5218, 
+    0xd69906245565a910, 0xf40e35855771202a, 0x106aa07032bbd1b8, 0x19a4c116b8d2d0c8, 0x1e376c085141ab53, 
+    0x2748774cdf8eeb99, 0x34b0bcb5e19b48a8, 0x391c0cb3c5c95a63, 0x4ed8aa4ae3418acb, 0x5b9cca4f7763e373, 
+    0x682e6ff3d6b2b8a3, 0x748f82ee5defb2fc, 0x78a5636f43172f60, 0x84c87814a1f0ab72, 0x8cc702081a6439ec, 
+    0x90befffa23631e28, 0xa4506cebde82bde9, 0xbef9a3f7b2c67915, 0xc67178f2e372532b, 0xca273eceea26619c, 
+    0xd186b8c721c0c207, 0xeada7dd6cde0eb1e, 0xf57d4f7fee6ed178, 0x06f067aa72176fba, 0x0a637dc5a2c898a6, 
+    0x113f9804bef90dae, 0x1b710b35131c471b, 0x28db77f523047d84, 0x32caab7b40c72493, 0x3c9ebe0a15c9bebc, 
+    0x431d67c49c100d4c, 0x4cc5d4becb3e42b6, 0x597f299cfc657e2a, 0x5fcb6fab3ad6faec, 0x6c44198c4a475817,
+}
+
+local function sha2( message, L, algo )
+  if not L then L = 8 * #message end
+  local algospec = sha256_spec
+  if 'table' ~= type(algo) then
+    if algo == 256 then algospec = sha256_spec end
+    if algo == 224 then algospec = sha224_spec end
+    if algo == 512 then algospec = sha512_spec end
+    if algo == 384 then algospec = sha384_spec end
+  end
+  return sha2core(message, L, algospec)
+end
+
+return sha2
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local sha2 = require 'sha2'
+local t = require 'testhelper'
+
+t( sha2( "Hello world!" ), "C0535E4BE2B79FFD93291305436BF889314E4A3FAEC05ECFFCBB7DF31AD9E51A", t.hexsame )
+
+t( sha2( '' ), "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855", t.hexsame )
+t( sha2(( "a" ):rep( 1   )), "CA978112CA1BBDCAFAC231B39A23DC4DA786EFF8147C4E72B9807785AFEE48BB", t.hexsame )
+t( sha2(( "b" ):rep( 63  )), "94E419FABAC7F930810F9636354042F8C1426D2F834D4AB65C93DC1E69326B13", t.hexsame )
+t( sha2(( "c" ):rep( 64  )), "52B6419D27BD7F547CEE3B92F8C17A908B8A49601ECBEC161E5030DE1DFE9E0A", t.hexsame )
+t( sha2(( "d" ):rep( 65  )), "899987F295364060C6ABD752A7E895124B467FD7CF56B52CE22F4A684A5723F4", t.hexsame )
+t( sha2(( "e" ):rep( 130 )), "C78A24F98CC9596CAFD6FC954A0664CA5CAD156AD406A8CC246B5E1F56864DB7", t.hexsame )
+
+t( sha2(( "\xFF" ), 1), "B9DEBF7D52F36E6468A54817C1FA071166C3A63D384850E1575B42F702DC5AA1", t.hexsame )
+t( sha2(( "\x00" ), 1), "BD4F9E98BEB68C6EAD3243B1B4C7FED75FA4FEAAB1F84795CBD8A98676A2A375", t.hexsame )
+t( sha2(( "a" ):rep( 70 ), 69*8+1), "056ECB5B2DB796F0E49B5A7F3010C5DB3ECA6E87E03EB45F4E618F4867D002A9", t.hexsame )
+t( sha2(( "a" ):rep( 70 ), 69*8+2), "0926C28F521555DB93892916F22414353234FCAB237AC5DC3AE6FA41A51BE15B", t.hexsame )
+t( sha2(( "a" ):rep( 70 ), 69*8+7), "6759507E5A185A774D2C980067B4451671AA70705A35080779AAA6D3CEAA00FC", t.hexsame )
+
+local function sha256(x,y) return sha2( x, y, 256 ) end
+local function sha224(x,y) return sha2( x, y, 224 ) end
+local function sha512(x,y) return sha2( x, y, 512 ) end
+local function sha384(x,y) return sha2( x, y, 384 ) end
+
+t( sha256( "Hello world!" ), "C0535E4BE2B79FFD93291305436BF889314E4A3FAEC05ECFFCBB7DF31AD9E51A", t.hexsame )
+t( sha224( "Hello world!" ), "7E81EBE9E604A0C97FEF0E4CFE71F9BA0ECBA13332BDE953AD1C66E4", t.hexsame )
+t( sha512( "Hello world!" ), "F6CDE2A0F819314CDDE55FC227D8D7DAE3D28CC556222A0A8AD66D91CCAD4AAD6094F517A2182360C9AACF6A3DC323162CB6FD8CDFFEDB0FE038F55E85FFB5B6", t.hexsame )
+t( sha384( "Hello world!" ), "86255FA2C36E4B30969EAE17DC34C772CBEBDFC58B58403900BE87614EB1A34B8780263F255EB5E65CA9BBB8641CCCFE", t.hexsame )
+
+t( sha256( '' ), "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855", t.hexsame )
+t( sha256(( "a" ):rep( 1   )), "CA978112CA1BBDCAFAC231B39A23DC4DA786EFF8147C4E72B9807785AFEE48BB", t.hexsame )
+t( sha256(( "b" ):rep( 63  )), "94E419FABAC7F930810F9636354042F8C1426D2F834D4AB65C93DC1E69326B13", t.hexsame )
+t( sha256(( "c" ):rep( 64  )), "52B6419D27BD7F547CEE3B92F8C17A908B8A49601ECBEC161E5030DE1DFE9E0A", t.hexsame )
+t( sha256(( "d" ):rep( 65  )), "899987F295364060C6ABD752A7E895124B467FD7CF56B52CE22F4A684A5723F4", t.hexsame )
+t( sha256(( "e" ):rep( 130 )), "C78A24F98CC9596CAFD6FC954A0664CA5CAD156AD406A8CC246B5E1F56864DB7", t.hexsame )
+
+t( sha512( '' ), "CF83E1357EEFB8BDF1542850D66D8007D620E4050B5715DC83F4A921D36CE9CE47D0D13C5D85F2B0FF8318D2877EEC2F63B931BD47417A81A538327AF927DA3E", t.hexsame )
+t( sha512(( "a" ):rep( 1   )), "1F40FC92DA241694750979EE6CF582F2D5D7D28E18335DE05ABC54D0560E0F5302860C652BF08D560252AA5E74210546F369FBBBCE8C12CFC7957B2652FE9A75", t.hexsame )
+t( sha512(( "b" ):rep( 127 )), "1FB5054735807A95088312066BDD2ACEC2EB8F65454BF77873CDF93998F79C75FC0F229AB4A8FFE0BFD5310A3357272ADCECB378D1F310EE43ED4A0634C6E5B8", t.hexsame )
+t( sha512(( "c" ):rep( 128 )), "1CADAE2171FD051AA72F31D7D11D232D867E9823E0DA1FAB3F40288C46C009ABA8A378454514FA6756D00C1037FFBC32B3716DF881569C545A2E190CE426C79B", t.hexsame )
+t( sha512(( "d" ):rep( 129 )), "30E54405DCC986AE90F830E01FC144190FF756EFD6E7E9FE4BDF9D6416B54C63E5CE18BFCE172DC360436052DB834A37317D0E2085FAF11E3C69A59020CDD8FC", t.hexsame )
+t( sha512(( "e" ):rep( 300 )), "C2202F2BC948039340224757BF24A0B59A24737A3083DF9A8DD062AB7A0717147E025FDAB38CFC5DED56B3E8AC8072D87457AFA143DBD4F26ACF4CB26BB35266", t.hexsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#shellcommand]
+=== shellcommand
+
+[source,lua]
+----
+function shellcommand( commandTab ) --> commandStr
+----
+
+Construct the shell command string `commandStr`, suitable to be executed by
+`os.execute`. The input is the array of strings `commandTab`, the first being
+the external command path, the other being all the arguments.
+
+Command path and argument strings can contain characters that have special
+meaning for the shell: they will be quoted.
+
+The `commandTab` argument can contain also the following key, that have a
+special meaning:
+
+- `input`: the generated command will instruct the shell to get the standard
+console input of the command from a file; the path to this file is the one
+containied in this table field
+- `output`: the generated command will instruct the shell to put the standard
+console ouput and error of the command into a file; the path to this file is
+the one containied in this table field
+- `append`: if true and the `output` field is also set, the ouput will be
+appended to the file instead of overwrite previous data
+
+==== Code
+
+[source,lua]
+------------
+-- [SNIP:escapeshellarg.lua[
+local escapeshellarg = (function()
+
+local quote_function
+
+local function escapeshellarg( str ) --> esc
+
+  local function posix_quote_argument(str)
+    if not str:match('[^%a%d%.%-%+=/,:]') then
+      return str
+    else
+      str = str:gsub( "[$`\"\\]", "\\%1" )
+      return '"' .. str .. '"'
+    end
+  end
+
+  local function windows_quote_argument(str)
+    str = str:gsub('[%%&\\^<>|]', '^%1')
+    str = str:gsub('"', "\\%1")
+    str = str:gsub('[ \t][ \t]*', '"%1"')
+    return str
+  end
+
+  if not quote_function then
+    quote_function = windows_quote_argument
+    local shell = os.getenv('SHELL')
+    if shell then
+      if '/' == shell:sub(1,1) and 'sh' == shell:sub(-2, -1) then
+        quote_function = posix_quote_argument
+      end
+    end
+  end
+
+  return quote_function(str)
+end
+
+return escapeshellarg
+
+end)()
+-- ]SNIP:escapeshellarg.lua]
+
+local function shellcommand( commandTab ) --> commandStr
+  if not commandTab then return '' end
+  local commandStr = ''
+  for _, v in ipairs(commandTab) do
+    commandStr = commandStr .. ' ' .. escapeshellarg(v)
+  end
+  local ri = ' < '
+  local ro = ' > '
+  local re = ' 2> '
+  local moe = ''
+  if commandTab.append then
+    ro = ' >> '
+    re = ' 2>> '
+  end
+  if commandTab.output == commandTab.error then
+    commandTab.error = nil
+    moe = ' 2>&1'
+  end
+  if commandTab.input then
+    commandStr = commandStr .. ri .. escapeshellarg(commandTab.input) .. moe
+  end
+  if commandTab.output then
+    commandStr = commandStr .. ro .. escapeshellarg(commandTab.output) .. moe
+  end
+  if commandTab.error then
+    commandStr = commandStr .. re .. escapeshellarg(commandTab.error) .. moe
+  end
+  return commandStr
+end
+
+return shellcommand
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local shellcommand = require 'shellcommand'
+local t = require 'testhelper'
+
+local lua, argdumputiil, outpath = t.argdumputil()
+
+t( shellcommand(), '' )
+t( shellcommand{}, '' )
+
+os.execute( shellcommand{lua, argdumputiil, 'x'} )
+t( t.readfile(outpath), 'x' )
+
+os.execute( shellcommand{lua, argdumputiil, 'x', 'y'} )
+t( t.readfile(outpath), 'xy' )
+
+t( shellcommand{lua, argdumputiil, '-i'}, shellcommand({lua, argdumputiil})..' -i' )
+t( shellcommand{lua, argdumputiil, '-o'}, shellcommand({lua, argdumputiil})..' -o' )
+t( shellcommand{lua, argdumputiil, '-e'}, shellcommand({lua, argdumputiil})..' -e' )
+
+t.writefile('tmp_1.txt','abc')
+os.execute( shellcommand{lua, argdumputiil, '-i', input='tmp_1.txt'} )
+t( t.readfile(outpath), 'abc' )
+
+os.execute( shellcommand{lua, argdumputiil, 'z', 'w', '-o', output='tmp_2.txt'} )
+t( t.readfile(outpath), 'zw' )
+t( t.readfile( 'tmp_2.txt'), 'zw' )
+
+os.execute( shellcommand{lua, argdumputiil, '-i', '-o', input='tmp_1.txt', output='tmp_2.txt'} )
+t( t.readfile(outpath), 'abc' )
+t( t.readfile( 'tmp_2.txt'), 'abc' )
+
+os.execute( shellcommand{lua, argdumputiil, 'z', 'w', '-o', append=true, output='tmp_2.txt'} )
+t( t.readfile(outpath), 'zw' )
+t( t.readfile( 'tmp_2.txt'), 'abczw' )
+
+os.execute( shellcommand{lua, argdumputiil, '-i', '-e', input='tmp_1.txt', output='tmp_2.txt', error='tmp_3.txt'} )
+t( t.readfile(outpath), 'abc' )
+t( t.readfile( 'tmp_2.txt'), '' )
+t( t.readfile( 'tmp_3.txt'), 'abc' )
+
+os.execute( shellcommand{lua, argdumputiil, 'z', 'w', '-e', append=true, output='tmp_2.txt', error='tmp_3.txt'} )
+t( t.readfile(outpath), 'zw' )
+t( t.readfile( 'tmp_2.txt'), '' )
+t( t.readfile( 'tmp_3.txt'), 'abczw' )
+
+os.execute( shellcommand{lua, argdumputiil, 'a', 'b', '-o', 'c', 'd', '-e', output='tmp_2.txt', error='tmp_2.txt'} )
+local o = t.readfile('tmp_2.txt')
+t( #o, 4 )
+t( o, 'ab', t.patsame )
+t( o, 'cd', t.patsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#stepdebug]
+=== stepdebug
+
+[source,lua]
+----
+function stepdebug( handleFunc ) --> nil
+function stepdebug( commandStr ) --> nil | scriptResult
+----
+
+==== Description
+
+This function implements a debugger flow control like the common ones found in
+tools like gdb or some IDE. An handler function can be defined to be called at
+every step when the the debug mode is active.
+
+It works differently based on the type of the argument: if the `handleFunc`
+function is passed it will be installed as handler; if the `commandStr` string
+is passed, it will parse it as a standard debugger command; if the `commandStr`
+string is not a valid debugger command, it will parsed as a lua chunk to be
+executed in the current call stack position.
+
+For example, we suppose to install an header that read from standard input and
+pass the data to `stepdebugger` itself. When the application hits a
+`stepdebugger'break'`, the `break` command will be executed. It will stop the
+execution enabling the debug mode. So the handler will be called and the
+application will wait for an input on the standard input. Any lua code you
+write into will be parsed as it was called just after the break i.e. with the
+same call stack. After the code execution, the application will be stopped
+again, waiting again for an input (i.e. the handler is called again). The
+execution is not moved, you are still just after the `stepdebugger'break'`
+line. You can input 'next<enter>' to move to the next line of code, or
+'continue<enter>' to resume the execution (i.e. do not call the handler
+anymore) until the next break.
+
+When called, two parameters will be passed to the handler:
+
+- The stack level at which the break was; you should use this index in all the
+call to the lua debug API
+- The event type that caused the handler to be called; it is the same argument
+passet do an hook set by the lua API function `debug.sethook`
+
+The supported debugger commands are:
+
+- 'quit' - will quit the application
+- 'break' - pass to the debug mode; the handler will be called from now on
+- 'continue'or 'c' - turn off the debug mode; the handler will not be called until the next `break`
+- 'step' or 's' - do not call the handler anymore until the next line of execution
+- 'next' or 'n' - do not call the handler anymore until the next line of execution of the current block
+- 'finish' or 'f' - do not call the handler anymore until the end of the current block
+
+Please note that if you want to access the locals values of the block calling
+`stepdebugger'break'`, you have to use the `debug.getlocal` API. This could be
+a bit unconfortable, so a wrapper is strongly suggested, e.g. the `localbind`
+function of LuaSnip. For a complete command line debugger implementation based
+on `stepdebug` and `localbind`, see the LuaSnip tool `debugger_stdinout`.
+
+==== Code
+
+[source,lua]
+------------
+local function stackbottom()
+  local result = 1
+  while debug.getinfo(result) do
+    result = result + 1
+  end
+  return result
+end
+
+local onstep = function() end
+local stack_level = 0
+local deb_enabled = false
+local stack_level_change = nil
+
+local next_line
+
+local this_source
+local function deb_hook(event)
+  if stack_level_change then
+    stack_level = stack_level + stack_level_change
+    stack_level_change = nil
+  end
+  if not deb_enabled then return end
+  if not this_source then
+    this_source = debug.getinfo(1).source
+  end
+  local b = stackbottom()
+  if b > stack_level then return end
+  local f = debug.getinfo(2)
+  if f.source == this_source then return end
+  if f.source:sub(1,1) ~= '@' then return end
+  if event == 'return' then stack_level = b-1 end
+  if event ~= 'line' then return end
+  local result = onstep(3,event)
+  if next_line then
+    next_line = nil
+    return result
+  end
+  return deb_hook(event) --> tail call
+end
+
+local function deb_next_line()
+  next_line = true
+  return nil
+end
+
+local function deb_break()
+  stack_level = stackbottom()
+  deb_enabled = true
+  debug.sethook(deb_hook,'clr')
+end
+
+local function deb_continue()
+  deb_enabled = false -- currently redundant
+  debug.sethook() -- currently redundant
+end
+
+local function deb_target( level )
+  stack_level_change = level
+end
+
+local function deb_chunk_exec( code )
+  local exec, err = load('return '..code, '(*iteractive)', 't')
+  if not exec or err then
+    exec, err = load(code, '(*iteractive)', 't')
+  end
+  if not exec or err then
+    print(err)
+  else
+    local ok, result = pcall(function() return exec() end)
+    if not ok then print(result) end
+    return result
+  end
+end
+
+local function stepdebug( op )
+  if 'function' == type(op) then
+    onstep = op
+    return
+  end
+
+  local cmd = op:lower():gsub('^[ \t]*(.-)[ \t]*$','%1')
+
+  if '' == op then return
+  elseif 'n' == op or 'next' == op then return deb_next_line()
+  elseif 's' == op or 'step' == op then deb_target(1)
+  elseif 'f' == op or 'finish' == op then deb_target(-1)
+  elseif 'c' == op or 'continue' == op then deb_continue()
+  elseif 'quit' == op then os.exit()
+
+  elseif 'break' == op then
+    deb_break()
+    stack_level = stack_level -1
+
+  else
+    return deb_chunk_exec(op)
+  end
+end
+
+return stepdebug
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local stepdebug = require 'stepdebug'
+local t = require 'testhelper'
+
+-- Test setup
+local input=''
+local output={}
+stepdebug(function()
+  if input~=nil then
+    output[1+#output] = stepdebug(input)
+  end
+  stepdebug'next'
+end)
+
+stepdebug'break'
+input="1"
+input='continue'
+
+t( #output, 1 )
+t( output[1], 1 )
+
+output, input = {}, nil
+
+stepdebug'break'
+input="return 2"
+input='continue'
+
+t( #output, 1 )
+t( output[1], 2 )
+
+output, input = {}, nil
+
+input='break'
+input='1'
+input='2'
+stepdebug'break'
+input='3'
+input='4'
+input='continue'
+input='5'
+input='6'
+
+t( #output, 3 )
+t( output[1], 2 )
+t( output[2], 3 )
+t( output[3], 4 )
+
+output, input = {}, nil
+
+stepdebug'break'
+input='1'
+input='2'
+;(function()
+  input='3'
+  input='4'
+end)()
+input='5'
+input='6'
+input='continue'
+
+t( #output, 6 )
+t( output[1], 1 )
+t( output[2], 2 )
+t( output[3], 2 )
+t( output[4], 4 )
+t( output[5], 5 )
+t( output[6], 6 )
+
+output, input = {}, nil
+
+stepdebug'break'
+input='step'
+input='1'
+input='2'
+;(function()
+  input='3'
+  input='4'
+  ;(function()
+    input='5'
+    input='6'
+  end)()
+  input='7'
+  input='8'
+end)()
+input='9'
+input='10'
+input='continue'
+
+t( #output, 13 )
+t( output[1], 1 )
+t( output[2], 2 )
+t( output[3], 2 )
+t( output[4], 2 )
+t( output[5], 3 )
+t( output[6], 4 )
+t( output[7], 4 )
+t( output[8], 6 )
+t( output[9], 7 )
+t( output[10], 8 )
+t( output[11], 8 )
+t( output[12], 9 )
+t( output[13], 10 )
+
+output, input = {}, nil
+
+stepdebug'break'
+input='step'
+input='1'
+input='2'
+;(function()
+  input='3'
+  input='4'
+end)()
+input='5'
+input='6'
+;(function()
+  input='7'
+  input='8'
+end)()
+input='9'
+input='10'
+input='continue'
+
+t( #output, 13 )
+t( output[1], 1 )
+t( output[2], 2 )
+t( output[3], 2 )
+t( output[4], 2 )
+t( output[5], 3 )
+t( output[6], 4 )
+t( output[7], 4 )
+t( output[8], 5 )
+t( output[9], 6 )
+t( output[10], 6 )
+t( output[11], 8 )
+t( output[12], 9 )
+t( output[13], 10 )
+
+output, input = {}, nil
+
+stepdebug'break'
+input='step'
+input='1'
+input='2'
+;(function()
+  input='3'
+  input='4'
+  input='finish'
+  input='5'
+  input='6'
+  input='7'
+end)()
+input='8'
+input='9'
+input='continue'
+
+t( #output, 9 )
+t( output[1], 1 )
+t( output[2], 2 )
+t( output[3], 2 )
+t( output[4], 2 )
+t( output[5], 3 )
+t( output[6], 4 )
+t( output[7], 7 )
+t( output[8], 8 )
+t( output[9], 9 )
+
+output, input = {}, nil
+
+function gupnam() -- must be global
+  return debug.getinfo(6).name or ''
+end
+
+stepdebug'break'
+input='step'
+input='gupnam()'
+function NL()
+  input='gupnam()'
+end
+NL()
+input='gupnam()'
+input='continue'
+
+t( #output, 7 )
+t( output[4], 'NL' )
+t( output[5], 'NL' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#subbytebase]
+=== subbytebase
+
+[source,lua]
+----
+function subbytebase( bitInt , inStr [, mapTab] ) --> outStr
+----
+
+Convert the raw data in the `inStr` string to/from base-2-4-8-16-32-64-128
+representation. 
+
+`bitInt` is the number of bit of the representation. So you should use `Y` to
+request `baseX` where `X=2^Y`, e.g. `1` means base2, `6` means base64, and so
+on.  Positive value means conver to the representation (i.e. output will be
+longer than the input), qhile negative value means convert from the
+representation (i.e. output will be shorter than the input).
+
+A custom alphabet can be bassed in the `mapTab` table; it must be a table
+containing the alphabet to use into the first integer keys. For example, the
+`{'O','I'}` in a base2 conversion will use 'O' instead of '0' and 'I' instead
+of '1'.
+
+If no alphabet is passed, the following defaults will be used:
+
+- For base2, the two digit `0` and `1` will be use
+- For base4, the degit between `0` and `3`  will be used
+- For base8 (i.e. ocatal) the degit between `0` and `7`  will be used
+- For base16 (i.e. hex) the standard, hex chars will be used, i.e.  degit
+between `0` and `9` and letters between 'A' and 'F' will be used
+- For base32, the Crockford alphabet will be used; it is an extension of the
+base16 one, with the addition of only letters
+- For base64, the standard alphabet will be used
+- For base128, the ASCII subset will be used (higher bit always zero)
+
+In base16 and base32 the letters are always uppercase.
+
+==== Code
+
+[source,lua]
+------------
+-- [SNIP:bitpad.lua[
+local bitpad = (function()
+
+local function bitpad( pad, bit, str, map, imap, off )
+  if not bit then bit = 1 end
+  if not pad then pad = 8 - (bit % 8) end
+  local result = ''
+
+  local removing = false
+  if pad < 0 then
+    pad = - pad
+    removing = true
+  end
+
+  local out_count = 0
+  local appending = false
+  local procbit = pad
+  if off then
+    appending = true
+    procbit = off
+  end
+  local store = 0
+  local i = 0
+  local inlast = 0
+  local inbit = 0
+
+  -- Bitloop
+  while true do
+
+    -- Get new input byte as needed
+    if inbit <= 0 then
+      i = i + 1
+      inlast = str:byte(i)
+      if not inlast then break end
+      if imap then
+        local x = imap[inlast+1]
+        inlast = (x and x:byte()) or inlast
+      end
+      inbit = 8
+    end
+
+    -- Calculate number of appendable bits
+    local appbit = procbit
+    if appbit > inbit then appbit = inbit end
+    if appbit + out_count > 8 then appbit = 8 - out_count end
+
+    -- Make space into the output for the next bits
+    if not removing or appending then
+      store = (store << appbit) & 0xFF
+      out_count = out_count + appbit
+    end
+
+    -- Copy the next bits from the input
+    if appending then
+      local mask = ((~0) << (8-appbit)) & 0xFF
+      store = store | ((mask & inlast ) >> (8- appbit))
+    end
+
+    -- Discard from the input the bits that were already processed
+    if removing or appending then
+      inbit = inbit - appbit
+      inlast = (inlast << appbit) & 0xFF
+    end
+
+    -- Select bit handle mode for the next iteration
+    procbit = procbit - appbit
+    if procbit <= 0 then
+      if appending then
+        appending = false
+        procbit = pad
+      else
+        appending = true
+        procbit = bit
+      end
+    end
+
+    -- Generate output byte
+    if out_count >= 8 then
+        result = result .. (map and map[store+1] or string.char(store))
+      store = 0
+      out_count = 0
+    end
+  end
+
+  -- Generate odd-bit byte
+  local bitadd = 0
+  if out_count > 0 then
+    bitadd = 8 - out_count
+    store = (store << bitadd) & 0xFF
+    result = result .. (map and map[store+1] or string.char(store))
+  end
+
+  return result, bitadd
+end
+
+return bitpad
+
+end)()
+-- ]SNIP:bitpad.lua]
+
+-- This can be used for base2-4-8-16 and crockford base32
+local subbyte_multipurpose_alphabet = {
+  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+  'G', 'H', 'J', 'K', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z',
+}
+
+-- This can be used for standard base64
+local subbyte_base64_alphabet = {
+  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+  'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+  'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+  'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/',
+}
+
+local subbyte_inverse_cache = {}
+
+local function subbyte_alphabet_invert( map )
+  if not map then return nil end
+  local imap = {}
+
+  -- cache standard inverse alphabets
+  if map == subbyte_multipurpose_alphabet or map == subbyte_base64_alphabe then
+    local s = subbyte_inverse_cache[map]
+    if s then return s end
+    subbyte_inverse_cache[map] = s
+  end
+
+  -- invert the alphabet
+  for i=1,256 do for j=1,256 do
+    if map[j]==string.char(i-1) then imap[i] = string.char(j-1) end
+  end end
+  return imap
+end
+
+local function subbytebase(bit, str, map)
+  if bit == 8 then return str end
+  if str == '' then return str end
+  if bit == 0 then error() end
+  local result = str
+
+  local mode = 'encode'
+  if bit < 0 then
+    mode = 'decode'
+    bit = - bit
+  end
+
+  if not map then
+    if bit >= 1 and bit <= 5 then
+      map = subbyte_multipurpose_alphabet
+    elseif bit == 6 then
+      map = subbyte_base64_alphabet
+    end
+  end
+
+  local pad
+  if mode == 'decode' then 
+
+    -- handle '=' tail
+    local hastail = ('=' == result:sub(-1,-1))
+    result = result:gsub('%=*$', '')
+
+    local imap = subbyte_alphabet_invert( map )
+    result, pad = bitpad(bit-8,bit,result,nil,imap)
+
+    -- handle '=' tail
+    if hastail then result = result:sub(1, -2) end
+
+  else -- mode == 'decode'
+
+    result, pad = bitpad(8-bit,bit,result,map)
+
+    -- handle '=' tail
+    if pad ~= 0 then
+      for p = 1, 8 do if (bit - pad + 8 * p) % bit == 0 then
+        result = result .. (('='):rep(p))
+        break
+      end end
+    end
+
+  end
+
+  return result
+end
+
+return subbytebase
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local subbytebase = require 'subbytebase'
+local t = require 'testhelper'
+
+t( subbytebase(6,''       ) , ''         , t.bytesame )
+t( subbytebase(6,'a'      ) , 'YQ=='     , t.bytesame )
+t( subbytebase(6,'aa'     ) , 'YWE='     , t.bytesame )
+t( subbytebase(6,'aaa'    ) , 'YWFh'     , t.bytesame )
+t( subbytebase(6,'aaaa'   ) , 'YWFhYQ==' , t.bytesame )
+t( subbytebase(6,'aaaaa'  ) , 'YWFhYWE=' , t.bytesame )
+t( subbytebase(6,'aaaaaa' ) , 'YWFhYWFh' , t.bytesame )
+
+t( subbytebase(-6, ''        ) , ''       , t.bytesame )
+t( subbytebase(-6, 'YQ=='    ) , 'a'      , t.bytesame )
+t( subbytebase(-6, 'YWE='    ) , 'aa'     , t.bytesame )
+t( subbytebase(-6, 'YWFh'    ) , 'aaa'    , t.bytesame )
+t( subbytebase(-6, 'YWFhYQ==') , 'aaaa'   , t.bytesame )
+t( subbytebase(-6, 'YWFhYWE=') , 'aaaaa'  , t.bytesame )
+t( subbytebase(-6, 'YWFhYWFh') , 'aaaaaa' , t.bytesame )
+
+t( subbytebase(1,  'hi' ),               '0110100001101001', t.bytesame )
+t( subbytebase(-1, '0110100001101001' ), 'hi',               t.bytesame )
+
+t( subbytebase(2,  'hi'   ),     '12201221', t.bytesame )
+t( subbytebase(-2, '12201221' ), 'hi',   t.bytesame )
+
+t( subbytebase(3,  'hi' ),      '320644=', t.bytesame )
+t( subbytebase(-3, '320644=' ), 'hi',   t.bytesame )
+
+t( subbytebase(4,  'hi' ),   '6869', t.bytesame )
+t( subbytebase(-4, '6869' ), 'hi',   t.bytesame )
+
+t( subbytebase(5,  'hi' ),      'D1MG===', t.bytesame )
+t( subbytebase(-5, 'D1MG===' ), 'hi',   t.bytesame )
+
+t( subbytebase(6,  'hi' ),   'aGk=', t.bytesame )
+t( subbytebase(-6, 'aGk=' ), 'hi',   t.bytesame )
+
+t( subbytebase(7,  '\xFF' ),           '\x7F\x40======', t.bytesame )
+t( subbytebase(-7, '\x7F\x40======' ), '\xFF',   t.bytesame )
+
+t( subbytebase(8,  'hi' ), 'hi', t.bytesame )
+t( subbytebase(-8, 'hi' ), 'hi',   t.bytesame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#tapfail]
+=== tapfail
+
+[source,lua]
+----
+local function tapfail( ) --> streamFunc( lineStr ) --> errorStr
+----
+
+With this function, a stream in the TAP format can be searched for errors (Test
+Anything Protocol). Itself returns the `streamFunc` function that performs the
+real analisys.
+
+`streamFunc` must be called on each line of the TAP stream and it will return
+`nil` if no error was found. Otherwise it will return the `errorStr` string
+describint the error.
+
+At the end of the stream, `streamFunc` should be called the last time, without
+any argument, to perform the last checks (e.g. a proper summary line was
+found).
+
+When called without argument, `streamFunc` will always return the last found
+error (in the current as in the previous calls).
+
+==== Code
+
+[source,lua]
+------------
+local function ton( x )
+  local _, x = pcall(function() return tonumber(x) end)
+  if x < 0 then return nil end
+  if x ~= math.modf(x) then return nil end
+  return x
+end
+
+local function tapfail( ) --> streamFunc( lineStr ) --> errorStr
+  local summary
+  local summary_line
+  local testcount = 0
+  local l = 0
+
+  local function check_line( line )
+    if line == '' then
+      return nil
+    elseif line:match('^#') then
+      return nil
+    else
+
+      local ok = line:match('^ok (%d*)')
+      if ok then
+        if summary_line and l > summary_line and summary_line ~= 1 then
+          return 'line after summary'
+        end
+        ok = ton( ok )
+        if not ok then ok = -9 end
+        local deltacount = ok - testcount
+        testcount = ok
+        if deltacount ~= 1 then
+          return 'invalid count sequence'
+        end
+      end
+
+      local sum = line:match('^1%.%.(.*)')
+      if sum == 'N' then
+        sum = true
+      elseif sum then
+        sum = ton( sum )
+      end
+      if sum then
+        summary = sum
+        if not summary_line then
+          summary_line = l
+        else
+          return 'summary already found at line '..summary_line
+        end
+      end
+
+      if not ok and not diag and not summary then
+        return 'no diagnostic or ok line'
+      end
+
+      if not result and summary and summary ~= true then
+        if summary_line==l and l > 1 and summary ~= testcount then
+          return 'invalid test count'
+        elseif summary<testcount then
+          return 'invalid count sequence'
+        end
+      end
+
+      return nil
+    end
+  end
+  
+  local last_error
+
+  local function tapchunk( line )
+    if not line then
+      if not summary then
+        last_error = 'summary missing'
+      elseif summary ~= true and summary > testcount then
+        last_error = 'missing test'
+      end
+      return last_error
+    end
+
+    l = l + 1
+    local result = check_line( line )
+
+    if result then last_error = result end
+    return result
+  end
+
+  return tapchunk
+end
+
+return tapfail
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local tapfail = require 'tapfail'
+local t = require 'testhelper'
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'', nil )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'not ok', 'no diagnostic or ok line' )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'ok 1', nil )
+t( ts'1..1', nil )
+t( ts(), nil )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'ok 1', nil )
+t( ts'ok 2', nil )
+t( ts'1..2', nil )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'ok 1', nil )
+t( ts'#not ok masked by diagnostic', nil )
+t( ts'1..1', nil )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'ok 2', 'invalid count sequence' )
+t( ts'ok 1', 'invalid count sequence' )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'ok 1', nil )
+t( ts'ok 3', 'invalid count sequence' )
+t( ts'ok 2', 'invalid count sequence' )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'ok 1', nil )
+t( ts'1..2', 'invalid test count' )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'ok 1', nil )
+t( ts'not ok', 'no diagnostic or ok line' )
+t( ts'1..2', 'invalid test count' )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'ok 1', nil )
+t( ts'not ok', 'no diagnostic or ok line' )
+t( ts'1..1', nil )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'ok 1', nil )
+t( ts(), 'summary missing' )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'ok 1', nil )
+t( ts'1..1', nil )
+t( ts'ok 2', 'line after summary' )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'ok 1', nil )
+t( ts'1..2', 'invalid test count' )
+t( ts'ok 2', 'line after summary' )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'ok 1', nil )
+t( ts'ok 2', nil )
+t( ts'ok 3', nil )
+t( ts'1..N', nil )
+t( ts(), nil )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'1..3', nil )
+t( ts'ok 1', nil )
+t( ts'ok 2', nil )
+t( ts'ok 3', nil )
+t( ts(), nil )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'1..2', nil )
+t( ts'ok 1', nil )
+t( ts'ok 2', nil )
+t( ts'ok 3', 'invalid count sequence' )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'1..N', nil )
+t( ts'ok 1', nil )
+t( ts'ok 2', nil )
+t( ts'ok 3', nil )
+t( ts(), nil )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'1..3', nil )
+t( ts'ok 1', nil )
+t( ts'ok 2', nil )
+t( ts(), 'missing test' )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'1..N', nil )
+t( ts'ok 1', nil )
+t( ts'ok 2', nil )
+t( ts'ok 3', nil )
+t( ts'1..N', 'summary already found at line 1' )
+
+local ts = tapfail()
+t( type(ts), 'function' )
+t( ts'1..N', nil )
+t( ts'ok 1', nil )
+t( ts'ok 2', nil )
+t( ts'1..N', 'summary already found at line 1' )
+t( ts'ok 3', nil )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#taptest]
+=== taptest
+
+[source,lua]
+----
+function taptest( actual, expect [, compare [, message ]] ) --> msg
+function taptest( diagnostic ) --> msg
+function taptest() --> msg
+----
+
+This function behaves differently based on the number of arguments.
+
+* It can check actual values versus expected ones.
+* It can print diagnostic.
+* Or it can print tests summary when called without arguments.
+
+All the output is done in the Test Anything Protocol (TAP) format.
+In case of failure some information are appended, like source position, actual
+value, etc.
+
+`actual` is actual value got from the code under test.
+
+`expect` is the expected value
+
+`compare` is the compare function.  If it is given as 3-rd or 4-th argument,
+this function will be called with _actual, expected_ as argument.  If it return
+true the test will be assumed to success, otherwise it will be assumed to be
+failed.  If no compare function is given, the _==_ operator will be used as
+default.
+
+`message` is a message string is given as 3-rd or 4-th argument, it will be
+appended to the TAP formatted line, only in case of failing test.  This is ment
+as a way to give additional information about the failure.
+
+When called with just one string argument `diagnostic`, a TAP diagnostic block
+will be printed.  A '#' will be prepended to each line of the diagnostic
+message.
+
+This function returns the `msg` string containing the same message written to
+the stdout.  This message is a TAP check line or a sequence of TAP diagnostic
+lines.
+
+A function calling taptest can mask a possible fail, and blame the function
+upper in the stack, by setting at 'true' a local variable called
+'taptest_blame_caller'.
+
+==== Inspired by
+
+https://testanything.org/
+https://github.com/telemachus/tapered
+
+==== Code
+
+[source,lua]
+------------
+local test_count = 0
+local fail_count = 0
+
+local function taptest( ... ) --> msg
+
+   local function diagnostic( desc )
+      local msg = "# "..desc:gsub( "\n", "\n# " )
+      return msg
+   end
+
+   local function print_summary()
+      local msg = '\n' .. tostring(fail_count) .. " tests failed\n"
+      if fail_count == 0 then msg = '\nall is right\n' end
+      msg = diagnostic(msg)
+      local plan = "1.."..test_count
+      return msg..'\n'..plan
+   end
+
+   local function get_report_position()
+     local result
+     local stackup = 2
+     local testpoint = false
+     while not testpoint do
+       stackup = stackup + 1
+       result = debug.getinfo(stackup)
+       if not result then
+         return debug.getinfo(3)
+       end
+       local j = 0
+       testpoint = true
+       while true do
+         j = j + 1
+         local k, v = debug.getlocal(stackup, j)
+         if k == nil then break end
+         if v and k == 'taptest_blame_caller' then
+           testpoint = false
+           break
+         end
+       end
+       if testpoint then return result end
+     end
+   end
+
+   local function do_check(got, expected, a, b)
+
+      -- Extra arg parse and defaults
+      local checker, err
+      if "string" == type(a) then err = a end
+      if "string" == type(b) then err = b end
+      if not err then err = "" end
+      if "function" == type(a) then checker = a end
+      if "function" == type(b) then checker = b end
+      if not checker then checker = function( e, g ) return e == g end end
+
+      -- Check the condition
+      test_count = test_count + 1
+      local ok, info = checker( got, expected )
+
+      -- Generate TAP line
+      local msg = ""
+      if ok then
+         msg = msg.."ok "..test_count
+      else
+         fail_count = fail_count + 1
+         local i = get_report_position()
+
+         msg = msg
+               .."not ok " .. test_count .. " - "
+               ..i.source:match( "([^@/\\]*)$" )..":"..i.currentline..". "
+      end
+
+      -- Append automatic info
+      if not ok and not info then
+        msg = msg
+          .. "Expectation ["..tostring( expected ).."] "
+          .. "does not match with ["..tostring( got ).."]. "
+      end
+
+      -- Append user-provided info
+      if info then
+        msg = msg.." "..info
+      end
+
+      if not ok then
+        msg = msg..err
+      end
+
+      return msg
+   end
+
+   local narg = select( "#", ... )
+   if     0 == narg then return print_summary()
+   elseif 1 == narg then return diagnostic( select( 1, ... ) )
+   elseif 4 >= narg then return do_check( ... )
+   end
+
+   return nil, "Too many arguments"
+end
+
+return taptest
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local taptest = require "taptest"
+local t = require "testhelper"
+-- taptest is both the "Unit under test" (taptest) and the "Test framework" (t - testhelper)
+
+-- To avoid confusion (as much as it is possible) t will be always used in its
+-- easest form: it just checks that the two argument are equals.
+-- Since taptest always returns what it print on stdout, the returned
+-- value of taptest is checked
+
+-- wrap the taptest to simplify line number checks
+local fake_test_count = 1
+local taptest_wrapped = taptest
+local function taptest( ... )
+   fake_test_count = fake_test_count + 2
+   local result = taptest_wrapped( ... )
+   return result -- avoid tail call
+end
+
+t( taptest( 1, 1 ), "ok 1" )
+
+-- Note: since at each line two test will be done (one for taptest and one for tf)
+-- the test counter step is 2, not 1
+t( taptest( 1, 1 ), "ok 3" )
+
+-- Additional infos when the test fails
+t( taptest( 1, 2 ),
+   "not ok 5 - taptest.ex1.lua:15. Expectation [2] does not match with [1]. " )
+
+-- Custom infos on fail
+t( taptest( 1, 2, "Not good!" ),
+   "not ok 7 - taptest.ex1.lua:15. Expectation [2] does not match with [1]. Not good!" )
+
+-- Custom compare function
+t( taptest( 1, 2, function( a, b ) return a < b end ),
+   "ok 9" )
+t( taptest( 2, 1, function( a, b ) return a < b end ),
+   "not ok 11 - taptest.ex1.lua:15. Expectation [1] does not match with [2]. " )
+
+-- Custom compare function and message
+t( taptest( 1, 1, function( a, b ) return a ~= b end, "Not good!" ),
+   "not ok 13 - taptest.ex1.lua:15. Expectation [1] does not match with [1]. Not good!" )
+t( taptest( 1, 1, "Not good!", function( a, b ) return a ~= b end ),
+   "not ok 15 - taptest.ex1.lua:15. Expectation [1] does not match with [1]. Not good!" )
+
+-- Single argument = Tap diagnostic
+t( taptest( "new\nsuite" ), "# new\n# suite" )
+
+-- Checker function can add useful information
+t( taptest( 1, 1, function( a, b ) return a == b, "- additional info" end ),
+   "ok 18 - additional info" )
+
+t( taptest( 1, 2, function( a, b ) return a == b, "- additional info" end ),
+   "not ok 20 - taptest.ex1.lua:15.  - additional info" )
+
+-- No argument = Summary and final plan
+t( taptest(), "# \n# 6 tests failed\n# \n1..21" )
+
+local function taptest_masked(...)
+  local taptest_blame_caller = true
+  r = taptest_wrapped(...)
+  return r -- no tail call
+end
+
+t( taptest_masked( 1, 2 ), "not ok 23 - taptest.ex1.lua:64. Expectation [2] does not match with [1]. " )
+
+t( taptest( nil, nil ), "ok 25" )
+t( taptest( nil, true, function(a,b) return a~=b end ), "ok 27" )
+t( taptest( true, nil, function(a,b) return a~=b end ), "ok 29" )
+
+t()
+
+-- In case all the tests are successful, the line
+-- # all is right
+-- will be substitued to the '# 5 tests failed' one
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#templua]
+=== templua
+
+[source,lua]
+----
+function templua( template [, ename] ) --> ( sandbox ) --> expstr, err
+----
+
+Expand the Lua code contained in the `template` string and generates a
+function.  The returned function, when called, will execute the lua code in the
+`template` and it will return the template `expstr` result string.
+
+The code in the `template` can be specified with the following patterns:
+
+`@{luaexp}`::
+Will be substituted with the result of the Lua expression.
+
+`@{{luastm}}`::
+Embeds the Lua statement. This allow to mix Lua code and verbatim text.
+
+From the code in the statement pattern, the `_o` function can be used to
+produce the `template` output. This name can be changed using the optional
+`ename` string parameter.
+
+Moreover, the content of the `sandbox` table is injected into the environment
+of the Lua code (both expressions and statements). This allows you to pass
+parameters to the template.
+
+==== Code
+
+[source,lua]
+------------
+local function templua( template, ename ) --> ( sandbox ) --> expstr, err
+   if not ename then ename = '_o' end
+   local function expr(e) return ' '..ename..'('..e..')' end
+  
+   -- Generate a script that expands the template
+   local script = template:gsub( '(.-)@(%b{})([^@]*)',
+     function( prefix, code, suffix )
+        prefix = expr( string.format( '%q', prefix ) )
+        suffix = expr( string.format( '%q', suffix ) )
+        code = code:sub( 2, #code-1 )
+
+        if code:match( '^{.*}$' ) then
+           return prefix .. code:sub( 2, #code-1 ) .. suffix
+        else
+           return prefix .. expr( code ) .. suffix
+        end
+     end
+   )
+
+   -- The generator must be run only if at least one @{} was found
+   local run_generator = ( script ~= template )
+
+   -- Return a function that executes the script with a custom environment
+   return function( sandbox )
+    if not run_generator then return script end
+    local expstr = ''
+    if 'table' ~= type( sandbox ) then
+      return nil, "templua generator requires a sandbox"
+    end
+    local oldout = sandbox[ ename ]
+    sandbox[ ename ] = function( out ) expstr = expstr..tostring(out) end
+    local generate, err = load( script, 'mint_script', 't', sandbox )
+    if not generate or err then
+        sandbox[ ename ] = oldout
+       return nil, err..'\nTemplate script: [[\n'..script..'\n]]'
+    end
+    local ok, err = pcall(generate)
+    sandbox[ ename ] = oldout
+    if not ok or err then
+       return nil, err..'\nTemplate script: [[\n'..script..'\n]]'
+    end
+    return expstr
+  end
+end
+
+return templua
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local templua = require( "templua" )
+local t = require 'testhelper'
+
+-- Blank templates are not touched
+local m = templua( "ok" )
+t( 'ok', m{} )
+
+-- Lua expression expansion with @{}
+m = templua( "@{item.a} @{item.b:upper()}" )
+t( 'a B', m{ item = { a = 'a', b = 'b' } } )
+t( 'B A', m{ item = { a = 'B', b = 'a' } } )
+
+-- Mix lua statements and text with @{{}}
+m = templua( "@{{for i=1,3 do}} hello @{item}!@{{end}}" )
+t( ' hello world! hello world! hello world!', m{ item = 'world' } )
+
+-- Use the output function to expand text from complex lua code
+m = templua( "@{{for i=1,3 do o(' hello '..item..'!') end}}", 'o' )
+t( ' hello dude! hello dude! hello dude!', m{ item = 'dude' } )
+
+-- Last text appending
+m = templua( "@{'true'} ok" )
+t( 'true ok', m{} )
+
+-- Value cast in the output function
+m = templua( "@{true} ok" )
+t( 'true ok', m{} )
+
+-- The script is reported when a compile error is found
+m = templua( "@{{][}}" )
+local s, e = m{}
+t( s, nil )
+t( e, 'Template script: ', t.patsame )
+t( e, '_o%(""%)%]%[ _o%(""%)', t.patsame )
+
+-- The script is reported when a running error is found
+m = templua( "@{{undefined_function()}}" )
+local s, e = m{}
+t( s, nil )
+t( e, 'Template script: ', t.patsame )
+t( e, '_o%(""%)undefined_function%(%) _o%(""%)', t.patsame )
+
+-- Nested template
+local s = {}
+function s.nestcall()
+  return templua( "@{'B'}" )( s )
+end
+t( templua( "@{nestcall()}@{nestcall()}" )( s ), 'BB' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#timeprof]
+=== timeprof
+
+[source,lua]
+----
+function timeprof( argTyp [, optTyp] ) --> timerObj
+function timerObj.start( self ) -> nil
+function timerObj.stop( self ) -> nil
+function timerObj.reset( self ) -> nil
+function timerObj.summary( self ) -> fulltimeNum, meantimeNum, errortimeNum
+----
+
+`timeprof` return an `timeObj` object that can be used to measure code execution time.If no argument is passed, a new timer is returned. Otherwise, on multiple invocation, same timers are returned when same arguments are passed.
+
+The `timerObj` interface contains four function that must be called with the lua object-method syntax:
+
+- `timerObj:start()` will start to measure the elapsed time
+- `timerObj:stop()` will stop to measure the elapsed time
+- `timerObj:reset()` will reset all the collected time measurements
+- `timerObj:summary()` will return the time statistics
+
+The returned statistic are the following three number:
+
+- `fulltimeNum` is the sum of all the elapsed time between all the `start` and the consecutive `stop`
+- `meantimeNum` is the mean of all the measurements
+- `errortimeNum` is the statistical error of the mean
+
+==== Code
+
+[source,lua]
+------------
+local clock, sqrt = os.clock, math.sqrt
+
+local checkpoint = setmetatable({}, {mode="kv"})
+
+local function timeprof_start(self)
+  self.time_last = clock()
+end
+
+local function timeprof_stop(self)
+  if self.time_last > 0 then
+    local time_delta = clock() - self.time_last
+    self.time_last = -1
+    self.time_step = self.time_step + 1
+    self.time_sum = self.time_sum + time_delta
+    self.time_square_sum = self.time_square_sum + (time_delta * time_delta)
+  end
+end
+
+local function timeprof_summary(self)
+  local ts = self.time_sum
+  local n = self.time_step
+  if self.time_step < 2 then return ts, ts, 0 end
+  return ts, ts/n, sqrt((self.time_square_sum - ts*ts/n)/(n-1))
+end
+
+local function timeprof_reset(self)
+  self.time_sum = 0
+  self.time_square_sum = 0
+  self.time_step = 0
+end
+
+local function timeprof( checkpointVal ) --> resTyp
+  local resTyp
+  if checkpointVal then resTyp = checkpoint[ checkpointVal ] end
+  if not checkpointVal or not resTyp then
+    resTyp = {
+      start = timeprof_start,
+      stop = timeprof_stop,
+      reset = timeprof_reset,
+      summary = timeprof_summary,
+    }
+    resTyp:reset()
+    if checkpointVal then
+      checkpoint[ checkpointVal ] = resTyp
+    else
+      checkpoint[ resTyp ] = resTyp
+    end
+  end
+  return resTyp
+end
+
+return timeprof
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local timeprof = require 'timeprof'
+local t = require 'testhelper'
+
+local e02, e002 = t.number_tollerance(0.02), t.number_tollerance(0.002)
+local a, b, c, f, m, s
+
+-- Get timers, same are returned if same argument is passed (except nil)
+
+a = timeprof'a'
+t( a, timeprof'a' )
+b = timeprof'b'
+c = timeprof()
+t( b, a, t.diff )
+t( b, c, t.diff )
+t( a, c, t.diff )
+
+-- Timer Api
+
+a = timeprof()
+
+t( a:start(), nil )
+t( a:stop(),  nil )
+t( a:reset(), nil )
+
+-- Single time measurement
+
+a = timeprof()
+f, m, s = a:summary()
+
+t( f, 0 )
+t( m, 0 )
+t( s, 0 )
+
+a:start()
+t.wait(0.2)
+a:stop()
+f, m, s = a:summary()
+
+t( f, 0.2, e02 )
+t( m, 0.2, e02 )
+t( s, 0, e02 )
+
+t.wait(0.1)
+
+-- Adding two time measurement
+
+a:start()
+t.wait(0.1)
+a:stop()
+f, m, s = a:summary()
+
+t( f, 0.3, e02 )
+t( m, 0.15, e02 )
+t( s, 0.0707, e002 )
+
+a:start()
+t.wait(0.3)
+a:stop()
+f, m, s = a:summary()
+
+t( f, 0.6, e02 )
+t( m, 0.2, e02 )
+t( s, 0.1, e002 )
+
+-- Resetting measurements
+
+a:reset()
+f, m, s = a:summary()
+
+t( f, 0 )
+t( m, 0 )
+t( s, 0 )
+
+a:start()
+t.wait(0.01)
+a:stop()
+f, m, s = a:summary()
+
+t( f, 0.01, e002 )
+t( m, 0.01, e002 )
+t( s, 0 )
+
+-- Multiple timers
+
+a = timeprof()
+b = timeprof()
+
+a:start()
+t.wait(0.01)
+b:start()
+t.wait(0.02)
+a:stop()
+b:stop()
+f, m, s = a:summary()
+
+t( f, 0.03, e002 )
+t( m, 0.03, e002 )
+t( s, 0 )
+
+f, m, s = b:summary()
+
+t( f, 0.02, e002 )
+t( m, 0.02, e002 )
+t( s, 0 )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#toposort]
+=== toposort
+
+[source,lua]
+----
+function toposort( dependenceTab ) --> orderArr
+----
+
+Topological sort the `dependenceTab` table. It returns the `orderArr` array
+containing the all the items sorted with respect to the input dependencies.
+
+Each key of `dependeceTab` is an item to sort. The value associated to each of
+them must be an array containing the dependency of the item.
+
+==== Code
+
+[source,lua]
+------------
+local pairs, ipairs = pairs, ipairs
+
+local function toposort( depTab ) --> orderArr
+  depTab = depTab or {}
+  local status, orderArr, tovisit, o, n = {}, {}, {}, 0, 0
+  for node in pairs( depTab ) do
+    local stat = status[node]
+    if not stat then
+      n = n + 1
+      tovisit[n] = node
+      repeat
+        local dlist = not stat and depTab[node]
+        if dlist then
+          for _, depend in ipairs(dlist) do
+            local dstat = status[depend]
+            if not dstat then -- just an optimization
+              n = n + 1
+              tovisit[n] = depend
+            elseif dstat == 'seen' then -- seen but not pushed -> cycle detected
+              return nil, 'cycle detected', orderArr
+            end
+          end 
+        else
+          if stat ~= 'pushed' then
+            o = o + 1
+            orderArr[o] = node
+          end
+          tovisit[n] = nil
+          n = n - 1
+          status[node] = 'pushed'
+        end
+        status[node] = status[node] or 'seen'
+        node = tovisit[n]
+        stat = status[node]
+      until n <= 0
+  end end
+  return orderArr
+end
+
+return toposort
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local toposort = require 'toposort'
+local t = require 'testhelper'
+
+t( toposort(), {}, t.deepsame )
+
+t( toposort{a={'b'}}, {'b','a'}, t.itemorder )
+
+t( toposort{a={'b','c'}}, {'b','a'}, t.itemorder )
+t( toposort{a={'b','c'}}, {'c','a'}, t.itemorder )
+
+t( toposort{a={'b'},b={'c'}}, {'b','a'}, t.itemorder )
+t( toposort{a={'b'},b={'c'}}, {'c','b'}, t.itemorder )
+
+t( toposort{a={'b','c'},b={'d'}}, {'b','a'}, t.itemorder )
+t( toposort{a={'b','c'},b={'d'}}, {'c','a'}, t.itemorder )
+t( toposort{a={'b','c'},b={'d'}}, {'d','b'}, t.itemorder )
+
+t( toposort{a={'b','c'},c={'b'}}, {'b','a'}, t.itemorder )
+t( toposort{a={'b','c'},c={'b'}}, {'c','a'}, t.itemorder )
+t( toposort{a={'b','c'},c={'b'}}, {'b','c'}, t.itemorder )
+
+t( toposort{a={'c','b'},b={'d'}}, {'c','a'}, t.itemorder )
+t( toposort{a={'c','b'},b={'d'}}, {'b','a'}, t.itemorder )
+t( toposort{a={'c','b'},b={'d'}}, {'d','b'}, t.itemorder )
+
+t( toposort{a={'b','c'},d={'b','c'},e={'f','g'}}, {'b','a'}, t.itemorder )
+t( toposort{a={'b','c'},d={'b','c'},e={'f','g'}}, {'c','a'}, t.itemorder )
+t( toposort{a={'b','c'},d={'b','c'},e={'f','g'}}, {'b','d'}, t.itemorder )
+t( toposort{a={'b','c'},d={'b','c'},e={'f','g'}}, {'c','d'}, t.itemorder )
+t( toposort{a={'b','c'},d={'b','c'},e={'f','g'}}, {'f','e'}, t.itemorder )
+t( toposort{a={'b','c'},d={'b','c'},e={'f','g'}}, {'g','e'}, t.itemorder )
+
+local _, err = toposort{a={'b'},b={'a'}}
+t( err, 'cycle detected' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#trimstring]
+=== trimstring
+
+[source,lua]
+----
+function trimstring( inStr ) --> trimStr
+----
+
+Remove starting or tailing white character from the `inStr` input string.
+
+==== Code
+
+[source,lua]
+------------
+local function trimstring( inStr ) --> trimStr
+  return inStr:match('^[ %c]*(.-)[ %c]*$')
+end
+
+return trimstring
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local trimstring = require 'trimstring'
+local t = require 'testhelper'
+
+t( trimstring(''), '' )
+t( trimstring('a'), 'a' )
+
+t( trimstring(' a'), 'a' )
+t( trimstring('a '), 'a' )
+t( trimstring(' a '), 'a' )
+
+t( trimstring(' a a'), 'a a' )
+t( trimstring('a a '), 'a a' )
+t( trimstring(' a a '), 'a a' )
+
+t( trimstring(' \nstr\r\t '), 'str' )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#tuple]
+=== tuple
+
+[source,lua]
+----
+function tuple( ... ) --> tupleTable
+----
+
+Constructs a tuple type, i.e. an object representing an unmodifiable list of
+fields.
+
+It returns the `tupleTable` table that allows to read the tuple fields, but it
+forbit the modification of the fields.
+
+When called with same arguments, the same table reference will be returned. The
+unused reference will be automatically garbage collected.
+
+==== Inspired by
+
+* http://lua-users.org/wiki/SimpleTuples
+
+==== Code
+
+[source,lua]
+------------
+-- [SNIP:intern.lua[
+local intern = (function()
+
+local function intern() --> reference
+
+  local rawget, rawset, select, setmetatable =
+    rawget, rawset, select, setmetatable, select
+  local NIL, NAN = {}, {}
+
+  local internmeta = {
+    __index = function() error('Can not access interned content directly.', 2) end,
+    __newindex = function() error('Can not cahnge or add contents to a intern.', 2) end,
+  }
+
+  local internstore = setmetatable( {}, { __mode = "kv" } )
+
+  -- A map from child to parent is used to protect the internstore table's contents.
+  -- In this way, they will he collected only when all the cildren are collected
+  -- in turn.
+  local parent = setmetatable( {}, { __mode = 'k' })
+
+  return function( ... )
+    local currentintern = internstore
+    for a = 1, select( '#', ... ) do
+
+      -- Get next intern field. Replace un-storable contents.
+      local tonext = select( a, ... )
+      if tonext ~= tonext then tonext = NAN end
+      if tonext == nil then tonext = NIL end
+
+      -- Get or create the correspondent sub-intern
+      local subintern = rawget( currentintern, tonext )
+      if subintern == nil then
+
+        subintern = setmetatable( {}, internmeta )
+        parent[subintern] = currentintern
+        rawset( currentintern, tonext, subintern )
+      end
+
+      currentintern = subintern 
+    end
+    return currentintern
+  end
+end
+
+return intern
+
+end)()
+-- ]SNIP:intern.lua]
+
+local tuplefact = intern()
+
+local function tuple( ... ) --> tupleTable
+
+  local tupleTable = tuplefact( ... )
+  if not getmetatable( tupleTable ).__type then -- First time initialization
+
+    -- Store fields
+    -- local n = select( '#', ... )
+    -- local fields = { n=n, ... }
+    -- for i = 1, fields.n do fields[i] = select( i, ... ) end
+    local fields = { ... }
+    fields.n = select( '#', ... )
+
+    -- Dispatch to the stored fields, and forbid modification
+    setmetatable( tupleTable, {
+      type = 'tuple',
+      __index = function( t, k ) return fields[k] end,
+      __newindex = function( t, k ) return error( 'can not change tuple field', 2 ) end,
+    })
+
+  end
+  return tupleTable
+end
+
+return tuple
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local tuple = require 'tuple'
+local t = require 'testhelper'
+
+-- Equality operation
+t( type(tuple(1,'a',true,3)), 'table' )
+t( tuple(1,'a',true,3), tuple(1,'a',true,3) )
+
+-- Read fields
+local field = tuple(1,'a',true,3)
+t( field.n, 4 )
+t( field[1], 1 )
+t( field[2], 'a' )
+t( field[3], true )
+t( field[4], 3 )
+
+-- Store nil and NaN
+field = tuple(1,nil,0/0,3)
+t( field.n, 4 )
+t( field[1], 1 )
+t( field[2], nil )
+t( field[3], field[3], t.diff )
+t( field[4], 3 )
+
+-- Can not change field
+local a, b = pcall(function() tuple( 1, nil, 0/0, 3 )[1] = 2 end)
+t( a, false )
+t( b:match( 'can not change tuple field' ), 'can not change tuple field' )
+
+-- Garbage collection test
+
+local gccount = 0
+local x = tuple(2,nil,0/0,4)
+x = setmetatable( x, {__gc=function(t) gccount = gccount + 1 end} )
+
+-- No collection if some reference is still around
+collectgarbage('collect')
+t( gccount, 0 )
+
+-- Automatic collection
+x = nil
+collectgarbage('collect')
+t( gccount, 1 )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#uniontab]
+=== uniontab
+
+[source,lua]
+----
+function uniontab( firstTab, secondTab[, selectFunc] ) --> unionTab
+----
+
+Creates the `unionTabl` table that contain all the keys of the `firstTab` and
+`secondTab` tables.
+
+When both the table have the same key the value of the first table will be
+used. This can be changed passing the optional `selectFunc` function. It will
+be called with both the values as arguments, and its result will be used in the
+union table.
+
+==== Code
+
+[source,lua]
+------------
+local function uniontab( firstTab, secondTab, selectFunc ) --> unionTab
+  local unionTab = {}
+  if secondTab then
+    for k, v in pairs(secondTab) do unionTab[k] = v end
+  end
+  if not firstTab then return unionTab end
+  for k, v in pairs(firstTab) do
+    local o = unionTab[k]
+    if not o then
+      unionTab[k] = v
+    else
+      if not selectFunc then
+        unionTab[k] = v
+      else
+        unionTab[k] = selectFunc(v, o)
+      end
+    end
+  end
+  return unionTab
+end
+
+return uniontab
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local uniontab = require 'uniontab'
+local t = require 'testhelper'
+
+t( uniontab(), {}, t.deepsame )
+t( uniontab({}), {}, t.deepsame )
+t( uniontab({},{}), {}, t.deepsame )
+
+t( uniontab({a='a'}), {a='a'}, t.deepsame )
+t( uniontab({},{a='a'}), {a='a'}, t.deepsame )
+
+t( uniontab({a='a'},{b='b'}), {a='a',b='b'}, t.deepsame )
+t( uniontab({a='a'},{a='b'}), {a='a'}, t.deepsame )
+
+t( uniontab({a='a'},{a='b'},function(a,b) return a..b end), {a='ab'}, t.deepsame )
+
+t( uniontab({a='a',b='b',c='c'},{a='A',d='d'}), {a='a',b='b',c='c',d='d'}, t.deepsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#valueprint]
+=== valueprint
+
+[source,lua]
+----
+function valueprint( value [, formatFunc] ) --> str
+----
+
+It return `str` an human readable representation of the input value `value`.
+If the value is a function or user data it return a reference. If it is a
+non-aggregated lua type, the returned string contains just a lua literal
+representing the value.
+
+If the value is a table, it is expanded as a list of key/value pairs. If a
+table is found as key, the reference only is printed. If the value contained in
+the key is an already printed table, the reference only is printed. If the
+value contains a new table, the key/value pairs are recursively printed.
+
+These limitations are needed in order to avoid issues with loops or with hard
+to read results. This function is ment only for human inspection: for an
+accurate table dump, see the `serialize` module.
+
+The optional `formatFunc` value can be used to change the default table output
+style.  It will be called one time for each key/value pair and should give a
+string result accepting three argument: key, value and depth. This function is
+also called with the root value if it is a table. In this case the key is `nil`
+and the value is the reference string of the table.
+
+==== Code
+
+[source,lua]
+------------
+local function print_basic( cur )
+  if "string" == type( cur ) then
+    return string.format( "%q", cur ):gsub( '\n', '10' )
+  else
+    return tostring( cur ):gsub( ':', '' )
+  end
+end
+
+local function print_record( key, value, depth )
+  return not key and value or '\n'..('| '):rep(depth)..key..': '..value
+end
+
+local function valueprint( value, format ) --> str
+
+  local memo = {}
+  if 'function' ~= type(format) then format = print_record end
+
+  local function valueprint_rec( cur, depth )
+
+    -- Flat type pr already processed table
+    if "table" ~= type(cur)then
+      return print_basic( cur )
+    end 
+    if memo[cur] then return '' end
+    memo[cur] = true
+
+    -- First table iteration
+    local subtab = {}
+    if depth == 0 then
+      table.insert( subtab, format( nil, print_basic( value ), 0 ))
+      depth = 1
+    end
+
+    -- Recurse over each key and each value
+    for k, v in pairs( cur ) do
+      k = print_basic( k )
+      local vs = print_basic( v )
+      table.insert( subtab, format( k, vs, depth ) or '' )
+      if 'table' == type(v) then
+        table.insert( subtab, valueprint_rec( v, depth+1 ) or '')
+      end
+    end
+
+    return table.concat( subtab )
+  end
+  return valueprint_rec( value, 0 )
+end
+
+return valueprint
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local valueprint = require "valueprint"
+local t = require "testhelper"
+
+t( valueprint(1), '1' )
+t( valueprint(true), 'true' )
+t( valueprint("hi"), '"hi"' )
+t( valueprint({}), '^table 0?x?%x*$', t.patsame )
+t( valueprint(nil), 'nil' )
+
+t( type(valueprint({1,2})), 'string')
+t( valueprint({1,2}) ~= '', true)
+
+local x = ''
+local function p(k,v,d)
+  local y='<'..(k or 'nil')..'|'..v..'|'..d..'>'
+  x=x..y
+  return y
+end
+
+x = ''
+local v = valueprint({{1,2},1,"a",nil,true,azk="a",bup={1,2}}, p)
+t( v, x )
+t( v, '^'..('<[^>]*>'):rep(11)..'$', t.patsame )
+t( v, '<nil|table 0?x?%x*|0>', t.patsame )
+t( v, '<1|table 0?x?%x*|1>', t.patsame )
+t( v, '<1|1|2>', t.patsame )
+t( v, '<2|2|2>', t.patsame )
+t( v, '<2|1|1>', t.patsame )
+t( v, '<3|"a"|1>', t.patsame )
+t( v, '<5|true|1>', t.patsame )
+t( v, '<"azk"|"a"|1>', t.patsame )
+t( v, '<"bup"|table 0?x?%x*|1>', t.patsame )
+t( v, '<1|1|2>', t.patsame )
+t( v, '<2|2|2>', t.patsame )
+
+local at = {}
+at[1] = {}
+at[1][1] = at[1]
+at[1][at[1]]=true
+local r = tostring(at):gsub(':','')
+local r1 = tostring(at[1]):gsub(':','')
+
+x = ''
+local v = valueprint( at, p )
+t( v, x )
+t( v, '^'..('<[^>]*>'):rep(4)..'$', t.patsame )
+t( v, '<nil|'..r..'|0>', t.patsame )
+t( v, '<1|'..r1..'|1>', t.patsame )
+t( v, '<1|'..r1..'|2>', t.patsame )
+t( v, '<'..r1..'|true|2>', t.patsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#testhelper]
+=== testhelper
+
+These function are reported only as internal reference. They are not really
+part of LuaSnip, but they are used e.g. in tests and documentation examples.
+
+==== Code
+
+[source,lua]
+------------
+local t = require 'taptest'
+local v = require 'valueprint'
+local d = require 'deepsame'
+
+local th = {}
+
+function th.diff( a, b )
+  if a ~= b then return true end
+  return false, tostring(a)..' VS '..tostring(b)
+end
+
+function th.deepsame( a, b )
+  local s = d( a, b )
+  if s then return true end
+  local s, i = pcall(function() return '\n' .. v(a) .. '\nVS\n' .. v(b) end)
+  return false, s and i or nil
+end
+
+local function h(x)
+  return x:gsub( ".", function( c )
+    return string.format( "%02X", string.byte( c ))
+  end)
+end
+
+function th.bytesame(a,b)
+  if a == b then return true end
+  return false, h(a)..' VS '..h(b)
+end
+
+function th.hexsame(a,b)
+  a = h(a)
+  if a == b then return true end
+  return false, a..' VS '..b
+end
+
+function th.patsame(a,b)
+  if type(a) ~= type(b) then return false end
+  if type(a) ~= 'string' and a == b then return true end
+  if type(a) == 'string' and a:match(b) then return true end
+  return false, '['..tostring(a)..'] VS %['..tostring(b)..']'
+end
+
+function th.itemorder(t,d)
+  local a,b = d[1],d[2]
+  local a_seen = false
+  local b_seen = false
+  for i,v in ipairs(t) do
+    if v == a then a_seen = i end
+    if v == b then b_seen = i end
+  end
+  if a_seen and b_seen and a_seen<b_seen then return true end
+  return false, 'Invalid order '..tostring(d[1])..' should came before '..tostring(d[2])..': '..v(t)
+end
+
+
+function th.readfile( path ) 
+  local f = io.open( path, 'rb' )
+  if not f then return nil end
+  local r = f:read( '*a' )
+  f:close()
+  return r
+end
+
+function th.writefile( path, data ) 
+  local f = io.open( path, 'wb' )
+  if not f then
+    t( '', '', function() return false, 'Test setup failed, do not trust next tests' end )
+  end
+  f:write( data )
+  f:close()
+  if data ~= th.readfile( path ) then
+    t( '', '', function() return false, 'Test setup failed, do not trust next tests' end )
+  end
+end
+
+function th.removefile( path )
+  os.remove( path )
+  if nil ~= th.readfile( path ) then
+    t( '', '', function() return false, 'Test setup failed, do not trust next tests' end )
+  end
+end
+
+local lua_cmd
+do
+  local a = 1
+  while true do
+    a = a -1
+    if not arg[a] then break end
+    lua_cmd = arg[a]
+  end
+end
+function th.luacommand() return lua_cmd end
+
+function th.argdumputil()
+  local scr, out = 'tmp_shcompare_0.lua', 'tmp_shcompare_1.txt'
+  th.writefile( scr, [[
+    local r = ''
+    local a = 0
+    local o = io.open( ']]..out..[[', 'wb' )
+    while true do
+      a = a + 1
+      local d = arg[a]
+      if not d then break end
+      if d == '-i' then
+        local x = io.read('a')
+        o:write(x)
+        r = r .. x 
+      elseif d == '-e' then
+        io.stderr:write(r)
+        r = ''
+      elseif d == '-o' then
+        io.write(r)
+        r = ''
+      else
+        o:write(d)
+        r = r .. d
+      end
+    end
+    o:close()
+  ]] )
+  return th.luacommand(), scr, out
+end
+
+function th.filterr(func,...)
+  local ok, err = pcall(func, ...)
+  if ok then return nil end
+  return err:gsub('^[^:]*:[^:]*: ','')
+end
+
+function th.type(a,b)
+  if type(a) == b then return true end
+  return false, type(a)..' VS '..b
+end
+
+function th.wait(s)
+  local c = os.clock()
+  while os.clock()-c < s do end
+end
+
+function th.number_tollerance( eps )
+  return function(a, b)
+    local d = a - b
+    if d < 0 then d = -d end
+    if d <= eps then return true end
+    return false, a..' VS '..b
+  end
+end
+
+setmetatable( th, {__call = function( s, ... )
+  local taptest_blame_caller = true
+  local r = t( ... )
+  print(r)
+  return r
+end})
+
+return th
+
+------------
+
+
+// ]SNIP:function_reference]
+
+== Conclusion
+
+Enjoy!
+
+Return to <<top>>
+
