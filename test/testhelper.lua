@@ -7,9 +7,212 @@ part of LuaSnip, but they are used e.g. in tests and documentation examples.
 
 ]===]
 
-local t = require 'taptest'
-local v = require 'valueprint'
-local d = require 'deepsame'
+local t = (function()
+-- [SNIP:taptest.lua[
+local test_count = 0
+local fail_count = 0
+
+local function taptest( ... ) --> msg
+
+   local function diagnostic( desc )
+      local msg = "# "..desc:gsub( "\n", "\n# " )
+      return msg
+   end
+
+   local function print_summary()
+      local msg = '\n' .. tostring(fail_count) .. " tests failed\n"
+      if fail_count == 0 then msg = '\nall is right\n' end
+      msg = diagnostic(msg)
+      local plan = "1.."..test_count
+      return msg..'\n'..plan
+   end
+
+   local function get_report_position()
+     local result
+     local stackup = 2
+     local testpoint = false
+     while not testpoint do
+       stackup = stackup + 1
+       result = debug.getinfo(stackup)
+       if not result then
+         return debug.getinfo(3)
+       end
+       local j = 0
+       testpoint = true
+       while true do
+         j = j + 1
+         local k, v = debug.getlocal(stackup, j)
+         if k == nil then break end
+         if v and k == 'taptest_blame_caller' then
+           testpoint = false
+           break
+         end
+       end
+       if testpoint then return result end
+     end
+   end
+
+   local function do_check(got, expected, a, b)
+
+      -- Extra arg parse and defaults
+      local checker, err
+      if "string" == type(a) then err = a end
+      if "string" == type(b) then err = b end
+      if not err then err = "" end
+      if "function" == type(a) then checker = a end
+      if "function" == type(b) then checker = b end
+      if not checker then checker = function( e, g ) return e == g end end
+
+      -- Check the condition
+      test_count = test_count + 1
+      local ok, info = checker( got, expected )
+
+      -- Generate TAP line
+      local msg = ""
+      if ok then
+         msg = msg.."ok "..test_count
+      else
+         fail_count = fail_count + 1
+         local i = get_report_position()
+
+         msg = msg
+               .."not ok " .. test_count .. " - "
+               ..i.source:match( "([^@/\\]*)$" )..":"..i.currentline..". "
+      end
+
+      -- Append automatic info
+      if not ok and not info then
+        msg = msg
+          .. "Expectation ["..tostring( expected ).."] "
+          .. "does not match with ["..tostring( got ).."]. "
+      end
+
+      -- Append user-provided info
+      if info then
+        msg = msg.." "..info
+      end
+
+      if not ok then
+        msg = msg..err
+      end
+
+      return msg
+   end
+
+   local narg = select( "#", ... )
+   if     0 == narg then return print_summary()
+   elseif 1 == narg then return diagnostic( select( 1, ... ) )
+   elseif 4 >= narg then return do_check( ... )
+   end
+
+   return nil, "Too many arguments"
+end
+
+return taptest
+-- ]SNIP:taptest.lua]
+end)()
+
+local v = (function()
+-- [SNIP:valueprint.lua[
+local function print_basic( cur )
+  if "string" == type( cur ) then
+    return string.format( "%q", cur ):gsub( '\n', '10' )
+  else
+    return tostring( cur ):gsub( ':', '' )
+  end
+end
+
+local function print_record( key, value, depth )
+  return not key and value or '\n'..('| '):rep(depth)..key..': '..value
+end
+
+local function valueprint( value, format ) --> str
+
+  local memo = {}
+  if 'function' ~= type(format) then format = print_record end
+
+  local function valueprint_rec( cur, depth )
+
+    -- Flat type pr already processed table
+    if "table" ~= type(cur)then
+      return print_basic( cur )
+    end 
+    if memo[cur] then return '' end
+    memo[cur] = true
+
+    -- First table iteration
+    local subtab = {}
+    if depth == 0 then
+      table.insert( subtab, format( nil, print_basic( value ), 0 ))
+      depth = 1
+    end
+
+    -- Recurse over each key and each value
+    for k, v in pairs( cur ) do
+      k = print_basic( k )
+      local vs = print_basic( v )
+      table.insert( subtab, format( k, vs, depth ) or '' )
+      if 'table' == type(v) then
+        table.insert( subtab, valueprint_rec( v, depth+1 ) or '')
+      end
+    end
+
+    return table.concat( subtab )
+  end
+  return valueprint_rec( value, 0 )
+end
+
+return valueprint
+-- ]SNIP:valueprint.lua]
+end)()
+
+local d = (function()
+-- [SNIP:deepsame.lua[
+local deepsame
+
+local function keycheck( k, t, s )
+  local r = t[k]
+  if r ~= nil then return r end
+  if 'table' ~= type(k) then return nil end
+  for tk, tv in pairs( t ) do
+    if deepsame( k, tk, s ) then
+      r = tv
+      break
+    end
+  end
+  return r
+end
+
+function deepsame( a, b, s )
+  if not s then s = {} end
+  if a == b then return true end
+  if 'table' ~= type( a ) then return false end
+  if 'table' ~= type( b ) then return false end
+
+  if s[ a ] == b or s[ b ] == a then return true end
+  s[ a ] = b
+  s[ b ] = a
+
+  for ak, av in pairs( a ) do
+    local o = keycheck( ak, b, s )
+    if o == nil then return false end
+  end
+
+  for bk, bv in pairs( b ) do
+    local o = keycheck( bk, a, s )
+    if o == nil then return false end
+
+    if not deepsame( bv, o, s ) then return false end
+  end
+
+  s[ a ] = nil
+  s[ b ] = nil
+  return true
+end
+
+return deepsame
+-- ]SNIP:deepsame.lua]
+end)()
 
 local th = {}
 
