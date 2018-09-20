@@ -22,9 +22,8 @@ unused reference will be automatically garbage collected.
 
 ]===]
 
--- [SNIP:intern.lua[
 local intern = (function()
-
+-- [SNIP:intern.lua[
 local function intern() --> reference
 
   local rawget, rawset, select, setmetatable =
@@ -68,9 +67,8 @@ local function intern() --> reference
 end
 
 return intern
-
-end)()
 -- ]SNIP:intern.lua]
+end)()
 
 local tuplefact = intern()
 

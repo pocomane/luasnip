@@ -215,17 +215,25 @@ local function trimstring(str)
   return str
 end
 
-local function snipsplit(str)
+local function snipsplit(str, tag_prefix, tag_suffix)
+
+  tag_prefix = tag_prefix or ''
+  tag_suffix = tag_suffix or ''
+  local tag_pattern = ''
+    .. '(' .. tag_prefix .. '%[SNIP:)([%a%d/%._]*)(%[' .. tag_suffix .. ')'
+    .. '(.-)'
+    .. '(' .. tag_prefix .. '%]SNIP:)%2(%]' .. tag_suffix .. ')'
+
   local result = {}
   local offset = 1
   while true do
-      local s, e, t, d = str:find("%[SNIP:([%a%d/%._]*)%[.-%]SNIP:%1%]", offset)
+      local s, e, Ta, t, Tb, d, Tc, Td = str:find(tag_pattern, offset)
       if s == nil then
           if #str > 0 then result[1+#result] = str:sub(offset) end
           break
       else
           if s > offset then result[1+#result] = str:sub(offset,s-1) end
-          result[1+#result] = {t,d}
+          result[1+#result] = {tag=t, Ta..t..Tb, d, Tc..t..Td}
       end
       offset = e+1
   end
@@ -323,16 +331,18 @@ local function cut_lua_documentation(ent)
   local docstart, docend = content:find('^[\n\r\t ]*%-%-%[(=*)%[DOC.-]%1]')
   if docstart then
     ent.documentation = trimstring(content:sub(docstart,docend))
-    ent.content = trimstring(content:sub(docend+1))
+    ent.content = '\n'..trimstring(content:sub(docend+1))..'\n'
   end
 end
 
 local function split_content_pieces(ent)
   local c = ent.content
-  if ent.tolink and c then
-    ent.content_pieces = snipsplit(c)
-  elseif ent.content then
-    ent.content_pieces = {c}
+  if c and not ent.content_pieces then
+    if ent.tolink then
+      ent.content_pieces = snipsplit(c, ent.tag_prefix)
+    else
+      ent.content_pieces = {c}
+    end
   end
 end
 
@@ -366,60 +376,12 @@ local function generate_section_link(ent)
       for _, i in ipairs(ent.collection) do
         newent.content_pieces[1+#newent.content_pieces] = '<<' .. i:gsub('%..*','') .. '>> '
       end
+      newent.content_pieces[1+#newent.content_pieces] = '\n'
       in_cache(secname, newent)
     end
   end
 end
   
-local function wrap_content(ent)
-  local h = ent.head_wrap
-  local t = ent.tail_wrap
-  local c = ent.content_pieces
-  if c and (h or t) then
-    ent.content_pieces = tablemerge(h or {}, c, t or {})
-    ent.unwrap = {#h,#t}
-    ent.head_wrap = nil
-    ent.tail_wrap = nil
-  end
-end
-
-local function unwrap_content(ent)
-  local c = ent.content_pieces
-  if c and ent.unwrap then
-    ent.content_pieces = tablesub(c, 1+ent.unwrap[1], #c-ent.unwrap[2])
-    ent.unwrap = nil
-  end
-end
-
-local function snippet_link(ent)
-  if not ent.content_pieces then
-    ent.linked = true
-    return
-  end
-  ent.injected_index = {}
-  local linked = {}
-  for k, v in ipairs(ent.content_pieces) do
-    if type(v) ~= 'table' then
-      linked[1+#linked] = v
-    else
-      local d = in_cache(v[1])
-      if not d then error("Can not find entity '"..v[1].."'",1) end
-      if not d.linked then
-        return 'postpone'
-      end
-      local si = 1+#linked
-      for _, l in ipairs(d.content_pieces) do
-        linked[1+#linked] = l
-      end
-      if si <= #linked then
-        ent.injected_index[1+#ent.injected_index] = {start=si, finish=#linked, tag=v[1]}
-      end
-    end
-  end
-  ent.content_pieces = linked
-  ent.linked = true
-end
-
 local function generate_documentation(ent)
   -- Generate module and tool documentation
   local col = ent.in_collection
@@ -445,11 +407,10 @@ local function generate_documentation(ent)
       c[1+#c] = '\n\nReturn to <<tool_rendez_vous>>\n\n' -- TODO : do not hard-code !!!
     else
       c[1+#c] = '\n==== Code\n\n[source,lua]'
-      c[1+#c] = '\n------------\n'
-      c[1+#c] = {ent.name}
-      d.linked = nil
+      c[1+#c] = '\n------------'
+      c[1+#c] = {tag=ent.name, '', '', ''}
       ent.skip_tag = true -- TODO : avoid the skip_tag trick !!!
-      c[1+#c] = '\n\n------------\n\n'
+      c[1+#c] = '\n------------\n\n'
       if ent.in_collection ~= 'function_internal' then
         c[1+#c] = '\n==== Example\n\n[source,lua]'
         c[1+#c] = '\n------------\n'
@@ -460,6 +421,32 @@ local function generate_documentation(ent)
     end
   end
 end
+
+local function snippet_link(ent)
+  if not ent.content_pieces then return end
+  local linked = {}
+  for k, v in ipairs(ent.content_pieces) do
+    if type(v) ~= 'table' then
+      linked[1+#linked] = v
+    else
+      linked[1+#linked] = v[1]
+      local d = in_cache(v.tag)
+      if not d then error("Can not find entity '"..v.tag.."'",1) end
+      for _, k in pairs(d.content_pieces) do -- postpone if dependency not linked yet
+        if type(k) == 'table' then
+          return 'postpone'
+        end
+      end
+      local si = 1+#linked
+      for _, l in ipairs(d.content_pieces) do
+        linked[1+#linked] = l
+      end
+      linked[1+#linked] = v[3]
+    end
+  end
+  ent.content_pieces = linked
+end
+
 
 local function merge_content_pieces(ent)
   -- TODO : remove ? use ent.content both as single piece or multiple chunks
@@ -500,7 +487,7 @@ local function save_content(ent)
     end
     print('GENERATING '..path)
     local f = io.open(path,'wb')
-    if ent.documentation then f:write(ent.documentation,'\n\n') end
+    if ent.documentation then f:write(ent.documentation,'\n') end
     f:write(ent.content or '')
     f:close()
   end
@@ -530,7 +517,7 @@ local function generate_main()
             n = n..'.adoc'
             newent.onfile = docpath(n)
             newent.tolink = true
-            newent.link_postfix = '// '
+            newent.tag_prefix = '// '
           end
           if t == 'tool' then
             newent.in_collection = 'tool'
@@ -541,7 +528,8 @@ local function generate_main()
             newent.in_collection = 'function_internal'
             newent.tolink = true
             newent.onfile = lspath(rec[3]..'/'..n)
-            newent.readonly = true
+            --newent.readonly = true
+            newent.tag_prefix = '%-%- '
           end
           if t == 'module' then
             n = n..'.lua'
@@ -550,8 +538,7 @@ local function generate_main()
             newent.tolink = true
             newent.toamalgam = true
             newent.searchexample = true
-            newent.wrap_before_link = true
-            newent.link_postfix = '-- '
+            newent.tag_prefix = '%-%- '
           end
           in_cache(n, newent)
         end
@@ -560,63 +547,23 @@ local function generate_main()
   end)
 
   -- TODO : put in the module description string
-  in_cache('luasnip_embed',{onfile=toolpath('luasnip.lua'),readonly=true,link_postfix='-- ',skip_tag=true})
-  in_cache('htmltool',{onfile = toolpath('playground.html'),tolink=true,link_postfix='// '})
+  in_cache('luasnip_embed',{onfile=toolpath('luasnip.lua'),readonly=true,tag_prefix='%-%- ',skip_tag=true})
+  in_cache('htmltool',{onfile = toolpath('playground.html'),tolink=true,tag_prefix='// '})
 
   apply(search_example_file)
   apply(load_file_content)
   apply(cut_lua_documentation)
   apply(split_content_pieces)
   apply(extract_module_core)
-  apply(generate_collection)
-  apply(generate_section_link)
 
   -- Temporary empty references for the documentation
   in_cache('function_reference',{content='\n',content_pieces={'\n'}})
   in_cache('tool_reference',{content='\n',content_pieces={'\n'}})
 
-  apply(function(ent)
-    local c = ent.content_pieces
-    if c and not ent.skip_tag then
-      ent.head_wrap = {
-        '[SNIP:' .. ent.name .. '[',
-        '\nlocal ' .. ent.name:gsub('%..*','') .. ' = (function()\n\n' }
-      ent.tail_wrap = {
-        '\n\nend)()\n',
-        (ent.link_postfix or '') .. ']SNIP:' .. ent.name .. ']' }
-    end
-  end)
-
-  apply(wrap_content)
-  apply(snippet_link)
-  apply(unwrap_content)
-  
-  -- TODO : try to avoid this ?
-  apply(function(ent)
-    -- Mask all but the documentation for the linking
-    if ent.name == 'documentation.adoc' then
-      ent.tolink = true
-      ent.linked = nil
-    else
-      ent.tolink = nil
-      ent.linked = true
-    end
-  end)
-
-  apply(split_content_pieces)
+  apply(generate_collection)
+  apply(generate_section_link)
   apply(generate_documentation)
-  
-  apply(function(ent)
-    local c = ent.content_pieces
-    if c and not ent.skip_tag then
-      ent.head_wrap = { '[SNIP:' .. ent.name .. '['}
-      ent.tail_wrap = {'\n// ]SNIP:' .. ent.name .. ']' } -- TODO : do not hardcode '//'
-    end
-  end)
-
-  apply(wrap_content)
   apply(snippet_link)
-  apply(unwrap_content)
   apply(merge_content_pieces)
   apply(generate_amalgamation)
   apply(save_content)

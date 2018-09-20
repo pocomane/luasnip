@@ -37,9 +37,8 @@ In base16 and base32 the letters are always uppercase.
 
 ]===]
 
--- [SNIP:bitpad.lua[
 local bitpad = (function()
-
+-- [SNIP:bitpad.lua[
 local function bitpad( pad, bit, str, map, imap, off )
   if not bit then bit = 1 end
   if not pad then pad = 8 - (bit % 8) end
@@ -133,9 +132,8 @@ local function bitpad( pad, bit, str, map, imap, off )
 end
 
 return bitpad
-
-end)()
 -- ]SNIP:bitpad.lua]
+end)()
 
 -- This can be used for base2-4-8-16 and crockford base32
 local subbyte_multipurpose_alphabet = {

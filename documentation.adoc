@@ -231,7 +231,6 @@ generated code.
 
 Return to <<tool_rendez_vous>>
 
-
 // ]SNIP:tool_reference]
 
 [#reference_rendez_vous]
@@ -4809,9 +4808,8 @@ appended to the file instead of overwrite previous data
 
 [source,lua]
 ------------
--- [SNIP:escapeshellarg.lua[
 local escapeshellarg = (function()
-
+-- [SNIP:escapeshellarg.lua[
 local quote_function
 
 local function escapeshellarg( str ) --> esc
@@ -4846,9 +4844,8 @@ local function escapeshellarg( str ) --> esc
 end
 
 return escapeshellarg
-
-end)()
 -- ]SNIP:escapeshellarg.lua]
+end)()
 
 local function shellcommand( commandTab ) --> commandStr
   if not commandTab then return '' end
@@ -5346,9 +5343,8 @@ In base16 and base32 the letters are always uppercase.
 
 [source,lua]
 ------------
--- [SNIP:bitpad.lua[
 local bitpad = (function()
-
+-- [SNIP:bitpad.lua[
 local function bitpad( pad, bit, str, map, imap, off )
   if not bit then bit = 1 end
   if not pad then pad = 8 - (bit % 8) end
@@ -5442,9 +5438,8 @@ local function bitpad( pad, bit, str, map, imap, off )
 end
 
 return bitpad
-
-end)()
 -- ]SNIP:bitpad.lua]
+end)()
 
 -- This can be used for base2-4-8-16 and crockford base32
 local subbyte_multipurpose_alphabet = {
@@ -6618,9 +6613,8 @@ unused reference will be automatically garbage collected.
 
 [source,lua]
 ------------
--- [SNIP:intern.lua[
 local intern = (function()
-
+-- [SNIP:intern.lua[
 local function intern() --> reference
 
   local rawget, rawset, select, setmetatable =
@@ -6664,9 +6658,8 @@ local function intern() --> reference
 end
 
 return intern
-
-end)()
 -- ]SNIP:intern.lua]
+end)()
 
 local tuplefact = intern()
 
@@ -7141,7 +7134,6 @@ end})
 return th
 
 ------------
-
 
 // ]SNIP:function_reference]
 

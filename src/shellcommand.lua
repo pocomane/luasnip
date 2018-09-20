@@ -28,9 +28,8 @@ appended to the file instead of overwrite previous data
 
 ]===]
 
--- [SNIP:escapeshellarg.lua[
 local escapeshellarg = (function()
-
+-- [SNIP:escapeshellarg.lua[
 local quote_function
 
 local function escapeshellarg( str ) --> esc
@@ -65,9 +64,8 @@ local function escapeshellarg( str ) --> esc
 end
 
 return escapeshellarg
-
-end)()
 -- ]SNIP:escapeshellarg.lua]
+end)()
 
 local function shellcommand( commandTab ) --> commandStr
   if not commandTab then return '' end
