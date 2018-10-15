@@ -116,19 +116,42 @@ local v = (function()
 -- [SNIP:valueprint.lua[
 local function print_basic( cur )
   if "string" == type( cur ) then
-    return string.format( "%q", cur ):gsub( '\n', '10' )
+    return string.format( "%q", cur ):gsub( '\n', 'n' )
   else
     return tostring( cur ):gsub( ':', '' )
   end
 end
 
-local function print_record( key, value, depth )
-  return not key and value or '\n'..('| '):rep(depth)..key..': '..value
+local function print_record( key, value, depth, info )
+  return (key and '\n'..('| '):rep(depth)..key..': '..value)
+    or (depth == 1 and info == 'in' and value) or ''
+end
+
+local function print_record_lua( k, v, d, i )
+  local y = ''
+  if not k then
+    if i == 'in' then
+      y = '{ -- ' .. v .. '\n'
+    elseif i == 'out' then
+      y = ((' '):rep(d)) .. '},\n'
+    end
+  else
+    if k ~= 'true' and k ~= 'false' and not tonumber(k) and k:sub(1,1) ~= '"' then
+      k = '"'..k..'"'
+    end
+    y = y .. ((' '):rep(d+1)) .. '[' .. k .. '] = '
+    if i ~= 'table' then
+      y = y .. v .. ',\n'
+    end
+  end
+  return y
 end
 
 local function valueprint( value, format ) --> str
 
   local memo = {}
+  if format == 'default' then format = print_record end
+  if format == 'lua' then format = print_record_lua end
   if 'function' ~= type(format) then format = print_record end
 
   local function valueprint_rec( cur, depth )
@@ -140,26 +163,27 @@ local function valueprint( value, format ) --> str
     if memo[cur] then return '' end
     memo[cur] = true
 
-    -- First table iteration
     local subtab = {}
-    if depth == 0 then
-      table.insert( subtab, format( nil, print_basic( value ), 0 ))
-      depth = 1
-    end
+
+    -- Start table iteration
+    table.insert( subtab, format( nil, print_basic( cur ), depth, 'in'))
 
     -- Recurse over each key and each value
     for k, v in pairs( cur ) do
       k = print_basic( k )
       local vs = print_basic( v )
-      table.insert( subtab, format( k, vs, depth ) or '' )
+      table.insert( subtab, format( k, vs, depth, type( v )) or '' )
       if 'table' == type(v) then
         table.insert( subtab, valueprint_rec( v, depth+1 ) or '')
       end
     end
 
+    -- End table iteration
+    table.insert( subtab, format( nil, print_basic( cur ), depth, 'out'))
+
     return table.concat( subtab )
   end
-  return valueprint_rec( value, 0 )
+  return valueprint_rec( value, 1 )
 end
 
 return valueprint

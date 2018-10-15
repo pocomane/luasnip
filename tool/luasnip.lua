@@ -1,5 +1,60 @@
+--[===[ LuaSnip - License
 
-local appendfile = (function()
+
+
+]===]
+
+local appendfile;
+local argcheck;
+local bitpad;
+local clearfile;
+local cliparse;
+local combinetab;
+local copyfile;
+local countiter;
+local csvish;
+local csvishout;
+local deepsame;
+local differencetab;
+local escapeshellarg;
+local filenamesplit;
+local flatarray;
+local hexdecode;
+local hexencode;
+local intern;
+local intersecationtab;
+local iscallable;
+local isinteger;
+local isreadable;
+local jsonish;
+local jsonishout;
+local keysort;
+local lambda;
+local localbind;
+local locktable;
+local logline;
+local pathpart;
+local rawhtml;
+local rawmark;
+local readfile;
+local searchluakeyword;
+local serialize;
+local sha2;
+local shellcommand;
+local stepdebug;
+local subbytebase;
+local tapfail;
+local taptest;
+local templua;
+local timeprof;
+local toposort;
+local trimstring;
+local tuple;
+local uniontab;
+local valueprint;
+
+appendfile = (function()
+
 
 local function appendfile( path, data, prefix, suffix ) --> res, err
 
@@ -46,11 +101,11 @@ end
 
 return appendfile
 
+
 end)()
 
+argcheck = (function()
 
-
-local argcheck = (function()
 
 local function argcheck( specTab, ... ) --> wrapFunc
   local arg = table.pack(...)
@@ -66,11 +121,11 @@ end
 
 return argcheck
 
+
 end)()
 
+bitpad = (function()
 
-
-local bitpad = (function()
 
 local function bitpad( pad, bit, str, map, imap, off )
   if not bit then bit = 1 end
@@ -166,11 +221,11 @@ end
 
 return bitpad
 
+
 end)()
 
+clearfile = (function()
 
-
-local clearfile = (function()
 
 local function clearfile( pathStr ) --> statusBool, errorStr
   local f, err = io.open( pathStr, 'wb' )
@@ -183,11 +238,11 @@ end
 
 return clearfile
 
+
 end)()
 
+cliparse = (function()
 
-
-local cliparse = (function()
 
 local function addvalue( p, k, value )
   local prev = p[k]
@@ -259,11 +314,11 @@ end
 
 return cliparse
 
+
 end)()
 
+combinetab = (function()
 
-
-local combinetab = (function()
 
 local function combinetab(...)
   local n = select('#',...)
@@ -304,11 +359,11 @@ end
 
 return combinetab
 
+
 end)()
 
+copyfile = (function()
 
-
-local copyfile = (function()
 
 local function copyfile( src, dst ) --> ok, err
 
@@ -353,11 +408,11 @@ end
 
 return copyfile
 
+
 end)()
 
+countiter = (function()
 
-
-local countiter = (function()
 
 local function countiter( ... ) --> countInt
   local countInt = 0
@@ -371,11 +426,11 @@ end
 
 return countiter
 
+
 end)()
 
+csvish = (function()
 
-
-local csvish = (function()
 
 local function string_char_to_decimal( c )
   return string.format( '\\%d', c:byte( 1,1 ))
@@ -419,11 +474,11 @@ end
 
 return csvish
 
+
 end)()
 
+csvishout = (function()
 
-
-local csvishout = (function()
 
 local function csvishout( tab, outFunc )
   local result = ''
@@ -453,11 +508,11 @@ end
 
 return csvishout
 
+
 end)()
 
+deepsame = (function()
 
-
-local deepsame = (function()
 
 local deepsame
 
@@ -503,11 +558,11 @@ end
 
 return deepsame
 
+
 end)()
 
+differencetab = (function()
 
-
-local differencetab = (function()
 
 local function differencetab( firstTab, secondTab ) --> differenceTab
   local differenceTab = {}
@@ -526,11 +581,11 @@ end
 
 return differencetab
 
+
 end)()
 
+escapeshellarg = (function()
 
-
-local escapeshellarg = (function()
 
 local quote_function
 
@@ -567,11 +622,11 @@ end
 
 return escapeshellarg
 
+
 end)()
 
+filenamesplit = (function()
 
-
-local filenamesplit = (function()
 
 local function filenamesplit( str ) --> pathStr, nameStr, extStr
   if not str then str = '' end
@@ -595,11 +650,11 @@ end
 
 return filenamesplit
 
+
 end)()
 
+flatarray = (function()
 
-
-local flatarray = (function()
 
 local function flatarray( inTab, depthInt ) --> outTab
   local outTab = {}
@@ -624,11 +679,11 @@ end
 
 return flatarray
 
+
 end)()
 
+hexdecode = (function()
 
-
-local hexdecode = (function()
 
 local function hexdecode( hexStr ) --> dataStr
   return hexStr:gsub( "..?", function( h )
@@ -638,11 +693,11 @@ end
 
 return hexdecode
 
+
 end)()
 
+hexencode = (function()
 
-
-local hexencode = (function()
 
 local function hexencode( dataStr ) --> hexStr
   return dataStr:gsub( ".", function( c )
@@ -652,11 +707,11 @@ end
 
 return hexencode
 
+
 end)()
 
+intern = (function()
 
-
-local intern = (function()
 
 local function intern() --> reference
 
@@ -702,11 +757,11 @@ end
 
 return intern
 
+
 end)()
 
+intersecationtab = (function()
 
-
-local intersecationtab = (function()
 
 local function intersecationtab( firstTab, secondTab, selectFunc ) --> intersecationTab
   local intersecationTab = {}
@@ -726,11 +781,11 @@ end
 
 return intersecationtab
 
+
 end)()
 
+iscallable = (function()
 
-
-local iscallable = (function()
 
 local function iscallable_rec( mask, i )
 
@@ -753,11 +808,11 @@ end
 
 return iscallable
 
+
 end)()
 
+isinteger = (function()
 
-
-local isinteger = (function()
 
 local function isinteger( i ) --> res
    if "number" ~= type( i ) then return false end
@@ -767,11 +822,11 @@ end
 
 return isinteger
 
+
 end)()
 
+isreadable = (function()
 
-
-local isreadable = (function()
 
 local function isreadable( path ) --> res
    local f = io.open(path, "r" )
@@ -782,11 +837,11 @@ end
 
 return isreadable
 
+
 end)()
 
+jsonish = (function()
 
-
-local jsonish = (function()
 
 -- local function json_to_table_literal(s)
 --   s = s:gsub("\\u(%d%d%d%d)","\\u{%1}")
@@ -823,11 +878,11 @@ end
 
 return json_to_table
 
+
 end)()
 
+jsonishout = (function()
 
-
-local jsonishout = (function()
 
 local function quote_json_string(str)
   return '"'
@@ -901,11 +956,11 @@ end
 
 return table_to_json
 
+
 end)()
 
+keysort = (function()
 
-
-local keysort = (function()
 
 local sort, tostring, type, ipairs, pairs =
   table.sort, tostring, type, ipairs, pairs
@@ -932,11 +987,11 @@ end
 
 return keysort
 
+
 end)()
 
+lambda = (function()
 
-
-local lambda = (function()
 
 local load = load
 local memo = setmetatable( {}, { __mode = "kv" } )
@@ -976,11 +1031,11 @@ end
 
 return lambda
 
+
 end)()
 
+localbind = (function()
 
-
-local localbind = (function()
 
 local pairs = pairs
 local setmetatable = setmetatable
@@ -1093,11 +1148,11 @@ end
 
 return localbind
 
+
 end)()
 
+locktable = (function()
 
-
-local locktable = (function()
 
 local error, setmetatable = error, setmetatable
 
@@ -1165,11 +1220,11 @@ end
 
 return locktable
 
+
 end)()
 
+logline = (function()
 
-
-local logline = (function()
 
 local skip_lower_level = 25
 local log_count = 0
@@ -1261,11 +1316,11 @@ end
 
 return logline
 
+
 end)()
 
+pathpart = (function()
 
-
-local pathpart = (function()
 
 local path_separator = package.config:sub(1,1)
 
@@ -1293,11 +1348,11 @@ end
 
 return pathpart
 
+
 end)()
 
+rawhtml = (function()
 
-
-local rawhtml = (function()
 
 local function rawhtml( inStr ) --> outStr
   if inStr == '' then return '' end
@@ -1322,11 +1377,11 @@ end
 
 return rawhtml
 
+
 end)()
 
+rawmark = (function()
 
-
-local rawmark = (function()
 
 local function rawmark(str, typ)
   if not typ or typ == '' then typ = 'default' end
@@ -1361,11 +1416,11 @@ end
 
 return rawmark
 
+
 end)()
 
+readfile = (function()
 
-
-local readfile = (function()
 
 local function readfile( pathStr, optStr ) --> readTabStr
   local f, err = io.open( pathStr, 'rb' )
@@ -1388,11 +1443,11 @@ end
 
 return readfile
 
+
 end)()
 
+searchluakeyword = (function()
 
-
-local searchluakeyword = (function()
 
 local clear_bracket_string_end
 
@@ -1490,11 +1545,11 @@ end
 
 return searchluakeyword
 
+
 end)()
 
+serialize = (function()
 
-
-local serialize = (function()
 
 local type = type
 
@@ -1622,11 +1677,11 @@ end
 
 return serialize
 
+
 end)()
 
+sha2 = (function()
 
-
-local sha2 = (function()
 
 -- Note: Big-endian convention is used when parsing message block data from
 -- bytes to words, for example, the first word of the input message "abc" after
@@ -1929,11 +1984,13 @@ end
 
 return sha2
 
+
 end)()
 
+shellcommand = (function()
 
 
-local shellcommand = (function()
+
 
 local function shellcommand( commandTab ) --> commandStr
   if not commandTab then return '' end
@@ -1967,11 +2024,11 @@ end
 
 return shellcommand
 
+
 end)()
 
+stepdebug = (function()
 
-
-local stepdebug = (function()
 
 local function stackbottom()
   local result = 1
@@ -2073,11 +2130,13 @@ end
 
 return stepdebug
 
+
 end)()
 
+subbytebase = (function()
 
 
-local subbytebase = (function()
+
 
 -- This can be used for base2-4-8-16 and crockford base32
 local subbyte_multipurpose_alphabet = {
@@ -2165,11 +2224,11 @@ end
 
 return subbytebase
 
+
 end)()
 
+tapfail = (function()
 
-
-local tapfail = (function()
 
 local function ton( x )
   local _, x = pcall(function() return tonumber(x) end)
@@ -2260,11 +2319,11 @@ end
 
 return tapfail
 
+
 end)()
 
+taptest = (function()
 
-
-local taptest = (function()
 
 local test_count = 0
 local fail_count = 0
@@ -2367,11 +2426,11 @@ end
 
 return taptest
 
+
 end)()
 
+templua = (function()
 
-
-local templua = (function()
 
 local function templua( template, ename ) --> ( sandbox ) --> expstr, err
    if not ename then ename = '_o' end
@@ -2420,11 +2479,11 @@ end
 
 return templua
 
+
 end)()
 
+timeprof = (function()
 
-
-local timeprof = (function()
 
 local clock, sqrt = os.clock, math.sqrt
 
@@ -2479,11 +2538,11 @@ end
 
 return timeprof
 
+
 end)()
 
+toposort = (function()
 
-
-local toposort = (function()
 
 local pairs, ipairs = pairs, ipairs
 
@@ -2526,11 +2585,11 @@ end
 
 return toposort
 
+
 end)()
 
+trimstring = (function()
 
-
-local trimstring = (function()
 
 local function trimstring( inStr ) --> trimStr
   return inStr:match('^[ %c]*(.-)[ %c]*$')
@@ -2538,11 +2597,13 @@ end
 
 return trimstring
 
+
 end)()
 
+tuple = (function()
 
 
-local tuple = (function()
+
 
 local tuplefact = intern()
 
@@ -2571,11 +2632,11 @@ end
 
 return tuple
 
+
 end)()
 
+uniontab = (function()
 
-
-local uniontab = (function()
 
 local function uniontab( firstTab, secondTab, selectFunc ) --> unionTab
   local unionTab = {}
@@ -2600,27 +2661,50 @@ end
 
 return uniontab
 
+
 end)()
 
+valueprint = (function()
 
-
-local valueprint = (function()
 
 local function print_basic( cur )
   if "string" == type( cur ) then
-    return string.format( "%q", cur ):gsub( '\n', '10' )
+    return string.format( "%q", cur ):gsub( '\n', 'n' )
   else
     return tostring( cur ):gsub( ':', '' )
   end
 end
 
-local function print_record( key, value, depth )
-  return not key and value or '\n'..('| '):rep(depth)..key..': '..value
+local function print_record( key, value, depth, info )
+  return (key and '\n'..('| '):rep(depth)..key..': '..value)
+    or (depth == 1 and info == 'in' and value) or ''
+end
+
+local function print_record_lua( k, v, d, i )
+  local y = ''
+  if not k then
+    if i == 'in' then
+      y = '{ -- ' .. v .. '\n'
+    elseif i == 'out' then
+      y = ((' '):rep(d)) .. '},\n'
+    end
+  else
+    if k ~= 'true' and k ~= 'false' and not tonumber(k) and k:sub(1,1) ~= '"' then
+      k = '"'..k..'"'
+    end
+    y = y .. ((' '):rep(d+1)) .. '[' .. k .. '] = '
+    if i ~= 'table' then
+      y = y .. v .. ',\n'
+    end
+  end
+  return y
 end
 
 local function valueprint( value, format ) --> str
 
   local memo = {}
+  if format == 'default' then format = print_record end
+  if format == 'lua' then format = print_record_lua end
   if 'function' ~= type(format) then format = print_record end
 
   local function valueprint_rec( cur, depth )
@@ -2632,33 +2716,33 @@ local function valueprint( value, format ) --> str
     if memo[cur] then return '' end
     memo[cur] = true
 
-    -- First table iteration
     local subtab = {}
-    if depth == 0 then
-      table.insert( subtab, format( nil, print_basic( value ), 0 ))
-      depth = 1
-    end
+
+    -- Start table iteration
+    table.insert( subtab, format( nil, print_basic( cur ), depth, 'in'))
 
     -- Recurse over each key and each value
     for k, v in pairs( cur ) do
       k = print_basic( k )
       local vs = print_basic( v )
-      table.insert( subtab, format( k, vs, depth ) or '' )
+      table.insert( subtab, format( k, vs, depth, type( v )) or '' )
       if 'table' == type(v) then
         table.insert( subtab, valueprint_rec( v, depth+1 ) or '')
       end
     end
 
+    -- End table iteration
+    table.insert( subtab, format( nil, print_basic( cur ), depth, 'out'))
+
     return table.concat( subtab )
   end
-  return valueprint_rec( value, 0 )
+  return valueprint_rec( value, 1 )
 end
 
 return valueprint
 
+
 end)()
-
-
 
 return {
   appendfile = appendfile,

@@ -354,6 +354,7 @@ local function extract_module_core(ent)
         ent.content_core = ent.content_core .. v
       end
     end
+    ent.content_core = ent.content_core:gsub('local%s-[^%s]-%s-=%s-%(%s-function%s-%(%s-%)%s-%s-end%s-%)%s-%(%s-%)','')
   end
 end
 
@@ -456,8 +457,8 @@ local function merge_content_pieces(ent)
 end
 
 local function generate_amalgamation(ent)
-  local amalgamation = in_cache('luasnip.lua')
-  if amalgamation.content == nil then
+  local amalgamation = in_cache('luasnip_embed')
+  if amalgamation.body == nil then
     amalgamation.content = ''
     amalgamation.body = ''
     amalgamation.tail = ''
@@ -547,7 +548,7 @@ local function generate_main()
   end)
 
   -- TODO : put in the module description string
-  in_cache('luasnip_embed',{onfile=toolpath('luasnip.lua'),readonly=true,tag_prefix='%-%- ',skip_tag=true})
+  in_cache('luasnip_embed',{onfile=toolpath('luasnip.lua'),tag_prefix='%-%- ',skip_tag=true})
   in_cache('htmltool',{onfile = toolpath('playground.html'),tolink=true,tag_prefix='// '})
 
   apply(search_example_file)
