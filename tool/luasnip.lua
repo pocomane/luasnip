@@ -52,6 +52,8 @@ local trimstring;
 local tuple;
 local uniontab;
 local valueprint;
+local object;
+local factory;
 
 appendfile = (function()
 
@@ -2744,6 +2746,93 @@ return valueprint
 
 end)()
 
+object = (function()
+
+
+local setmetatable, move = setmetatable, table.move
+
+local prototype_map = setmetatable({},{__mode="kv"})
+local function protoadd( instance, protochain )
+
+  local protos = prototype_map[instance]
+  if not protos then
+    protos = setmetatable( {meta={}}, {__mode="kv"} )
+    prototype_map[instance] = protos
+  end
+  local meta = protos.meta
+
+  local pn = #protochain
+  if pn > 0 then
+    move( protos, 1, #protos, pn+1)
+  end
+  move( protochain, 1, pn, 1, protos )
+  pn = #protos
+
+  if pn == 1 then
+    meta.__index = protos[1]
+  else
+    meta.__index = function( _, k )
+      for p = 1, pn do
+        local field = protos[p][k]
+        if field ~= nil then
+          return field
+        end
+      end
+    end
+  end
+
+  return setmetatable( instance, meta )
+end
+
+local function inherit(...)
+  return protoadd({}, {...})
+end
+
+local function has_proto( derived, base )
+  local protos = prototype_map[derived]
+  if protos then
+    for _, b in pairs(protos) do
+      if b == base then return true end
+    end
+  end
+  return false
+end
+
+return {
+  inherit = inherit,
+  isderived = has_proto,
+}
+
+
+end)()
+
+factory = (function()
+
+
+local setmetatable = setmetatable
+
+local function factory(initializer)
+  local made_here = setmetatable({},{__mode='kv'})
+
+  local function constructor(instance)
+    instance = instance or {}
+    made_here[instance] = true
+    return instance, initializer(instance)
+  end
+
+  local checker = function(instance)
+    if made_here[instance] then return true end
+    return false
+  end
+
+  return constructor, checker
+end
+
+return factory
+
+
+end)()
+
 return {
   appendfile = appendfile,
   argcheck = argcheck,
@@ -2793,4 +2882,6 @@ return {
   tuple = tuple,
   uniontab = uniontab,
   valueprint = valueprint,
+  object = object,
+  factory = factory,
 }

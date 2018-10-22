@@ -127,6 +127,7 @@ local modules = [[
  module  ; uniontab  ; tab
  module  ; valueprint ; deb
  module  ; object ; type
+ module  ; factory ; type
 
  internal  ; testhelper.lua  ; test/
  

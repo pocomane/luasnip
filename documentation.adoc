@@ -66,11 +66,9 @@ of LuaSnip 1.0. More realistically, this list will never be empty.
 - Add a new module: getsource (like the one in the stepdebug example) ?
 - Add a new module: deepcopy ?
 - Add a new module: tabclear ?
-- Add a new module: linecoltoindex / indextolinecol ?
 - Add a new module: stringlineiterator ?
 - Add a new module: memoize ?
 - Add a new module: tabsearch ?
-- Add a new module: class / proto ?
 - Add a new module: functional ?
 - Add a new module: other array ops ?
 - Add a new module: other table ops ?
@@ -267,7 +265,7 @@ in the `src/luasnip.lua` amalgamation it is used to collect the functions (e.g.
 
 - TYPE - These modules define or check new types: +
 // [SNIP:function_index_section_type[
-<<argcheck>> <<intern>> <<iscallable>> <<isinteger>> <<tuple>> 
+<<argcheck>> <<factory>> <<intern>> <<iscallable>> <<isinteger>> <<object>> <<tuple>> 
 // ]SNIP:function_index_section_type]
 
 - STR - These modules operate on, or generate strings: +
@@ -6990,6 +6988,313 @@ t( v, '^'
     ..'<4|true|1|boolean>'
     ..'<nil|%1|1|out>'
     ..'$', t.patsame )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#object]
+=== object
+
+[source,lua]
+----
+function inherit( base1Tab[, base2Tab[, ...]] ) --> derivedTab
+function isderived( derivedTab, baseTab ) --> truthnessBool
+----
+
+The `inherit` function retrun a new table that inherits from all the
+`base1Tab`, `base2Tab` tables. When a field is not found in the new table, it
+will be serched in the base ones, in the same orded as they were prvided (i.e.
+`base1Tab` first). The first one found is returned.
+
+The `isderived` function will check if `derivedTab` was generated ba an
+`inherit` function call with `baseTab` somewhere in its arguments.
+
+This module implements a prototype pattern, with multiple inheritace. It does
+not provide a constructor semantic. You can use the `factory` module for that
+purpose.
+
+==== Code
+
+[source,lua]
+------------
+local setmetatable, move = setmetatable, table.move
+
+local prototype_map = setmetatable({},{__mode="kv"})
+local function protoadd( instance, protochain )
+
+  local protos = prototype_map[instance]
+  if not protos then
+    protos = setmetatable( {meta={}}, {__mode="kv"} )
+    prototype_map[instance] = protos
+  end
+  local meta = protos.meta
+
+  local pn = #protochain
+  if pn > 0 then
+    move( protos, 1, #protos, pn+1)
+  end
+  move( protochain, 1, pn, 1, protos )
+  pn = #protos
+
+  if pn == 1 then
+    meta.__index = protos[1]
+  else
+    meta.__index = function( _, k )
+      for p = 1, pn do
+        local field = protos[p][k]
+        if field ~= nil then
+          return field
+        end
+      end
+    end
+  end
+
+  return setmetatable( instance, meta )
+end
+
+local function inherit(...)
+  return protoadd({}, {...})
+end
+
+local function has_proto( derived, base )
+  local protos = prototype_map[derived]
+  if protos then
+    for _, b in pairs(protos) do
+      if b == base then return true end
+    end
+  end
+  return false
+end
+
+return {
+  inherit = inherit,
+  isderived = has_proto,
+}
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local object = require 'object'
+local t = require 'testhelper'
+
+local a,b,c,d,e,f,g
+
+a = {}
+b = object.inherit(a)
+c = object.inherit(a)
+
+t( a, b, t.diff )
+t( a, c, t.diff )
+t( c, b, t.diff )
+
+t( a.method, nil )
+t( b.method, nil )
+t( c.method, nil )
+
+f = function() end
+a.method = f
+
+t( a.method, f )
+t( b.method, f )
+t( c.method, f )
+
+g = function() end
+b.method = g
+
+t( a.method, f )
+t( b.method, g )
+t( c.method, f )
+
+h = function() end
+a.method = h
+
+t( a.method, h )
+t( b.method, g )
+t( c.method, h )
+
+a = {}
+b = {}
+c = object.inherit(a,b)
+
+f = function() end
+b.method = f
+
+t( a.method, nil )
+t( b.method, f )
+t( c.method, f )
+
+g = function() end
+a.method = g
+
+t( a.method, g )
+t( b.method, f )
+t( c.method, g )
+
+h = function() end
+b.method = h
+
+t( a.method, g )
+t( b.method, h )
+t( c.method, g )
+
+f = function() end
+c.method = f
+
+t( a.method, g )
+t( b.method, h )
+t( c.method, f )
+
+a = {}
+b = {}
+c = object.inherit(a,b)
+
+t( object.isderived( c, a ), true )
+t( object.isderived( a, c ), false )
+t( object.isderived( c, b ), true )
+t( object.isderived( b, c ), false )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#factory]
+=== factory
+
+[source,lua]
+----
+function factory( initFunc ) --> constructorFunc, checkFunc
+----
+
+This module create the `constructorFunc` construction function, and the `checkFunc` checker function.
+
+The `constructorFunc`:
+
+[source,lua]
+----
+function constructorFunc( initTab ) --> objectTab, ...
+----
+
+calls the `initFunc` on the `initTab` (or a new one if `nil` is passed). It
+returns the `initTab`. Any return value of `initFunc` will be appended to the
+results.
+
+The `checkFunc`:
+
+[source,lua]
+----
+function checkFunc( aTab ) --> truthnessBool 
+----
+
+takes any `aTab` table as input and checks if it was constructed with the
+associated `constructorFunc`.
+
+These functions can be used in a class/mixin pattern: calling `constructorFunc`
+just means to construct an object of a given class/mixin. However a method
+assigned to the instance by the `initFunc` can be lately removed from a single
+instance. To grant that a method of a base class is always present,
+`object.inherit` can be used inside `initFunc`.
+
+==== Code
+
+[source,lua]
+------------
+local setmetatable = setmetatable
+
+local function factory(initializer)
+  local made_here = setmetatable({},{__mode='kv'})
+
+  local function constructor(instance)
+    instance = instance or {}
+    made_here[instance] = true
+    return instance, initializer(instance)
+  end
+
+  local checker = function(instance)
+    if made_here[instance] then return true end
+    return false
+  end
+
+  return constructor, checker
+end
+
+return factory
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local factory = require 'factory'
+local t = require 'testhelper'
+
+local makeA, isA = factory(function(ins)
+  if not ins.built then ins.built = '' end
+  ins.built = ins.built .. 'A'
+end)
+
+local makeB, isB = factory(function(ins)
+  if not ins.built then ins.built = '' end
+  ins.built = ins.built .. 'B'
+end)
+
+local makeC, isC = factory(function(ins)
+  makeA(ins)
+  makeB(ins)
+  if not ins.built then ins.built = '' end
+  ins.built = ins.built .. 'C'
+end)
+
+local a = makeA()
+local b = makeB()
+local c = makeC { built = 'X' }
+
+t( a.built, 'A' )
+t( b.built, 'B' )
+t( c.built, 'XABC' )
+
+t( isA(a), true )
+t( isB(a), false )
+t( isC(a), false )
+
+t( isA(b), false )
+t( isB(b), true )
+t( isC(b), false )
+
+t( isA(c), true )
+t( isB(c), true )
+t( isC(c), true )
+
+makeA, isA = factory(function(ins)
+  local private1, private2 = {}, {}
+  function ins:getprivate()
+    return private1, private2
+  end
+  return private1, private2
+end)
+
+local a, b, c = makeA()
+local d, e, f = makeA()
+
+local B, C = a:getprivate()
+local E, F = d:getprivate()
+
+t( b, B )
+t( c, C )
+t( e, E )
+t( f, F )
 
 t()
 
