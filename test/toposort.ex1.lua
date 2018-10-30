@@ -3,7 +3,7 @@ local t = require 'testhelper'
 
 t( toposort(), {}, t.deepsame )
 
-t( toposort{a={'b'}}, {'b','a'}, t.itemorder )
+t( toposort{a={'b'}}, {'b','a'}, t.deepsame )
 
 t( toposort{a={'b','c'}}, {'b','a'}, t.itemorder )
 t( toposort{a={'b','c'}}, {'c','a'}, t.itemorder )

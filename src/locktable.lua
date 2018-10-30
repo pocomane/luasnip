@@ -28,8 +28,8 @@ A typical usage is the protection of the environment to check the access to a
 undefined global:
 
 ```
-_ENV = locktable( _ENV, 'readnil' )
-local a = True --> this rises an error, while normally just nil was put in a
+_ENV = require 'locktable' ( _ENV, 'readnil' )
+local x = True --> this rises an error, while normally just nil was placed in x
 ```
 
 ]===]

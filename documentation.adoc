@@ -62,6 +62,11 @@ of LuaSnip 1.0. More realistically, this list will never be empty.
 - Refactor examples: only few representative examples should be included in the documentation ?
 - Improve locktable : per-field read/write constraints ????
 - Refactor tests: use "Strict" !
+- Test in stepdebug: Test stepdebug'next'
+- Test in stepdebug: test argument to debug handle function (stack position of the code)
+- Refactor stepdebug: an additional step is performend on the 'end' of a block (also if skipped); remove it (specially when skipped)? how ?
+- Refactor luasniputility: CLEAN-UP ALL THAT MESS !!!
+- Improve luasniputility: automatically add in the documantation a list of all the dependencies of a module ?
 - Add a LuaRocks spec ?
 - Add a new module: getsource (like the one in the stepdebug example) ?
 - Add a new module: deepcopy ?
@@ -69,15 +74,10 @@ of LuaSnip 1.0. More realistically, this list will never be empty.
 - Add a new module: stringlineiterator ?
 - Add a new module: memoize ?
 - Add a new module: tabsearch ?
+- Add a new module: converter rawtag_table -> rawtag_string ???
 - Add a new module: functional ?
 - Add a new module: other array ops ?
 - Add a new module: other table ops ?
-- Add a new module: convert rawtag_table -> rawtag_string ???
-- Test in stepdebug: Test stepdebug'next'
-- Test in stepdebug: test argument to debug handle function (stack position of the code)
-- Refactor stepdebug: an additional step is performend on the 'end' of a block (also if skipped); remove it (specially when skipped)? how ?
-- Refactor luasniputility: CLEAN-UP ALL THAT MESS !!!
-- Improve luasniputility: automatically add in the documantation a list of all the dependencies of a module ?
 
 Return to <<top>>
 
@@ -3077,8 +3077,8 @@ A typical usage is the protection of the environment to check the access to a
 undefined global:
 
 ```
-_ENV = locktable( _ENV, 'readnil' )
-local a = True --> this rises an error, while normally just nil was put in a
+_ENV = require 'locktable' ( _ENV, 'readnil' )
+local x = True --> this rises an error, while normally just nil was placed in x
 ```
 
 ==== Code
@@ -6108,6 +6108,10 @@ Moreover, the content of the `sandbox` table is injected into the environment
 of the Lua code (both expressions and statements). This allows you to pass
 parameters to the template.
 
+To escape the template sequencies, `@` can be substituded with `@{"@"}`, e.g.
+`@{"@"}{error()}` can be used to insert `@{error()}` in the document without
+expanding it.
+
 ==== Code
 
 [source,lua]
@@ -6496,7 +6500,7 @@ local t = require 'testhelper'
 
 t( toposort(), {}, t.deepsame )
 
-t( toposort{a={'b'}}, {'b','a'}, t.itemorder )
+t( toposort{a={'b'}}, {'b','a'}, t.deepsame )
 
 t( toposort{a={'b','c'}}, {'b','a'}, t.itemorder )
 t( toposort{a={'b','c'}}, {'c','a'}, t.itemorder )

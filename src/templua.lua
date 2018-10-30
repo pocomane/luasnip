@@ -27,6 +27,10 @@ Moreover, the content of the `sandbox` table is injected into the environment
 of the Lua code (both expressions and statements). This allows you to pass
 parameters to the template.
 
+To escape the template sequencies, `@` can be substituded with `@{"@"}`, e.g.
+`@{"@"}{error()}` can be used to insert `@{error()}` in the document without
+expanding it.
+
 ]===]
 
 local function templua( template, ename ) --> ( sandbox ) --> expstr, err
