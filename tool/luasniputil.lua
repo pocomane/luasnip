@@ -128,6 +128,7 @@ local modules = [[
  module  ; valueprint ; deb
  module  ; object ; type
  module  ; factory ; type
+ module  ; measure ; math
 
  internal  ; testhelper.lua  ; test/
  
