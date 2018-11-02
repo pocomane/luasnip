@@ -2814,13 +2814,32 @@ factory = (function()
 
 local setmetatable = setmetatable
 
-local function factory(initializer)
+local function proxy(instance)
+  return setmetatable({}, { __index = instance })
+end
+
+local function factory(a, b)
+
+  local initializer, makeproxy
+  if a == 'proxy' then
+    initializer, makeproxy = b, true
+  else
+    initializer, makeproxy = a, false
+  end
+
   local made_here = setmetatable({},{__mode='kv'})
 
   local function constructor(instance)
     instance = instance or {}
+    local result
+    if not makeproxy then
+      result = instance
+    else
+      result = proxy(instance)
+      made_here[result] = true
+    end
     made_here[instance] = true
-    return instance, initializer(instance)
+    return result, initializer(instance)
   end
 
   local checker = function(instance)

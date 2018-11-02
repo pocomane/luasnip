@@ -57,5 +57,23 @@ t( c, C )
 t( e, E )
 t( f, F )
 
+makeA, isA = factory('proxy', function(ins)
+  ins.t = 'a'
+end)
+a = {}
+b = makeA(a)
+
+t( a.t, 'a' )
+t( b.t, 'a' )
+a.t = 'c'
+t( a.t, 'c' )
+t( b.t, 'c' )
+b.t = 'b'
+t( a.t, 'c' )
+t( b.t, 'b' )
+
+t( isA(a), true )
+t( isA(b), true )
+
 t()
 
