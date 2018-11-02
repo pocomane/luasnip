@@ -57,8 +57,9 @@ local function protoadd( instance, protochain )
   return setmetatable( instance, meta )
 end
 
-local function inherit(...)
-  return protoadd({}, {...})
+local function inherit(b, o)
+  o = o or {}
+  return protoadd(o, b)
 end
 
 local function has_proto( derived, base )
