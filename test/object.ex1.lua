@@ -4,8 +4,8 @@ local t = require 'testhelper'
 local a,b,c,d,e,f,g
 
 a = {}
-b = object.inherit(a)
-c = object.inherit(a)
+b = object.inherit( a )
+c = object.inherit( a )
 
 t( a, b, t.diff )
 t( a, c, t.diff )
@@ -38,7 +38,7 @@ t( c.method, h )
 
 a = {}
 b = {}
-c = object.inherit(a,b)
+c = object.inherit( a, b )
 
 f = function() end
 b.method = f
@@ -70,12 +70,18 @@ t( c.method, f )
 
 a = {}
 b = {}
-c = object.inherit(a,b)
+c = object.inherit( a, b )
 
 t( object.isderived( c, a ), true )
 t( object.isderived( a, c ), false )
 t( object.isderived( c, b ), true )
 t( object.isderived( b, c ), false )
+
+a = {}
+b = object.inherit( a )
+c = object.inherit( b )
+t( object.isderived( c, a ), true )
+t( object.isderived( a, c ), false )
 
 t()
 

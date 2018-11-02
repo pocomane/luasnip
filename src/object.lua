@@ -66,6 +66,7 @@ local function has_proto( derived, base )
   if protos then
     for _, b in pairs(protos) do
       if b == base then return true end
+      if has_proto( b, base ) then return true end -- TODO : avoid recursion? memoize?
     end
   end
   return false
