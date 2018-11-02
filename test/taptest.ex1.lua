@@ -21,23 +21,23 @@ t( taptest( 1, 1 ), "ok 2" )
 
 -- Additional infos when the test fails
 t( taptest( 1, 2 ),
-   "not ok 3 - taptest.ex1.lua:15. Expectation [2] does not match with [1]. " )
+   "not ok 3 - taptest.ex1.lua:15. Mismatch: [1] VS [2]. " )
 
 -- Custom infos on fail
 t( taptest( 1, 2, "Not good!" ),
-   "not ok 4 - taptest.ex1.lua:15. Expectation [2] does not match with [1]. Not good!" )
+   "not ok 4 - taptest.ex1.lua:15. Mismatch: [1] VS [2]. Not good!" )
 
 -- Custom compare function
 t( taptest( 1, 2, function( a, b ) return a < b end ),
    "ok 5" )
 t( taptest( 2, 1, function( a, b ) return a < b end ),
-   "not ok 6 - taptest.ex1.lua:15. Expectation [1] does not match with [2]. " )
+   "not ok 6 - taptest.ex1.lua:15. Mismatch: [2] VS [1]. " )
 
 -- Custom compare function and message
 t( taptest( 1, 1, function( a, b ) return a ~= b end, "Not good!" ),
-   "not ok 7 - taptest.ex1.lua:15. Expectation [1] does not match with [1]. Not good!" )
+   "not ok 7 - taptest.ex1.lua:15. Mismatch: [1] VS [1]. Not good!" )
 t( taptest( 1, 1, "Not good!", function( a, b ) return a ~= b end ),
-   "not ok 8 - taptest.ex1.lua:15. Expectation [1] does not match with [1]. Not good!" )
+   "not ok 8 - taptest.ex1.lua:15. Mismatch: [1] VS [1]. Not good!" )
 
 -- Single argument = Tap diagnostic
 t( taptest( "new\nsuite" ), "# new\n# suite" )
@@ -58,7 +58,7 @@ local function taptest_masked(...)
   return r -- no tail call
 end
 
-t( taptest_masked( 1, 2 ), "not ok 11 - taptest.ex1.lua:61. Expectation [2] does not match with [1]. " )
+t( taptest_masked( 1, 2 ), "not ok 11 - taptest.ex1.lua:61. Mismatch: [1] VS [2]. " )
 
 t( taptest( nil, nil ), "ok 12" )
 t( taptest( nil, true, function(a,b) return a~=b end ), "ok 13" )

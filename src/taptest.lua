@@ -126,8 +126,8 @@ local function taptest( ... ) --> msg
       -- Append automatic info
       if not ok and not info then
         msg = msg
-          .. "Expectation ["..tostring( expected ).."] "
-          .. "does not match with ["..tostring( got ).."]. "
+          .. "Mismatch: ["..tostring( got ).."] "
+          .. "VS ["..tostring( expected ).."]. "
       end
 
       -- Append user-provided info
