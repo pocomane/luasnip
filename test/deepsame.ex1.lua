@@ -12,6 +12,10 @@ t( deepsame({[{1}]=1}, {[{1}]=1}), true )
 t( deepsame({[{1}]=1}, {[{2}]=1}), false )
 t( deepsame({[{1}]=1}, {[{1}]=2}), false )
 
+local a,b = {},{}
+t( deepsame({[a]='a',[b]='a'}, {[a]='a'}), false )
+t( deepsame({[a]='a'}, {[a]='a',[b]='a'}), false )
+
 t( deepsame({{}}, {{}}), true )
 t( deepsame({{1}}, {{1}}), true )
 t( deepsame({{1}}, {{2}}), false )

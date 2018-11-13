@@ -37,17 +37,23 @@ function deepsame( a, b, s )
   s[ a ] = b
   s[ b ] = a
 
+  local ca = 0
   for ak, av in pairs( a ) do
+    ca = ca + 1
     local o = keycheck( ak, b, s )
     if o == nil then return false end
   end
 
+  local cb = 0
   for bk, bv in pairs( b ) do
+    cb = cb + 1
     local o = keycheck( bk, a, s )
     if o == nil then return false end
 
     if not deepsame( bv, o, s ) then return false end
   end
+
+  if cb ~= ca then return false end
 
   s[ a ] = nil
   s[ b ] = nil
