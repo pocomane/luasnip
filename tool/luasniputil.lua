@@ -129,6 +129,7 @@ local modules = [[
  module  ; object ; type
  module  ; factory ; type
  module  ; measure ; math
+ module  ; clone ; tab
 
  internal  ; testhelper.lua  ; test/
  

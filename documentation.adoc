@@ -241,7 +241,7 @@ in the `src/luasnip.lua` amalgamation it is used to collect the functions (e.g.
 
 - TAB - These modules work on tables: +
 // [SNIP:function_index_section_tab[
-<<combinetab>> <<deepsame>> <<differencetab>> <<flatarray>> <<intersecationtab>> <<locktable>> <<toposort>> <<uniontab>> 
+<<clone>> <<combinetab>> <<deepsame>> <<differencetab>> <<flatarray>> <<intersecationtab>> <<locktable>> <<toposort>> <<uniontab>> 
 // ]SNIP:function_index_section_tab]
 
 - CLI - These modules deal with command line interface: +
@@ -7634,6 +7634,188 @@ t( a[2], b[2], e002 )
 t( a[3], b[3], e002 )
 t( a[4], b[4], e002 )
 t( a[5], b[5], e002 )
+
+t()
+
+------------
+
+
+Return to <<reference_rendez_vous>>
+
+[#clone]
+=== clone
+
+[source,lua]
+----
+function clone( sourceTab, depthNum ) --> clonedTab
+----
+
+This function will return the `clonedTab` table, that is a duplicate of the
+`sourceTab` table. The duplicated table is a different one but it has the same
+content. Any contained table will be recursively duplicated, both if it is a
+key or a value.
+
+The optional `depthNum` number defines the depth level at which the sub-tables
+must be duplicated. Deeper tables are copied by reference. If it is 0, the
+original table will be returned. If it is 1, any sub-table are copied by
+reference. When nil all the sub-tables, at any levels, will be duplicated.
+
+==== Code
+
+[source,lua]
+------------
+local function shallow_copy( depth, cloned, toclone )
+  local source = toclone[#toclone]
+  if not source then return end
+  toclone[#toclone]=nil
+
+  local root = cloned[ source ]
+  if not root then
+    root = {}
+    cloned[ source ] = root
+
+    for k, v in pairs( source ) do
+      root[k] = v
+
+      if not depth or depth > 1 then
+        if type(k) == 'table' then
+          toclone[1+#toclone] = k
+        end
+
+        if type(v) == 'table' then
+          toclone[1+#toclone] = v
+        end
+      end
+    end
+
+    return shallow_copy( depth and depth-1, cloned, toclone )
+  end
+end
+
+local function link_clones( cloned )
+  for _, tolink in pairs(cloned) do
+
+    local K, V = {}, {}
+    for k, v in pairs( tolink ) do
+      local newk = cloned[k]
+      local newv = cloned[v]
+
+      if newk then
+         tolink[k] = nil
+
+        -- Note: New key adding is postponed since it is forbidden
+        -- during iteration
+        K[#K+1] = newk or k
+        V[#V+1] = newv or v
+
+      elseif newv then
+        tolink[k] = newv
+      end
+    end
+
+    for i = 1, #K do
+      tolink[K[i]] = V[i]
+    end
+  end
+end
+
+local function clone( sourceTab, depthNum )
+  if depthNum == 0 then return sourceTab end
+  if depthNum and depthNum < 1 then return sourceTab end
+  local toclone = {sourceTab}
+  local cloned = {}
+  shallow_copy( depthNum, cloned, toclone )
+  link_clones( cloned )
+  return cloned[sourceTab]
+end
+
+return clone
+
+------------
+
+
+==== Example
+
+[source,lua]
+------------
+local clone = require 'clone'
+local t = require 'testhelper'
+
+local s = {}
+t( clone(s), s, t.diff )
+t( clone(s), s, t.deepsame )
+
+local s = {1}
+t( clone(s), s, t.diff )
+t( clone(s), s, t.deepsame )
+
+local s = { a = 'a' }
+local d = clone(s)
+t( s, d, t.deepsame )
+
+local s = { a = {} }
+local d = clone(s)
+t( s, d, t.deepsame )
+t( s.a, d.a, t.diff )
+
+local s = { a = {1} }
+local d = clone(s)
+t( s, d, t.deepsame )
+t( s.a, d.a, t.diff )
+
+local r = {}
+local s = { a = r, b = r }
+local d = clone(s)
+t( s, d, t.deepsame )
+t( s.a, d.a, t.diff )
+t( s.b, d.b, t.diff )
+t( d.a, d.b )
+
+local r = {}
+local s = { r, [r] = 1 }
+local d = clone(s)
+t( s, d, t.deepsame )
+t( s[1], d[1], t.diff )
+local kc
+for k in pairs(d) do kc = k end
+t( d[1], kc )
+
+local s = { }
+s[1] = s
+local d = clone(s)
+t( s, d, t.deepsame )
+t( s[1], d[1], t.diff )
+t( d, d[1] )
+
+local k = {}
+local s = { [k] = 2 }
+local d = clone(s)
+t( s, d, t.deepsame )
+local kc
+for k in pairs(d) do kc = k end
+t( k, kc, t.deepsame )
+t( k, kc, t.diff )
+
+local s = {}
+s.a = {}
+s.a.a = {}
+local d = clone( s ,2 )
+t( s, d, t.deepsame )
+t( s.a, d.a, t.diff )
+t( s.a.a, d.a.a )
+
+local s = {}
+local r,q = {},{}
+s[r] = 'a'
+r[q] = 'a'
+local d = clone( s ,2 )
+t( s, d, t.deepsame )
+local kc
+for k in pairs(d) do kc = k end
+local kcc
+for k in pairs(kc) do kcc = k end
+t( r, kc, t.diff )
+t( q, kcc )
 
 t()
 
