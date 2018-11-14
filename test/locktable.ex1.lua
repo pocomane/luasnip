@@ -76,12 +76,26 @@ local l = { a = 1 }
 l = locktable( l, 'iterate' )
 t( err(function() for _ in pairs(l) do end end), nil, t.diff )
 
-local function strict() _ENV = locktable( _ENV, 'readnil' ) end
+t( global_a, nil )
+t( global_b, nil )
+
+local oldenv = _ENV
 global_a = 1
-strict()
+_ENV = locktable( _ENV, 'readnil' )
 t( global_a, 1 )
 t( err(function() return global_b end), nil, t.diff )
 t( err(function() global_b = 2 end), nil )
 t( err(function() global_a = 2 end), nil )
+
+_ENV = oldenv
+t( global_x, nil )
+t( global_y, nil )
+
+global_x = 1
+setmetatable(_ENV, getmetatable(locktable( _ENV, 'readnil' )))
+t( global_x, 1 )
+t( err(function() return global_y end), nil, t.diff )
+t( err(function() global_y = 2 end), nil )
+t( err(function() global_x = 2 end), nil )
 
 t()

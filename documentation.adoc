@@ -70,7 +70,6 @@ of LuaSnip 1.0. More realistically, this list will never be empty.
 - Add a LuaRocks spec ?
 - Add a new module: getsource (like the one in the stepdebug example) ?
 - Remove the object module ? is the factory module enough?
-- Add a new module: deepcopy ?
 - Add a new module: tabclear ?
 - Add a new module: stringlineiterator ?
 - Add a new module: memoize ?
@@ -3102,6 +3101,8 @@ local x = True --> this rises an error, while normally just nil was placed in x
 [source,lua]
 ------------
 local error, setmetatable = error, setmetatable
+local pairs, ipairs = pairs, ipairs
+local rawget, rawset = rawget, rawset
 
 local function iterate( )
   error('Iteration on fielad was forbidden', 2)
@@ -3115,25 +3116,25 @@ local function writeall( )
   error('Change of any field was forbidden', 2)
 end
 
-local function locktable( inTab, ... ) --> lockedTab
+local function lockingmeta( inTab, ... ) --> proxyMet
 
   local function readnil( s, k )
-    local v = inTab[k]
+    local v = rawget( inTab, k )
     if nil == v then
       error('Read of nil field was forbidden', 2) end
     return v
   end
 
   local function writenil( s, k, v )
-    if nil == inTab[k] then 
+    if nil == rawget( inTab, k ) then
       error('Write of nil field was forbidden', 2)
     end
-    inTab[k] = v
+    rawset( inTab, k, v )
   end
 
   local metatable = {
-    __newindex = function(s, k, v) inTab[k] = v end,
-    __index = function(s,k) return inTab[k] end,
+    __newindex = function(s, k, v) rawset( inTab, k, v ) end,
+    __index = function(s,k) return rawget( inTab, k ) end,
     __pairs = function(...) return pairs(inTab, ...) end,
     __ipairs = function(...) return ipairs(inTab, ...) end,
   }
@@ -3162,7 +3163,11 @@ local function locktable( inTab, ... ) --> lockedTab
     end
   end
 
-  return setmetatable( {}, metatable )
+  return metatable
+end
+
+local function locktable( inTab, ... ) --> lockedTab
+  return setmetatable( {}, lockingmeta( inTab, ... ))
 end
 
 return locktable
@@ -3252,13 +3257,27 @@ local l = { a = 1 }
 l = locktable( l, 'iterate' )
 t( err(function() for _ in pairs(l) do end end), nil, t.diff )
 
-local function strict() _ENV = locktable( _ENV, 'readnil' ) end
+t( global_a, nil )
+t( global_b, nil )
+
+local oldenv = _ENV
 global_a = 1
-strict()
+_ENV = locktable( _ENV, 'readnil' )
 t( global_a, 1 )
 t( err(function() return global_b end), nil, t.diff )
 t( err(function() global_b = 2 end), nil )
 t( err(function() global_a = 2 end), nil )
+
+_ENV = oldenv
+t( global_x, nil )
+t( global_y, nil )
+
+global_x = 1
+setmetatable(_ENV, getmetatable(locktable( _ENV, 'readnil' )))
+t( global_x, 1 )
+t( err(function() return global_y end), nil, t.diff )
+t( err(function() global_y = 2 end), nil )
+t( err(function() global_x = 2 end), nil )
 
 t()
 

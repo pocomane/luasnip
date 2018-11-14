@@ -35,6 +35,8 @@ local x = True --> this rises an error, while normally just nil was placed in x
 ]===]
 
 local error, setmetatable = error, setmetatable
+local pairs, ipairs = pairs, ipairs
+local rawget, rawset = rawget, rawset
 
 local function iterate( )
   error('Iteration on fielad was forbidden', 2)
@@ -48,25 +50,25 @@ local function writeall( )
   error('Change of any field was forbidden', 2)
 end
 
-local function locktable( inTab, ... ) --> lockedTab
+local function lockingmeta( inTab, ... ) --> proxyMet
 
   local function readnil( s, k )
-    local v = inTab[k]
+    local v = rawget( inTab, k )
     if nil == v then
       error('Read of nil field was forbidden', 2) end
     return v
   end
 
   local function writenil( s, k, v )
-    if nil == inTab[k] then 
+    if nil == rawget( inTab, k ) then
       error('Write of nil field was forbidden', 2)
     end
-    inTab[k] = v
+    rawset( inTab, k, v )
   end
 
   local metatable = {
-    __newindex = function(s, k, v) inTab[k] = v end,
-    __index = function(s,k) return inTab[k] end,
+    __newindex = function(s, k, v) rawset( inTab, k, v ) end,
+    __index = function(s,k) return rawget( inTab, k ) end,
     __pairs = function(...) return pairs(inTab, ...) end,
     __ipairs = function(...) return ipairs(inTab, ...) end,
   }
@@ -95,7 +97,11 @@ local function locktable( inTab, ... ) --> lockedTab
     end
   end
 
-  return setmetatable( {}, metatable )
+  return metatable
+end
+
+local function locktable( inTab, ... ) --> lockedTab
+  return setmetatable( {}, lockingmeta( inTab, ... ))
 end
 
 return locktable
