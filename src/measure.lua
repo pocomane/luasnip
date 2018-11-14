@@ -51,10 +51,14 @@ local function measure( partMea ) -->
   local M3 = 0
   local M4 = 0
   local n = 0
+  local min = nil
+  local max = nil
 
-  local function import_set(M1F2, M2F2, M3F2, M4F2, n2)
+  local function import_set(M1F2, M2F2, M3F2, M4F2, n2, min2, max2)
     if n == 0 then
       M1, M2, M3, M4, n = M1F2, M2F2, M3F2, M4F2, n2
+      min = min2
+      max = max2
     else
       -- Formula: Philippe Pébay. SANDIA REPORT SAND2008-6212 (2008) - https://prod.sandia.gov/techlib-noauth/access-control.cgi/2008/086212.pdf
       local M1F1, M2F1, M3F1, M4F1, n1 = M1, M2, M3, M4, n
@@ -75,6 +79,12 @@ local function measure( partMea ) -->
            + 6 * (n1sq * M2F2 + n2sq * M2F1) * DSQ
            + 4 * (n1 * M3F2 - n2 * M3F1) * D
       n = n1p2
+      if min2 and min2<min then
+        min = min2
+      end
+      if max2 and max2>max then
+        max = max2
+      end
     end
   end
 
@@ -86,9 +96,9 @@ local function measure( partMea ) -->
 
   local function get_measure( value )
     if value == aux_get_state then
-      return M1, M2, M3, M4, n
+      return M1, M2, M3, M4, n, min, max
     elseif value ~= nil then
-      import_set(value, 0, 0, 0, 1)
+      import_set(value, 0, 0, 0, 1, value, value)
     end
     local m, d, s, k = M1, 0, 0, 0
     if n > 1 then
@@ -101,7 +111,7 @@ local function measure( partMea ) -->
     if M2 > 0 then
       k = M4 * n /( M2 * M2 )
     end
-    return m,d,s,k,n
+    return m,d,s,k,n,min,max
   end
 
   if partMea then import_all(partMea) end
