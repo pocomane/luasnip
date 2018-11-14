@@ -7506,8 +7506,7 @@ local function measure( partMea ) -->
       local nn = n1 * n2
       local n1sq = n1 * n1
       local n2sq = n2 * n2
-      local d = M1F2 - M1F1
-      local D = d / n1p2
+      local D = (M1F2 - M1F1) / n1p2
       local DSQ = D * D
       M1 = M1F1 + n2 * D
       M2 = M2F1 + M2F2
