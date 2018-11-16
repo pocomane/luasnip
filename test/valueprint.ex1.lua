@@ -23,8 +23,8 @@ local v = valueprint( at )
 t( v, '^'
     .."table 0?x?%x*\n"
     .."| 1: (table 0?x?%x*)\n"
-    .."| | 1: %1\n"
-    .."| | %1: true"
+    .."| | 1: %1 content is not shown here\n"
+    .."| | %1 content is not shown here: true"
     ..'$', t.patsame )
 
 local function p(k,v,d,i)

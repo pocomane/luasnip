@@ -122,6 +122,16 @@ local function print_basic( cur )
   end
 end
 
+local function print_with_annotation( cur, memo )
+  local s = print_basic( cur )
+  if type(cur) == 'table' then
+    if memo == true or memo[cur] then
+      s = s .. ' content is not shown here'
+    end
+  end
+  return s
+end
+
 local function print_record( key, value, depth, info )
   return (key and '\n'..('| '):rep(depth)..key..': '..value)
     or (depth == 1 and info == 'in' and value) or ''
@@ -158,28 +168,31 @@ local function valueprint( value, format ) --> str
 
     -- Flat type pr already processed table
     if "table" ~= type(cur)then
-      return print_basic( cur )
+      return print_with_annotation( cur )
     end 
-    if memo[cur] then return '' end
-    memo[cur] = true
 
     local subtab = {}
 
     -- Start table iteration
-    table.insert( subtab, format( nil, print_basic( cur ), depth, 'in'))
+    local is_hidden = ' content not shown here'
+    local ref = print_with_annotation( cur, memo )
+    table.insert( subtab, format( nil, ref, depth, 'in'))
 
     -- Recurse over each key and each value
-    for k, v in pairs( cur ) do
-      k = print_basic( k )
-      local vs = print_basic( v )
-      table.insert( subtab, format( k, vs, depth, type( v )) or '' )
-      if 'table' == type(v) then
-        table.insert( subtab, valueprint_rec( v, depth+1 ) or '')
+    if not memo[cur] then
+      memo[cur] = true
+      for k, v in pairs( cur ) do
+        k = print_with_annotation( k, true )
+        local vs = print_with_annotation( v, memo )
+        table.insert( subtab, format( k, vs, depth, type( v )) or '' )
+        if 'table' == type(v) then
+          table.insert( subtab, valueprint_rec( v, depth+1 ) or '')
+        end
       end
     end
 
-    -- End table iteration
-    table.insert( subtab, format( nil, print_basic( cur ), depth, 'out'))
+    -- -- End table iteration
+    table.insert( subtab, format( nil, ref, depth, 'out'))
 
     return table.concat( subtab )
   end
