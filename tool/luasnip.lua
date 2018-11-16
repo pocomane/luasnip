@@ -1572,7 +1572,7 @@ local type = type
 local function basic_representation( value, outfunc )
   local tv = type(value)
   if "string" == tv then
-    outfunc(string.format( "%q", value ))
+    outfunc(string.format( "%q", value ):gsub('\n','n'))
     return true
   elseif "table" ~= tv then
     outfunc(tostring( value ))

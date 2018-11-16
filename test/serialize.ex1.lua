@@ -12,6 +12,9 @@ t( reco( 1 ), 1, t.deepsame )
 t( reco( "hi" ), "hi", t.deepsame )
 t( reco( {} ), {}, t.deepsame )
 
+t( serialize( "\n" ), '"\\n"' )
+t( serialize( "\r" ), '"\\13"' )
+
 -- Table with values
 t( reco( { a = true, b = { "c", 1, { d = "e" } }, } ),
          { a = true, b = { "c", 1, { d = "e" } }, },

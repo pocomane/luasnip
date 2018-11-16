@@ -75,9 +75,11 @@ of LuaSnip 1.0. More realistically, this list will never be empty.
 - Add a new module: memoize ?
 - Add a new module: tabsearch ?
 - Add a new module: converter rawtag_table -> rawtag_string ???
-- Add a new module: functional ?
 - Add a new module: other array ops ?
 - Add a new module: other table ops ?
+- Remove timeprof ?
+- Remove object ?
+- Refactor locktable: return just the metatable ?
 
 Return to <<top>>
 
@@ -4187,7 +4189,7 @@ local type = type
 local function basic_representation( value, outfunc )
   local tv = type(value)
   if "string" == tv then
-    outfunc(string.format( "%q", value ))
+    outfunc(string.format( "%q", value ):gsub('\n','n'))
     return true
   elseif "table" ~= tv then
     outfunc(tostring( value ))
@@ -4328,6 +4330,9 @@ t( reco( true ), true, t.deepsame )
 t( reco( 1 ), 1, t.deepsame )
 t( reco( "hi" ), "hi", t.deepsame )
 t( reco( {} ), {}, t.deepsame )
+
+t( serialize( "\n" ), '"\\n"' )
+t( serialize( "\r" ), '"\\13"' )
 
 -- Table with values
 t( reco( { a = true, b = { "c", 1, { d = "e" } }, } ),
