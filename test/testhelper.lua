@@ -131,7 +131,7 @@ local function print_record_lua( k, v, d, i )
   local y = ''
   if not k then
     if i == 'in' then
-      y = '{ -- ' .. v .. '\n'
+      y = '{ --[[' .. v .. ']]\n'
     elseif i == 'out' then
       y = ((' '):rep(d)) .. '},\n'
     end
