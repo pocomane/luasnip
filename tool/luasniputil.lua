@@ -61,7 +61,7 @@ must be prepended with the comment line sequence, i.e. `--` for lua files and
 ```
 -- [SNIP:module.lua[
 
-Referred Source Code for module named 'module_name'
+Referred Source Code for module named 'module'
 
 -- ]SNIP:module.lua]
 ```
