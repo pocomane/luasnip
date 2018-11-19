@@ -136,6 +136,7 @@ local modules = [[
  tool  ; climint.lua ; tool
  tool  ; debugger_stdinout.lua ; tool
  tool  ; luasniputil.lua ; tool
+ tool  ; playground.lua ; tool
 
  doc ; documentation
 ]]
@@ -372,9 +373,15 @@ end
 
 local function generate_section_link(ent)
   if ent.collection then
+    local secname = ''
     local n = ent.name:match('^collection_function_(%a*)$')
     if n then
-      local secname = 'function_index_section_'..n
+      secname = 'function_index_section_'..n
+    else
+      secname = 'tool_index_section'
+      n = ent.name:match('^collection_tool$')
+    end
+    if n then
       local newent = {}
       newent.content_pieces = {'\n'}
       table.sort(ent.collection)
