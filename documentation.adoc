@@ -68,6 +68,7 @@ of LuaSnip 1.0. More realistically, this list will never be empty.
 - Refactor stepdebug: an additional step is performend on the 'end' of a block (also if skipped); remove it (specially when skipped)? how ?
 - Refactor luasniputility: CLEAN-UP ALL THAT MESS !!!
 - Improve luasniputility: automatically add in the documantation a list of all the dependencies of a module ?
+- Improve clone : clone metatables ?
 - Add a LuaRocks spec ?
 - Add a new module: getsource (like the one in the stepdebug example) ?
 - Remove the object module ? is the factory module enough?
@@ -251,7 +252,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#argcheck]
 === argcheck
@@ -320,7 +321,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#bitpad]
 === bitpad
@@ -543,7 +544,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#clearfile]
 === clearfile
@@ -597,7 +598,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#cliparse]
 === cliparse
@@ -746,7 +747,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#combinetab]
 === combinetab
@@ -862,7 +863,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#copyfile]
 === copyfile
@@ -951,7 +952,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#countiter]
 === countiter
@@ -1002,7 +1003,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#csvish]
 === csvish
@@ -1122,7 +1123,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#csvishout]
 === csvishout
@@ -1216,7 +1217,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#deepsame]
 === deepsame
@@ -1352,7 +1353,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#differencetab]
 === differencetable
@@ -1415,7 +1416,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#escapeshellarg]
 === escapeshellarg
@@ -1532,7 +1533,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#filenamesplit]
 === filenamesplit
@@ -1607,7 +1608,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#flatarray]
 === flatarray
@@ -1676,7 +1677,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#hexdecode]
 === hexdecode
@@ -1732,7 +1733,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#hexencode]
 === hexencode
@@ -1784,7 +1785,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#intern]
 === intern
@@ -1906,7 +1907,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#intersecationtab]
 === intersecationtab
@@ -1976,7 +1977,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#iscallable]
 === iscallable
@@ -2052,7 +2053,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#isinteger]
 === isinteger
@@ -2099,7 +2100,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#isreadable]
 === isreadable
@@ -2146,7 +2147,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#jsonish]
 === jsonish
@@ -2225,7 +2226,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#jsonishout]
 === jsonishout
@@ -2364,7 +2365,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#keysort]
 === keysort
@@ -2438,7 +2439,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#lambda]
 === lambda
@@ -2548,7 +2549,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#localbind]
 === localbind
@@ -2909,7 +2910,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#locktable]
 === locktable
@@ -3132,7 +3133,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#logline]
 === logline
@@ -3368,7 +3369,7 @@ t( )
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#pathpart]
 === pathpart
@@ -3453,7 +3454,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#rawhtml]
 === rawhtml
@@ -3543,7 +3544,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#rawmark]
 === rawmark
@@ -3684,7 +3685,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#readfile]
 === readfile
@@ -3767,7 +3768,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#searchluakeyword]
 === searchluakeyword
@@ -4004,7 +4005,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#serialize]
 === serialize
@@ -4255,7 +4256,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#sha2]
 === sha2
@@ -4659,7 +4660,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#shellcommand]
 === shellcommand
@@ -4825,7 +4826,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#stepdebug]
 === stepdebug
@@ -5185,7 +5186,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#subbytebase]
 === subbytebase
@@ -5466,7 +5467,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#tapfail]
 === tapfail
@@ -5724,7 +5725,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#taptest]
 === taptest
@@ -5964,7 +5965,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#templua]
 === templua
@@ -6110,7 +6111,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#timeprof]
 === timeprof
@@ -6313,7 +6314,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#toposort]
 === toposort
@@ -6421,7 +6422,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#trimstring]
 === trimstring
@@ -6471,7 +6472,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#tuple]
 === tuple
@@ -6628,7 +6629,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#uniontab]
 === uniontab
@@ -6702,7 +6703,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#valueprint]
 === valueprint
@@ -6897,7 +6898,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#object]
 === object
@@ -7117,7 +7118,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#factory]
 === factory
@@ -7303,7 +7304,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#measure]
 === measure
@@ -7579,7 +7580,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#clone]
 === clone
@@ -7761,7 +7762,7 @@ t()
 ------------
 
 
-Return to <<reference_rendez_vous>>
+Return to <<reference_rendez_vous,Module index>>
 
 [#testhelper]
 === testhelper
@@ -8193,7 +8194,7 @@ command line arguments. With <<uniontab>> in your template, you can provide
 default arguments.
 
 
-Return to <<tool_rendez_vous>>
+Return to <<tool_rendez_vous,tool>>
 
 [#debugger_stdinout]
 === Command line debugger
@@ -8221,7 +8222,7 @@ inspections are possible with expressions like
 No command line history or completion is supported.
 
 
-Return to <<tool_rendez_vous>>
+Return to <<tool_rendez_vous,tool>>
 
 [#luasniputil]
 === Utility script
@@ -8298,7 +8299,7 @@ expansion is performed: it just overwrite all the contents with the new
 generated code.
 
 
-Return to <<tool_rendez_vous>>
+Return to <<tool_rendez_vous,tool>>
 
 [#playground]
 ===== In-Browser playground
@@ -8313,7 +8314,7 @@ This app is powered by:
 - https://ace.c9.io[ACE], a code editor implemented in html5/javascript.
 
 
-Return to <<tool_rendez_vous>>
+Return to <<tool_rendez_vous,tool>>
 
 // ]SNIP:tool_reference]
 

@@ -416,7 +416,7 @@ local function generate_documentation(ent)
     c[1+#c] = '\n'
 
     if ent.in_collection == 'tool' then
-      c[1+#c] = '\n\nReturn to <<tool_rendez_vous>>\n\n' -- TODO : do not hard-code !!!
+      c[1+#c] = '\n\nReturn to <<tool_rendez_vous,tool>>\n\n' -- TODO : do not hard-code !!!
     else
       c[1+#c] = '\n==== Code\n\n[source,lua]'
       c[1+#c] = '\n------------'
@@ -428,7 +428,7 @@ local function generate_documentation(ent)
         c[1+#c] = '\n------------\n'
         c[1+#c] = trimstring(in_cache((ent.name:gsub('%..*','.ex1.lua'))).content or '')
         c[1+#c] = '\n\n------------\n'
-        c[1+#c] = '\n\nReturn to <<reference_rendez_vous>>\n\n' -- TODO : do not hard-code !!!
+        c[1+#c] = '\n\nReturn to <<reference_rendez_vous,Module index>>\n\n' -- TODO : do not hard-code !!!
       end
     end
   end
