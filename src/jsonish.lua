@@ -17,17 +17,6 @@ JSON, e.g. mixed array/hash syntax: `{1, "a":"b"}.
 
 ]===]
 
--- local function json_to_table_literal(s)
---   s = s:gsub("\\u(%d%d%d%d)","\\u{%1}")
---   local function do_json_list(s,is_list)
---     if is_list then s = s:sub(2,-2) end
---     s = s:gsub("(%b[])()",do_json_list)
---     if is_list then s = '{' .. s ..'}' end
---     return s
---   end
---   return do_json_list(s):gsub('("[%w_-]-"):','[%1]=')
--- end
-
 local function json_to_table_literal(s)
   s = s:gsub("\\[uU](%x%x%x%x)","\\u{%1}")
   s = s:gsub('("[^"]*")', function(a)
