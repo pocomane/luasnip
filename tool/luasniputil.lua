@@ -54,16 +54,16 @@ with the text into the referred file. So any change between two of this tags
 are lost. The correct way to proceede is making the change into the referred
 file.
 
-The tags are like `LUASNIP-module_name-start` and `LUASNIP-module_name-end`, and
+The tags are like `[SNIP:module.lua[` and `]SNIP:module.lua]`, and
 must be prepended with the comment line sequence, i.e. `--` for lua files and
 `//` for asciidoc. For example in the source code you can find:
 
 ```
---LUASNIP-module_name-start
+-- [SNIP:module.lua[
 
 Referred Source Code for module named 'module_name'
 
---LUASNIP-module_name-end
+-- ]SNIP:module.lua]
 ```
 
 To add a new dependency in a module, just place the two tags without any content,

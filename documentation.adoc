@@ -69,9 +69,11 @@ of LuaSnip 1.0. More realistically, this list will never be empty.
 - Refactor luasniputility: CLEAN-UP ALL THAT MESS !!!
 - Improve luasniputility: automatically add in the documantation a list of all the dependencies of a module ?
 - Improve clone : clone metatables ?
+- Improve filenamesplit: escape path separator?????
 - Add a LuaRocks spec ?
 - Add a new module: getsource (like the one in the stepdebug example) ?
 - Remove the object module ? is the factory module enough?
+- Iprove serialize: metatables?
 - Add a new module: tabclear ?
 - Add a new module: stringlineiterator ?
 - Add a new module: memoize ?
@@ -8279,16 +8281,16 @@ with the text into the referred file. So any change between two of this tags
 are lost. The correct way to proceede is making the change into the referred
 file.
 
-The tags are like `LUASNIP-module_name-start` and `LUASNIP-module_name-end`, and
+The tags are like `[SNIP:module.lua[` and `]SNIP:module.lua]`, and
 must be prepended with the comment line sequence, i.e. `--` for lua files and
 `//` for asciidoc. For example in the source code you can find:
 
 ```
---LUASNIP-module_name-start
+-- [SNIP:module.lua[
 
 Referred Source Code for module named 'module_name'
 
---LUASNIP-module_name-end
+-- ]SNIP:module.lua]
 ```
 
 To add a new dependency in a module, just place the two tags without any content,
