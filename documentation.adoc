@@ -84,6 +84,7 @@ of LuaSnip 1.0. More realistically, this list will never be empty.
 
 Return to <<top>>
 
+[#reference_rendez_vous]
 == Module index
 
 The following modules are implemented. A section identifier is also reported:
@@ -8179,8 +8180,6 @@ return th
 
 // ]SNIP:function_reference]
 
-[#reference_rendez_vous]
-
 // [SNIP:tool_reference[
 [#climint]
 === Template expander
@@ -8317,8 +8316,6 @@ This app is powered by:
 Return to <<tool_rendez_vous>>
 
 // ]SNIP:tool_reference]
-
-[#reference_rendez_vous]
 
 == Conclusion
 
