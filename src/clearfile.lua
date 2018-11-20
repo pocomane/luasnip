@@ -13,6 +13,23 @@ exists its content will be deleted.
 It will return `true` if the file is created/cleared correctly. Nil otherwise,
 with the additional error string `errorStr`.
 
+== Example
+
+[source,lua,example]
+----
+local clearfile = require 'clearfile'
+
+os.remove( 'tmp.txt' )
+
+clearfile'tmp.txt'
+assert( "" == io.open("tmp.txt","r"):read("a") )
+
+io.open("tmp.txt","w"):write("a")
+
+clearfile'tmp.txt'
+assert( "" == io.open("tmp.txt","r"):read("a") )
+
+----
 ]===]
 
 local function clearfile( pathStr ) --> statusBool, errorStr
