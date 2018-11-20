@@ -14,9 +14,9 @@ appropriate order.
 
 == Test suite
 
-Each module came with one ore more test files named `test/module.ex1.lua`,
-`test/module.ex2.lua` and so on. The source of the first test file is also
-included in this documentation as an usage example.
+Each module came with one ore more test files named
+`test/module.ex1.lua`, `test/module.ex2.lua` and so on. Moreover,
+in the module documentation there are example tests.
 
 The output of each test is in the TAP format. you can use the
 `luasniputility.lua` with `test` argument to automatically run all the test and
@@ -304,21 +304,6 @@ end
 
 ---------------------------------------------------------------------
 
-local function search_example_file(ent)
-  if ent.searchexample then
-    ent.example_count = 0
-    while true do
-      local examplename = ent.name:gsub('%..*','')..'.ex'..tostring(ent.example_count+1)..'.lua'
-      if not io.open(examplepath(examplename), 'r') then
-        break
-      else
-        in_cache(examplename,{type='example',onfile=examplepath(examplename)})
-        ent.example_count = ent.example_count + 1
-      end
-    end
-  end
-end
-
 local function load_file_content(ent)
   if ent.onfile then
     local path = ent.name
@@ -441,12 +426,6 @@ local function generate_documentation(ent)
       c[1+#c] = {tag=ent.name, '', '', ''}
       ent.skip_tag = true -- TODO : avoid the skip_tag trick !!!
       c[1+#c] = '\n------------\n'
-      if ent.in_collection ~= 'function_internal' then
-        c[1+#c] = '\n==== Example\n\n[source,lua]'
-        c[1+#c] = '\n------------\n'
-        c[1+#c] = trimstring(in_cache((ent.name:gsub('%..*','.ex1.lua'))).content or '')
-        c[1+#c] = '\n------------\n'
-      end
     end
   end
 end
@@ -579,7 +558,6 @@ local function generate_main()
   in_cache('luasnip_embed',{onfile=toolpath('luasnip.lua'),tag_prefix='%-%- ',skip_tag=true})
   in_cache('htmltool',{onfile = toolpath('playground.html'),tolink=true,tag_prefix='// '})
 
-  apply(search_example_file)
   apply(load_file_content)
   apply(cut_lua_documentation)
   apply(split_content_pieces)
