@@ -27,10 +27,10 @@ local appendfile = require "appendfile"
 os.remove( "appendfile.txt" )
 
 appendfile( "appendfile.txt", "123" )
-assert( "123", io.open("appendfile.txt"):read("a") )
+assert( "123" == io.open("appendfile.txt"):read("a") )
 
 appendfile( "appendfile.txt", {"a","b"}, "<", ">" )
-assert( "123<a><b>", io.open("appendfile.txt"):read("a") )
+assert( "123<a><b>" == io.open("appendfile.txt"):read("a") )
 
 ----
 
