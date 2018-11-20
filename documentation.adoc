@@ -96,47 +96,47 @@ in the `src/luasnip.lua` amalgamation it is used to collect the functions (e.g.
 
 - TAB - These modules work on tables: +
 // [SNIP:function_index_section_tab[
-<<clone, clone>> <<combinetab, combinetab>> <<deepsame, deepsame>> <<differencetab, differencetable>> <<flatarray, flatarray>> <<intersecationtab, intersecationtab>> <<locktable, locktable>> <<toposort, toposort>> <<uniontab, uniontab>> 
+<<clone, clone>>, <<combinetab, combinetab>>, <<deepsame, deepsame>>, <<differencetab, differencetable>>, <<flatarray, flatarray>>, <<intersecationtab, intersecationtab>>, <<locktable, locktable>>, <<toposort, toposort>>, <<uniontab, uniontab>>
 // ]SNIP:function_index_section_tab]
 
 - CLI - These modules deal with command line interface: +
 // [SNIP:function_index_section_cli[
-<<cliparse, cliparse>> <<escapeshellarg, escapeshellarg>> <<shellcommand, shellcommand>> 
+<<cliparse, cliparse>>, <<escapeshellarg, escapeshellarg>>, <<shellcommand, shellcommand>>
 // ]SNIP:function_index_section_cli]
 
 - PARSE - These modules parse or convert data: +
 // [SNIP:function_index_section_parse[
-<<bitpad, bitpad>> <<csvish, csvish>> <<csvishout, csvishout>> <<hexdecode, hexdecode>> <<hexencode, hexencode>> <<jsonish, jsonish>> <<jsonishout, jsonishout>> <<lambda, lambda>> <<rawhtml, rawhtml>> <<rawmark, rawmark>> <<subbytebase, subbytebase>> <<templua, templua>> 
+<<bitpad, bitpad>>, <<csvish, csvish>>, <<csvishout, csvishout>>, <<hexdecode, hexdecode>>, <<hexencode, hexencode>>, <<jsonish, jsonish>>, <<jsonishout, jsonishout>>, <<lambda, lambda>>, <<rawhtml, rawhtml>>, <<rawmark, rawmark>>, <<subbytebase, subbytebase>>, <<templua, templua>>
 // ]SNIP:function_index_section_parse]
 
 - FS - These modules work with the file system: +
 // [SNIP:function_index_section_fs[
-<<appendfile, appendfile>> <<clearfile, clearfile>> <<copyfile, copyfile>> <<filenamesplit, filenamesplit>> <<isreadable, isreadable>> <<pathpart, pathpart>> <<readfile, readfile>> 
+<<appendfile, appendfile>>, <<clearfile, clearfile>>, <<copyfile, copyfile>>, <<filenamesplit, filenamesplit>>, <<isreadable, isreadable>>, <<pathpart, pathpart>>, <<readfile, readfile>>
 // ]SNIP:function_index_section_fs]
 
 - DEB - These modules are useful for debug, test or logging: +
 // [SNIP:function_index_section_deb[
-<<localbind, localbind>> <<logline, logline>> <<stepdebug, stepdebug>> <<tapfail, tapfail>> <<taptest, taptest>> <<timeprof, timeprof>> <<valueprint, valueprint>> 
+<<localbind, localbind>>, <<logline, logline>>, <<stepdebug, stepdebug>>, <<tapfail, tapfail>>, <<taptest, taptest>>, <<timeprof, timeprof>>, <<valueprint, valueprint>>
 // ]SNIP:function_index_section_deb]
 
 - TYPE - These modules define or check new types: +
 // [SNIP:function_index_section_type[
-<<argcheck, argcheck>> <<factory, factory>> <<intern, intern>> <<iscallable, iscallable>> <<isinteger, isinteger>> <<object, object>> <<tuple, tuple>> 
+<<argcheck, argcheck>>, <<factory, factory>>, <<intern, intern>>, <<iscallable, iscallable>>, <<isinteger, isinteger>>, <<object, object>>, <<tuple, tuple>>
 // ]SNIP:function_index_section_type]
 
 - STR - These modules operate on, or generate strings: +
 // [SNIP:function_index_section_str[
-<<searchluakeyword, searchluakeyword>> <<serialize, serialize>> <<sha2, sha2>> <<trimstring, trimstring>> 
+<<searchluakeyword, searchluakeyword>>, <<serialize, serialize>>, <<sha2, sha2>>, <<trimstring, trimstring>>
 // ]SNIP:function_index_section_str]
 
 - ITER - These modules can be used to sort or iterate: +
 // [SNIP:function_index_section_iter[
-<<countiter, countiter>> <<keysort, keysort>> 
+<<countiter, countiter>>, <<keysort, keysort>>
 // ]SNIP:function_index_section_iter]
 
 - MATH - These modules are extended mathematcal operations: +
 // [SNIP:function_index_section_math[
-<<measure, measure>> 
+<<measure, measure>>
 // ]SNIP:function_index_section_math]
 
 [#tool_rendez_vous]
@@ -146,10 +146,10 @@ in the amalgamation and they can be accessed just through the files in the
 "Complex" usage example of the LuaSnip functionalities. Some of this could be
 useful in the real world. +
 // [SNIP:function_index_section_internal[
-<<testhelper, testhelper>> 
+<<testhelper, testhelper>>
 // ]SNIP:function_index_section_internal]
 // [SNIP:tool_index_section[
-<<climint, Template expander>> <<debugger_stdinout, Command line debugger>> <<luasniputil, Utility script>> <<playground, In-Browser playground>> 
+<<climint, Template expander>>, <<debugger_stdinout, Command line debugger>>, <<luasniputil, Utility script>>, <<playground, In-Browser playground>>
 // ]SNIP:tool_index_section]
 
 Return to <<top>>

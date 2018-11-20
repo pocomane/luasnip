@@ -385,9 +385,15 @@ local function generate_section_link(ent)
       local newent = {}
       newent.content_pieces = {'\n'}
       table.sort(ent.collection,function(a,b)return a.name<b.name end)
+      local first = true
       for _, i in ipairs(ent.collection) do
+        if first then
+          first = false
+        else
+          newent.content_pieces[1+#newent.content_pieces] = ', '
+        end
         local link = i.name:gsub('%..*','')
-        newent.content_pieces[1+#newent.content_pieces] = '<<' .. link ..','..i.documentation:match('[\n\r]=([^\n\r]*)') .. '>> '
+        newent.content_pieces[1+#newent.content_pieces] = '<<' .. link ..','..i.documentation:match('[\n\r]=([^\n\r]*)') .. '>>'
       end
       newent.content_pieces[1+#newent.content_pieces] = '\n'
       in_cache(secname, newent)
