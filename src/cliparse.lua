@@ -30,6 +30,8 @@ All the arguments not associated to any key, will be collected under the
 default empty string (i.e. ''). The additional argument string `defaultStr` can
 be used to override this default.
 
+== Example
+
 [source,lua,example]
 ----
 local cliparse = require 'cliparse'
