@@ -1,6 +1,6 @@
 --[===[DOC
 
-=== In-Browser playground
+= In-Browser playground
 
 The `tool/playground.html` file contains an in-browser editor and a Lua VM. By
 default LuaSnip is loaded in the `luasnip` global table so you can quickly test

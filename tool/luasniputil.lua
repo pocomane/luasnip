@@ -367,7 +367,7 @@ local function generate_collection(ent)
   if ent.in_collection then
     local c = in_cache('collection_'..ent.in_collection)
     if not c.collection then c.collection = {} end
-    c.collection[1+#c.collection] = ent.name
+    c.collection[1+#c.collection] = ent
   end
 end
 
@@ -384,9 +384,10 @@ local function generate_section_link(ent)
     if n then
       local newent = {}
       newent.content_pieces = {'\n'}
-      table.sort(ent.collection)
+      table.sort(ent.collection,function(a,b)return a.name<b.name end)
       for _, i in ipairs(ent.collection) do
-        newent.content_pieces[1+#newent.content_pieces] = '<<' .. i:gsub('%..*','') .. '>> '
+        local link = i.name:gsub('%..*','')
+        newent.content_pieces[1+#newent.content_pieces] = '<<' .. link ..','..i.documentation:match('[\n\r]=([^\n\r]*)') .. '>> '
       end
       newent.content_pieces[1+#newent.content_pieces] = '\n'
       in_cache(secname, newent)
@@ -404,31 +405,41 @@ local function generate_documentation(ent)
     end
     local d = in_cache(n)
 
-    local c = d.content_pieces
     local _, cd = '', ''
     if ent.documentation then
       _, cd = ent.documentation:match('^[\n\r\t ]*%-%-%[(=*)%[DOC(.-)]%1]')
       cd = cd:gsub('([\n\r])(=[^\n\r])','%1==%2')
       cd = trimstring(cd)
     end
-    c[1+#c] = '[#'.. ent.name:gsub('%..*','') ..']\n'
-    c[1+#c] = cd 
-    c[1+#c] = '\n'
 
+    local title, content = cd:match('^([^\n\r]*)(.*)$')
+    title = trimstring(title)
+    content = trimstring(content)
+
+    local link
     if ent.in_collection == 'tool' then
-      c[1+#c] = '\n\nReturn to <<tool_rendez_vous,tool>>\n\n' -- TODO : do not hard-code !!!
+      link = 'Return to <<tool_rendez_vous,tool>>' -- TODO : do not hard-code !!!
     else
+      link = 'Return to <<reference_rendez_vous,Module index>>' -- TODO : do not hard-code !!!
+    end
+
+    local c = d.content_pieces
+
+    c[1+#c] = '\n\n[#'.. ent.name:gsub('%..*','') ..']\n'
+    c[1+#c] = link .. '\n'
+    c[1+#c] = '\n' .. title .. '\n'
+    c[1+#c] = '\n'..content..'\n'
+    if ent.in_collection ~= 'tool' then
       c[1+#c] = '\n==== Code\n\n[source,lua]'
       c[1+#c] = '\n------------'
       c[1+#c] = {tag=ent.name, '', '', ''}
       ent.skip_tag = true -- TODO : avoid the skip_tag trick !!!
-      c[1+#c] = '\n------------\n\n'
+      c[1+#c] = '\n------------\n'
       if ent.in_collection ~= 'function_internal' then
         c[1+#c] = '\n==== Example\n\n[source,lua]'
         c[1+#c] = '\n------------\n'
         c[1+#c] = trimstring(in_cache((ent.name:gsub('%..*','.ex1.lua'))).content or '')
-        c[1+#c] = '\n\n------------\n'
-        c[1+#c] = '\n\nReturn to <<reference_rendez_vous,Module index>>\n\n' -- TODO : do not hard-code !!!
+        c[1+#c] = '\n------------\n'
       end
     end
   end
