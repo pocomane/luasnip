@@ -96,47 +96,47 @@ in the `src/luasnip.lua` amalgamation it is used to collect the functions (e.g.
 
 - TAB - These modules work on tables: +
 // [SNIP:function_index_section_tab[
-<<clone>> <<combinetab>> <<deepsame>> <<differencetab>> <<flatarray>> <<intersecationtab>> <<locktable>> <<toposort>> <<uniontab>> 
+<<clone, clone>> <<combinetab, combinetab>> <<deepsame, deepsame>> <<differencetab, differencetable>> <<flatarray, flatarray>> <<intersecationtab, intersecationtab>> <<locktable, locktable>> <<toposort, toposort>> <<uniontab, uniontab>> 
 // ]SNIP:function_index_section_tab]
 
 - CLI - These modules deal with command line interface: +
 // [SNIP:function_index_section_cli[
-<<cliparse>> <<escapeshellarg>> <<shellcommand>> 
+<<cliparse, cliparse>> <<escapeshellarg, escapeshellarg>> <<shellcommand, shellcommand>> 
 // ]SNIP:function_index_section_cli]
 
 - PARSE - These modules parse or convert data: +
 // [SNIP:function_index_section_parse[
-<<bitpad>> <<csvish>> <<csvishout>> <<hexdecode>> <<hexencode>> <<jsonish>> <<jsonishout>> <<lambda>> <<rawhtml>> <<rawmark>> <<subbytebase>> <<templua>> 
+<<bitpad, bitpad>> <<csvish, csvish>> <<csvishout, csvishout>> <<hexdecode, hexdecode>> <<hexencode, hexencode>> <<jsonish, jsonish>> <<jsonishout, jsonishout>> <<lambda, lambda>> <<rawhtml, rawhtml>> <<rawmark, rawmark>> <<subbytebase, subbytebase>> <<templua, templua>> 
 // ]SNIP:function_index_section_parse]
 
 - FS - These modules work with the file system: +
 // [SNIP:function_index_section_fs[
-<<appendfile>> <<clearfile>> <<copyfile>> <<filenamesplit>> <<isreadable>> <<pathpart>> <<readfile>> 
+<<appendfile, appendfile>> <<clearfile, clearfile>> <<copyfile, copyfile>> <<filenamesplit, filenamesplit>> <<isreadable, isreadable>> <<pathpart, pathpart>> <<readfile, readfile>> 
 // ]SNIP:function_index_section_fs]
 
 - DEB - These modules are useful for debug, test or logging: +
 // [SNIP:function_index_section_deb[
-<<localbind>> <<logline>> <<stepdebug>> <<tapfail>> <<taptest>> <<timeprof>> <<valueprint>> 
+<<localbind, localbind>> <<logline, logline>> <<stepdebug, stepdebug>> <<tapfail, tapfail>> <<taptest, taptest>> <<timeprof, timeprof>> <<valueprint, valueprint>> 
 // ]SNIP:function_index_section_deb]
 
 - TYPE - These modules define or check new types: +
 // [SNIP:function_index_section_type[
-<<argcheck>> <<factory>> <<intern>> <<iscallable>> <<isinteger>> <<object>> <<tuple>> 
+<<argcheck, argcheck>> <<factory, factory>> <<intern, intern>> <<iscallable, iscallable>> <<isinteger, isinteger>> <<object, object>> <<tuple, tuple>> 
 // ]SNIP:function_index_section_type]
 
 - STR - These modules operate on, or generate strings: +
 // [SNIP:function_index_section_str[
-<<searchluakeyword>> <<serialize>> <<sha2>> <<trimstring>> 
+<<searchluakeyword, searchluakeyword>> <<serialize, serialize>> <<sha2, sha2>> <<trimstring, trimstring>> 
 // ]SNIP:function_index_section_str]
 
 - ITER - These modules can be used to sort or iterate: +
 // [SNIP:function_index_section_iter[
-<<countiter>> <<keysort>> 
+<<countiter, countiter>> <<keysort, keysort>> 
 // ]SNIP:function_index_section_iter]
 
 - MATH - These modules are extended mathematcal operations: +
 // [SNIP:function_index_section_math[
-<<measure>> 
+<<measure, measure>> 
 // ]SNIP:function_index_section_math]
 
 [#tool_rendez_vous]
@@ -146,10 +146,10 @@ in the amalgamation and they can be accessed just through the files in the
 "Complex" usage example of the LuaSnip functionalities. Some of this could be
 useful in the real world. +
 // [SNIP:function_index_section_internal[
-<<testhelper>> 
+<<testhelper, testhelper>> 
 // ]SNIP:function_index_section_internal]
 // [SNIP:tool_index_section[
-<<climint>> <<debugger_stdinout>> <<luasniputil>> <<playground>> 
+<<climint, Template expander>> <<debugger_stdinout, Command line debugger>> <<luasniputil, Utility script>> <<playground, In-Browser playground>> 
 // ]SNIP:tool_index_section]
 
 Return to <<top>>
@@ -157,7 +157,11 @@ Return to <<top>>
 == Module Reference
 
 // [SNIP:function_reference[
+
+
 [#appendfile]
+Return to <<reference_rendez_vous,Module index>>
+
 === appendfile
 
 [source,lua]
@@ -227,7 +231,6 @@ return appendfile
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -250,13 +253,12 @@ t( t.readfile( "appendfile.txt" ), "12345678<9><10>" )
 os.remove( "appendfile.txt" )
 
 t()
-
 ------------
 
 
+[#argcheck]
 Return to <<reference_rendez_vous,Module index>>
 
-[#argcheck]
 === argcheck
 
 [source,lua]
@@ -296,7 +298,6 @@ return argcheck
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -319,13 +320,12 @@ t( argcheck({'number','string','boolean'}, 1, 'a', false), nil )
 t( argcheck({'number','string','boolean'}, 1, false, false), 'Invalid argument #2 type. Must be string not boolean.' )
 
 t()
-
 ------------
 
 
+[#bitpad]
 Return to <<reference_rendez_vous,Module index>>
 
-[#bitpad]
 === bitpad
 
 [source,lua]
@@ -454,7 +454,6 @@ return bitpad
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -542,13 +541,12 @@ t( bitpad(-4, 4, '\xC3\xC3\xC3\xC3\xC3\xC3',nil,nil,2), '\xFF\xFF\xFF', t.bytesa
 t( bitpad(-4, 4, '\xE1\xE1\xE1\xE1\xE1\xE1',nil,nil,3), '\xFF\xFF\xFF', t.bytesame )
 
 t()
-
 ------------
 
 
+[#clearfile]
 Return to <<reference_rendez_vous,Module index>>
 
-[#clearfile]
 === clearfile
 
 [source,lua]
@@ -579,7 +577,6 @@ return clearfile
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -596,13 +593,12 @@ clearfile'tmp.txt'
 t( t.readfile'tmp.txt', '' )
 
 t()
-
 ------------
 
 
+[#cliparse]
 Return to <<reference_rendez_vous,Module index>>
 
-[#cliparse]
 === cliparse
 
 [source,lua]
@@ -709,7 +705,6 @@ return cliparse
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -745,13 +740,12 @@ t( cliparse({'-a:b','c'}), {['a']={'b'},['']={'c'}}, t.deepsame )
 t( cliparse({'-aa=b','c'}), {['aa']={'b'},['']={'c'}}, t.deepsame )
 
 t()
-
 ------------
 
 
+[#combinetab]
 Return to <<reference_rendez_vous,Module index>>
 
-[#combinetab]
 === combinetab
 
 [source,lua]
@@ -811,7 +805,6 @@ return combinetab
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -861,13 +854,12 @@ t( r[2], {k='b'}, t.deepsame )
 t( r[3], {k='c'}, t.deepsame )
 
 t()
-
 ------------
 
 
+[#copyfile]
 Return to <<reference_rendez_vous,Module index>>
 
-[#copyfile]
 === copyfile
 
 [source,lua]
@@ -930,7 +922,6 @@ return copyfile
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -950,13 +941,12 @@ os.remove( inpath )
 os.remove( outpath )
 
 t()
-
 ------------
 
 
+[#countiter]
 Return to <<reference_rendez_vous,Module index>>
 
-[#countiter]
 === countiter
 
 [source,lua]
@@ -987,7 +977,6 @@ return countiter
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -1001,13 +990,12 @@ t( countiter( pairs{ 1, 2, c='2' }), 3 )
 t( countiter( ipairs{ 1, 2, c='2' }), 2 )
 
 t()
-
 ------------
 
 
+[#csvish]
 Return to <<reference_rendez_vous,Module index>>
 
-[#csvish]
 === csvish
 
 [source,lua]
@@ -1072,7 +1060,6 @@ return csvish
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -1121,13 +1108,12 @@ t( csvish'aa"\n\r"bb', {{'aa\n\rbb'}}, t.deepsame )
 t( csvish'aa";"bb', {{'aa;bb'}}, t.deepsame )
 
 t()
-
 ------------
 
 
+[#csvishout]
 Return to <<reference_rendez_vous,Module index>>
 
-[#csvishout]
 === csvishout
 
 [source,lua]
@@ -1181,7 +1167,6 @@ return csvishout
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -1215,13 +1200,12 @@ t( csvishout{{'"','ok'}}, '"""";ok\n' )
 t( csvishout{{'ok"ok','ok'}}, '"ok""ok";ok\n' )
 
 t()
-
 ------------
 
 
+[#deepsame]
 Return to <<reference_rendez_vous,Module index>>
 
-[#deepsame]
 === deepsame
 
 [source,lua]
@@ -1288,7 +1272,6 @@ return deepsame
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -1351,13 +1334,12 @@ btab[btab.kv][btab.kv] = btab[btab.kv]
 t( t.deepsame( atab, btab ), true )
 
 t()
-
 ------------
 
 
+[#differencetab]
 Return to <<reference_rendez_vous,Module index>>
 
-[#differencetab]
 === differencetable
 
 [source,lua]
@@ -1393,7 +1375,6 @@ return differencetab
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -1414,13 +1395,12 @@ t( differencetab({a='a'},{a='b'}), {}, t.deepsame )
 t( differencetab({a='a',b='b',c='c'},{a='A',d='d'}), {b='b',c='c'}, t.deepsame )
 
 t()
-
 ------------
 
 
+[#escapeshellarg]
 Return to <<reference_rendez_vous,Module index>>
 
-[#escapeshellarg]
 === escapeshellarg
 
 [source,lua]
@@ -1476,7 +1456,6 @@ return escapeshellarg
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -1531,13 +1510,12 @@ t( t.readfile(outpath), d )
 t( escapeshellarg'-i', '-i' )
 
 t()
-
 ------------
 
 
+[#filenamesplit]
 Return to <<reference_rendez_vous,Module index>>
 
-[#filenamesplit]
 === filenamesplit
 
 [source,lua]
@@ -1582,7 +1560,6 @@ return filenamesplit
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -1606,13 +1583,12 @@ t( {filenamesplit'path//name.ext'}, {'path//','name','.ext'}, t.deepsame )
 t( {filenamesplit'path/name..ext'}, {'path/','name.','.ext'}, t.deepsame )
 
 t()
-
 ------------
 
 
+[#flatarray]
 Return to <<reference_rendez_vous,Module index>>
 
-[#flatarray]
 === flatarray
 
 [source,lua]
@@ -1653,7 +1629,6 @@ return flatarray
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -1675,13 +1650,12 @@ t( flatarray{1,{2,{3}},{{4}}}, {1,2,3,4}, t.deepsame )
 
 
 t()
-
 ------------
 
 
+[#hexdecode]
 Return to <<reference_rendez_vous,Module index>>
 
-[#hexdecode]
 === hexdecode
 
 [source,lua]
@@ -1712,7 +1686,6 @@ return hexdecode
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -1731,13 +1704,12 @@ t( hexdecode '10BA', '\x10\xBA' )
 t( hexdecode 'F', '\x0F' )
 
 t()
-
 ------------
 
 
+[#hexencode]
 Return to <<reference_rendez_vous,Module index>>
 
-[#hexencode]
 === hexencode
 
 [source,lua]
@@ -1766,7 +1738,6 @@ return hexencode
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -1783,13 +1754,12 @@ t( hexencode '\xFF\xFF', 'FFFF' )
 t( hexencode '\x10\xBA', '10BA' )
 
 t()
-
 ------------
 
 
+[#intern]
 Return to <<reference_rendez_vous,Module index>>
 
-[#intern]
 === intern
 
 [source,lua]
@@ -1856,7 +1826,6 @@ return intern
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -1905,13 +1874,12 @@ collectgarbage('collect')
 t( gccount, 1 )
 
 t()
-
 ------------
 
 
+[#intersecationtab]
 Return to <<reference_rendez_vous,Module index>>
 
-[#intersecationtab]
 === intersecationtab
 
 [source,lua]
@@ -1952,7 +1920,6 @@ return intersecationtab
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -1975,13 +1942,12 @@ t( intersecationtab({a='a'},{a='b'},function(a,b) return a..b end), {a='ab'}, t.
 t( intersecationtab({a='a',b='b',c='c'},{a='A',d='d'}), {a='a'}, t.deepsame )
 
 t()
-
 ------------
 
 
+[#iscallable]
 Return to <<reference_rendez_vous,Module index>>
 
-[#iscallable]
 === iscallable
 
 [source,lua]
@@ -2019,7 +1985,6 @@ return iscallable
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -2051,13 +2016,12 @@ setmetatable( rectab_b, { __call = rectab_a } )
 t( iscallable( rectab_b ), false )
 
 t()
-
 ------------
 
 
+[#isinteger]
 Return to <<reference_rendez_vous,Module index>>
 
-[#isinteger]
 === isinteger
 
 [source,lua]
@@ -2081,7 +2045,6 @@ return isinteger
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -2098,13 +2061,12 @@ t( isinteger( { 1 } ), false )
 t( isinteger(),        false )
 
 t()
-
 ------------
 
 
+[#isreadable]
 Return to <<reference_rendez_vous,Module index>>
 
-[#isreadable]
 === isreadable
 
 [source,lua]
@@ -2130,7 +2092,6 @@ return isreadable
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -2145,13 +2106,12 @@ os.remove( "isreadable.txt" )
 t( isreadable( "isreadable.txt" ), false )
 
 t()
-
 ------------
 
 
+[#jsonish]
 Return to <<reference_rendez_vous,Module index>>
 
-[#jsonish]
 === jsonish
 
 [source,lua]
@@ -2197,7 +2157,6 @@ return json_to_table
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -2224,13 +2183,12 @@ t( jsonish '["a","[b","c]"]', {"a","[b","c]"}, t.deepsame )
 t( jsonish '["a",["b","c"]]', {"a",{"b","c"}}, t.deepsame )
 
 t()
-
 ------------
 
 
+[#jsonishout]
 Return to <<reference_rendez_vous,Module index>>
 
-[#jsonishout]
 === jsonishout
 
 [source,lua]
@@ -2329,7 +2287,6 @@ return table_to_json
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -2363,13 +2320,12 @@ t( jsonishout'\"', '"\\x22"' )
 t( jsonishout'\n', '"\\x0A"' )
 
 t()
-
 ------------
 
 
+[#keysort]
 Return to <<reference_rendez_vous,Module index>>
 
-[#keysort]
 === keysort
 
 [source,lua]
@@ -2413,7 +2369,6 @@ return keysort
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -2437,13 +2392,12 @@ t( keysort{[1]=9,["1"]=9,}, {'1',1}, t.deepsame )
 t( keysort{[1]=9,["1"]=9,}, {'1',1}, t.deepsame )
 
 t()
-
 ------------
 
 
+[#lambda]
 Return to <<reference_rendez_vous,Module index>>
 
-[#lambda]
 === lambda
 
 [source,lua]
@@ -2522,7 +2476,6 @@ return lambda
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -2547,13 +2500,12 @@ local m = lambda'a+1'
 t( m, lambda'a+1' )
 
 t()
-
 ------------
 
 
+[#localbind]
 Return to <<reference_rendez_vous,Module index>>
 
-[#localbind]
 === localbind
 
 [source,lua]
@@ -2739,7 +2691,6 @@ return localbind
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -2908,13 +2859,12 @@ t( iter.type, 'global function' )
 t( count, 7 )
 
 t()
-
 ------------
 
 
+[#locktable]
 Return to <<reference_rendez_vous,Module index>>
 
-[#locktable]
 === locktable
 
 [source,lua]
@@ -3025,7 +2975,6 @@ return locktable
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -3131,13 +3080,12 @@ t( err(function() global_y = 2 end), nil )
 t( err(function() global_x = 2 end), nil )
 
 t()
-
 ------------
 
 
+[#logline]
 Return to <<reference_rendez_vous,Module index>>
 
-[#logline]
 === logline
 
 [source,lua]
@@ -3286,7 +3234,6 @@ return logline
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -3367,13 +3314,12 @@ t( logline( 99, "a", 1), "| a | 1 | $", t.patsame )
 print( "# "..logline( 80, "ok" ) )
 
 t( )
-
 ------------
 
 
+[#pathpart]
 Return to <<reference_rendez_vous,Module index>>
 
-[#pathpart]
 === pathpart
 
 [source,lua]
@@ -3428,7 +3374,6 @@ return pathpart
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -3457,13 +3402,12 @@ t( pathpart{'path','to'}, 'path'..s..'to', t.deepsame )
 t( pathpart{'name.ext'}, 'name.ext', t.deepsame )
 
 t()
-
 ------------
 
 
+[#rawhtml]
 Return to <<reference_rendez_vous,Module index>>
 
-[#rawhtml]
 === rawhtml
 
 [source,lua]
@@ -3512,7 +3456,6 @@ return rawhtml
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -3547,13 +3490,12 @@ local r = require 'rawmark'
 t( r( rawhtml'<!--@{}--><div my-attr="hi">x< b  />y</div>' ), {type='default',{type='=comment=','@{}'},{type='div',{type='=attribute=','my-attr="hi"'},'x',{type='b',''},'y'}}, t.deepsame )
 
 t()
-
 ------------
 
 
+[#rawmark]
 Return to <<reference_rendez_vous,Module index>>
 
-[#rawmark]
 === rawmark
 
 [source,lua]
@@ -3640,7 +3582,6 @@ return rawmark
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -3688,13 +3629,12 @@ t( rawmark( '{=}@{}' ), {'@', { '', type='default' }, type='default' }, t.deepsa
 t( rawmark( '{a}' ), {'a', type='default' }, t.deepsame )
 
 t()
-
 ------------
 
 
+[#readfile]
 Return to <<reference_rendez_vous,Module index>>
 
-[#readfile]
 === readfile
 
 [source,lua]
@@ -3740,7 +3680,6 @@ return readfile
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -3771,13 +3710,12 @@ t( readfile('tmp_1.txt', 'n'), {1,1.2,-1e3}, t.deepsame )
 
 
 t()
-
 ------------
 
 
+[#searchluakeyword]
 Return to <<reference_rendez_vous,Module index>>
 
-[#searchluakeyword]
 === searchluakeyword
 
 [source,lua]
@@ -3916,7 +3854,6 @@ return searchluakeyword
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -4008,13 +3945,12 @@ t( searchluakeyword('-'  ,'s'), {['-'  ]={1}}, t.deepsame )
 t( searchluakeyword('#'  ,'s'), {['#'  ]={1}}, t.deepsame )
 
 t()
-
 ------------
 
 
+[#serialize]
 Return to <<reference_rendez_vous,Module index>>
 
-[#serialize]
 === serialize
 
 [source,lua]
@@ -4166,7 +4102,6 @@ return serialize
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -4259,13 +4194,12 @@ t( serialize(atab, function(d) got = got .. d end), nil )
 t( got, exp )
 
 t()
-
 ------------
 
 
+[#sha2]
 Return to <<reference_rendez_vous,Module index>>
 
-[#sha2]
 === sha2
 
 [source,lua]
@@ -4615,7 +4549,6 @@ return sha2
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -4663,13 +4596,12 @@ t( sha512(( "d" ):rep( 129 )), "30E54405DCC986AE90F830E01FC144190FF756EFD6E7E9FE
 t( sha512(( "e" ):rep( 300 )), "C2202F2BC948039340224757BF24A0B59A24737A3083DF9A8DD062AB7A0717147E025FDAB38CFC5DED56B3E8AC8072D87457AFA143DBD4F26ACF4CB26BB35266", t.hexsame )
 
 t()
-
 ------------
 
 
+[#shellcommand]
 Return to <<reference_rendez_vous,Module index>>
 
-[#shellcommand]
 === shellcommand
 
 [source,lua]
@@ -4773,7 +4705,6 @@ return shellcommand
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -4829,13 +4760,12 @@ t( o, 'ab', t.patsame )
 t( o, 'cd', t.patsame )
 
 t()
-
 ------------
 
 
+[#stepdebug]
 Return to <<reference_rendez_vous,Module index>>
 
-[#stepdebug]
 === stepdebug
 
 [source,lua]
@@ -4996,7 +4926,6 @@ end
 return stepdebug
 
 ------------
-
 
 ==== Example
 
@@ -5189,13 +5118,12 @@ t( output[4], 'NL' )
 t( output[5], 'NL' )
 
 t()
-
 ------------
 
 
+[#subbytebase]
 Return to <<reference_rendez_vous,Module index>>
 
-[#subbytebase]
 === subbytebase
 
 [source,lua]
@@ -5421,7 +5349,6 @@ return subbytebase
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -5470,13 +5397,12 @@ t( subbytebase(8,  'hi' ), 'hi', t.bytesame )
 t( subbytebase(-8, 'hi' ), 'hi',   t.bytesame )
 
 t()
-
 ------------
 
 
+[#tapfail]
 Return to <<reference_rendez_vous,Module index>>
 
-[#tapfail]
 === tapfail
 
 [source,lua]
@@ -5593,7 +5519,6 @@ end
 return tapfail
 
 ------------
-
 
 ==== Example
 
@@ -5728,13 +5653,12 @@ t( ts'1..N', 'summary already found at line 1' )
 t( ts'ok 3', nil )
 
 t()
-
 ------------
 
 
+[#taptest]
 Return to <<reference_rendez_vous,Module index>>
 
-[#taptest]
 === taptest
 
 [source,lua]
@@ -5892,7 +5816,6 @@ return taptest
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -5968,13 +5891,12 @@ t()
 -- In case all the tests are successful, the line
 -- # all is right
 -- will be substitued to the '# 5 tests failed' one
-
 ------------
 
 
+[#templua]
 Return to <<reference_rendez_vous,Module index>>
 
-[#templua]
 === templua
 
 [source,lua]
@@ -6059,7 +5981,6 @@ return templua
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -6114,13 +6035,12 @@ end
 t( templua( "@{nestcall()}@{nestcall()}" )( s ), 'BB' )
 
 t()
-
 ------------
 
 
+[#timeprof]
 Return to <<reference_rendez_vous,Module index>>
 
-[#timeprof]
 === timeprof
 
 [source,lua]
@@ -6205,7 +6125,6 @@ end
 return timeprof
 
 ------------
-
 
 ==== Example
 
@@ -6317,13 +6236,12 @@ t( m, 0.02, e002 )
 t( s, 0 )
 
 t()
-
 ------------
 
 
+[#toposort]
 Return to <<reference_rendez_vous,Module index>>
 
-[#toposort]
 === toposort
 
 [source,lua]
@@ -6384,7 +6302,6 @@ return toposort
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -6425,13 +6342,12 @@ local _, err = toposort{a={'b'},b={'a'}}
 t( err, 'cycle detected' )
 
 t()
-
 ------------
 
 
+[#trimstring]
 Return to <<reference_rendez_vous,Module index>>
 
-[#trimstring]
 === trimstring
 
 [source,lua]
@@ -6452,7 +6368,6 @@ end
 return trimstring
 
 ------------
-
 
 ==== Example
 
@@ -6475,13 +6390,12 @@ t( trimstring(' a a '), 'a a' )
 t( trimstring(' \nstr\r\t '), 'str' )
 
 t()
-
 ------------
 
 
+[#tuple]
 Return to <<reference_rendez_vous,Module index>>
 
-[#tuple]
 === tuple
 
 [source,lua]
@@ -6583,7 +6497,6 @@ return tuple
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -6632,13 +6545,12 @@ collectgarbage('collect')
 t( gccount, 1 )
 
 t()
-
 ------------
 
 
+[#uniontab]
 Return to <<reference_rendez_vous,Module index>>
 
-[#uniontab]
 === uniontab
 
 [source,lua]
@@ -6683,7 +6595,6 @@ return uniontab
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -6706,13 +6617,12 @@ t( uniontab({a='a'},{a='b'},function(a,b) return a..b end), {a='ab'}, t.deepsame
 t( uniontab({a='a',b='b',c='c'},{a='A',d='d'}), {a='a',b='b',c='c',d='d'}, t.deepsame )
 
 t()
-
 ------------
 
 
+[#valueprint]
 Return to <<reference_rendez_vous,Module index>>
 
-[#valueprint]
 === valueprint
 
 [source,lua]
@@ -6844,7 +6754,6 @@ return valueprint
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -6901,13 +6810,12 @@ t( v, '^'
     ..'$', t.patsame )
 
 t()
-
 ------------
 
 
+[#object]
 Return to <<reference_rendez_vous,Module index>>
 
-[#object]
 === object
 
 [source,lua]
@@ -6989,7 +6897,6 @@ return {
 }
 
 ------------
-
 
 ==== Example
 
@@ -7121,13 +7028,12 @@ t( object.isderived( a, e ), true )
 t( object.isderived( b, e ), true )
 
 t()
-
 ------------
 
 
+[#factory]
 Return to <<reference_rendez_vous,Module index>>
 
-[#factory]
 === factory
 
 [source,lua]
@@ -7224,7 +7130,6 @@ return factory
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -7307,13 +7212,12 @@ t( isA(a), true )
 t( isA(b), true )
 
 t()
-
 ------------
 
 
+[#measure]
 Return to <<reference_rendez_vous,Module index>>
 
-[#measure]
 === measure
 
 [source,lua]
@@ -7437,7 +7341,6 @@ end
 return measure
 
 ------------
-
 
 ==== Example
 
@@ -7583,13 +7486,12 @@ t( a[6], b[6], e002 )
 t( a[7], b[7], e002 )
 
 t()
-
 ------------
 
 
+[#clone]
 Return to <<reference_rendez_vous,Module index>>
 
-[#clone]
 === clone
 
 [source,lua]
@@ -7680,7 +7582,6 @@ return clone
 
 ------------
 
-
 ==== Example
 
 [source,lua]
@@ -7765,13 +7666,12 @@ t( r, kc, t.diff )
 t( q, kcc )
 
 t()
-
 ------------
 
 
+[#testhelper]
 Return to <<reference_rendez_vous,Module index>>
 
-[#testhelper]
 === testhelper
 
 These function are reported only as internal reference. They are not really
@@ -8185,11 +8085,14 @@ end})
 return th
 
 ------------
-
 // ]SNIP:function_reference]
 
 // [SNIP:tool_reference[
+
+
 [#climint]
+Return to <<tool_rendez_vous,tool>>
+
 === Template expander
 
 It is a command line template system. The template code is lua. For full
@@ -8201,9 +8104,9 @@ command line arguments. With <<uniontab>> in your template, you can provide
 default arguments.
 
 
+[#debugger_stdinout]
 Return to <<tool_rendez_vous,tool>>
 
-[#debugger_stdinout]
 === Command line debugger
 
 The 'debugger_stdinout' module provide a full command line debugger for lua. It
@@ -8229,9 +8132,9 @@ inspections are possible with expressions like
 No command line history or completion is supported.
 
 
+[#luasniputil]
 Return to <<tool_rendez_vous,tool>>
 
-[#luasniputil]
 === Utility script
 
 The main use for this script is to propagate all the change to a LuaSnip module
@@ -8306,10 +8209,10 @@ expansion is performed: it just overwrite all the contents with the new
 generated code.
 
 
+[#playground]
 Return to <<tool_rendez_vous,tool>>
 
-[#playground]
-===== In-Browser playground
+=== In-Browser playground
 
 The `tool/playground.html` file contains an in-browser editor and a Lua VM. By
 default LuaSnip is loaded in the `luasnip` global table so you can quickly test
@@ -8319,10 +8222,6 @@ This app is powered by:
 
 - https://github.com/fengari-lua/fengari[Fengari], a lua VM implementation in javascript.
 - https://ace.c9.io[ACE], a code editor implemented in html5/javascript.
-
-
-Return to <<tool_rendez_vous,tool>>
-
 // ]SNIP:tool_reference]
 
 == Conclusion
