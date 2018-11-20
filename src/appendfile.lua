@@ -18,6 +18,22 @@ written before and after each chunk of data.
 This function will return `true` if it successed, otherwise it will return `nil`
 plus an error message.
 
+== Example
+
+[source,lua,example]
+----
+local appendfile = require "appendfile"
+
+os.remove( "appendfile.txt" )
+
+appendfile( "appendfile.txt", "123" )
+assert( "123", io.open("appendfile.txt"):read("a") )
+
+appendfile( "appendfile.txt", {"a","b"}, "<", ">" )
+assert( "123<a><b>", io.open("appendfile.txt"):read("a") )
+
+----
+
 ]===]
 
 local function appendfile( path, data, prefix, suffix ) --> res, err
