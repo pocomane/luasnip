@@ -19,6 +19,20 @@ case an error corresponds to wrong arguments passed by the caller of the
 caller of `argcheck`. So its stack position is reported as the source of the
 error i.e. two stack level above `argcheck`.
 
+== Example
+
+[source,lua,example]
+----
+local argcheck = require 'argcheck'
+
+local _, err = pcall(function()
+  argcheck({'number','string','boolean'}, 1, false, false)
+end)
+
+assert( err:match 'Invalid argument #2 type%. Must be string not boolean%.$' )
+
+----
+
 ]===]
 
 local function argcheck( specTab, ... ) --> wrapFunc

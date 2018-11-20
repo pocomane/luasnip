@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: argcheck.ex1.lua , bitpad.ex1.lua , clearfile.ex1.lua , clone.ex1.lua , combinetab.ex1.lua , copyfile.ex1.lua , countiter.ex1.lua , csvish.ex1.lua , csvishout.ex1.lua , deepsame.ex1.lua , differencetab.ex1.lua , escapeshellarg.ex1.lua , factory.ex1.lua , filenamesplit.ex1.lua , flatarray.ex1.lua , hexdecode.ex1.lua , hexencode.ex1.lua , intern.ex1.lua , intersecationtab.ex1.lua , iscallable.ex1.lua , isinteger.ex1.lua , isreadable.ex1.lua , jsonish.ex1.lua , jsonishout.ex1.lua , keysort.ex1.lua , lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , testhelper.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
+- extract some sensible example from the following tests and put them in the source file documentation: bitpad.ex1.lua , clearfile.ex1.lua , clone.ex1.lua , combinetab.ex1.lua , copyfile.ex1.lua , countiter.ex1.lua , csvish.ex1.lua , csvishout.ex1.lua , deepsame.ex1.lua , differencetab.ex1.lua , escapeshellarg.ex1.lua , factory.ex1.lua , filenamesplit.ex1.lua , flatarray.ex1.lua , hexdecode.ex1.lua , hexencode.ex1.lua , intern.ex1.lua , intersecationtab.ex1.lua , iscallable.ex1.lua , isinteger.ex1.lua , isreadable.ex1.lua , jsonish.ex1.lua , jsonishout.ex1.lua , keysort.ex1.lua , lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , testhelper.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -189,10 +189,10 @@ local appendfile = require "appendfile"
 os.remove( "appendfile.txt" )
 
 appendfile( "appendfile.txt", "123" )
-assert( "123", io.open("appendfile.txt"):read("a") )
+assert( "123" == io.open("appendfile.txt"):read("a") )
 
 appendfile( "appendfile.txt", {"a","b"}, "<", ">" )
-assert( "123<a><b>", io.open("appendfile.txt"):read("a") )
+assert( "123<a><b>" == io.open("appendfile.txt"):read("a") )
 
 ----
 
@@ -269,6 +269,20 @@ The main use case is as the first line of a user defined function. In that
 case an error corresponds to wrong arguments passed by the caller of the
 caller of `argcheck`. So its stack position is reported as the source of the
 error i.e. two stack level above `argcheck`.
+
+==== Example
+
+[source,lua,example]
+----
+local argcheck = require 'argcheck'
+
+local _, err = pcall(function()
+  argcheck({'number','string','boolean'}, 1, false, false)
+end)
+
+assert( err:match 'Invalid argument #2 type%. Must be string not boolean%.$' )
+
+----
 
 ==== Code
 
