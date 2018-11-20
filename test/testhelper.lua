@@ -401,6 +401,60 @@ function th.number_tollerance( eps )
   end
 end
 
+
+function th.embedded_example_fail(modulename)
+
+  local f, err
+  local ptherr, path = ''
+  for p in package.path:gmatch('[^;:]+') do
+    p = p:gsub('%?',modulename)
+    ptherr = ptherr .. p .. '\n'
+    f, err = io.open(p,'rb')
+    if f and not err then
+      path = p
+      break
+    end
+  end
+  if not path then
+    return 'Can not find module file, tryed:\n'..ptherr
+  end
+
+  local src, err = f:read('a')
+  if not src or err then return err end
+
+  local function clearsrc(str,pat)
+    local result = ''
+    local last = 1
+    for a, b, c in str:gmatch(pat) do
+      result = result
+        .. str:sub(last,b-1):gsub('[^\r\n]',' ')
+        .. str:sub(b,c-1)
+      last = c
+    end
+    result = result .. str:sub(last):gsub('[^\r\n]',' ')
+    return result
+  end
+
+  src = clearsrc(src, '%-%-%[(=*)%[DOC().-()%]%1]')
+  src = clearsrc(src, '%[source,lua,example%][\r\n]*(%-+)()[^%-].-()%1')
+
+  local func, err = load(src,path,'t')
+  if not func or err then return err end
+
+  -- Check if there is some code (No empty src)
+  local lineofcode = 0
+  for _, v in pairs(debug.getinfo(func, 'L').activelines) do
+    if v then lineofcode = lineofcode + 1 end
+  end
+
+  if lineofcode < 2 then
+    return 'No valid example code in '..path
+  end
+
+  ok, err = pcall(func)
+  return err
+end
+
 setmetatable( th, {__call = function( s, ... )
   local taptest_blame_caller = true
   local r = t( ... )
