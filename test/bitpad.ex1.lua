@@ -81,5 +81,7 @@ t( bitpad(-4, 4, '\xF0\xF0\xF0\xF0\xF0\xF0',nil,nil,4), '\xFF\xFF\xFF', t.bytesa
 t( bitpad(-4, 4, '\xC3\xC3\xC3\xC3\xC3\xC3',nil,nil,2), '\xFF\xFF\xFF', t.bytesame )
 t( bitpad(-4, 4, '\xE1\xE1\xE1\xE1\xE1\xE1',nil,nil,3), '\xFF\xFF\xFF', t.bytesame )
 
+t( nil, t.embedded_example_fail() )
+
 t()
 

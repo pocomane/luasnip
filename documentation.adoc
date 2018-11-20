@@ -336,6 +336,17 @@ The ouput will be returned in the `outStr` string. If the last bit do not fill
 a byte, the appropriate number of `0` will be added at end of the data. The
 number of added `0` is returned as the last returned value `supbitInt`.
 
+==== Example
+
+[source,lua,example]
+----
+local bitpad = require 'bitpad'
+
+assert( bitpad(7, 1, '\x0F') == '\x00\x00\x00\x00\x01\x01\x01\x01' )
+assert( bitpad(-7, 1, '\x01\x01\x01\x01\x01\x01\x01\x01') == '\xFF' )
+
+----
+
 ==== Code
 
 [source,lua]
