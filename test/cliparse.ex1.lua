@@ -28,5 +28,7 @@ t( cliparse({'-a=b','c'}), {['a']={'b'},['']={'c'}}, t.deepsame )
 t( cliparse({'-a:b','c'}), {['a']={'b'},['']={'c'}}, t.deepsame )
 t( cliparse({'-aa=b','c'}), {['aa']={'b'},['']={'c'}}, t.deepsame )
 
+t( nil, t.embedded_example_fail 'cliparse' )
+
 t()
 

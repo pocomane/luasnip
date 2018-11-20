@@ -629,6 +629,48 @@ All the arguments not associated to any key, will be collected under the
 default empty string (i.e. ''). The additional argument string `defaultStr` can
 be used to override this default.
 
+[source,lua,example]
+----
+local cliparse = require 'cliparse'
+
+local opt = cliparse{'a','b'}
+assert( opt[''] ~= 'a')
+assert( opt[''][1] == 'a')
+assert( opt[''][2] == 'b')
+
+local opt = cliparse{'-a','-b','c','-xy','d'}
+assert( opt[''] ~= nil )
+assert( opt.a ~= nil )
+assert( opt.b ~= nil )
+assert( opt.x ~= nil )
+assert( opt.y ~= nil )
+assert( opt.a[1] == nil )
+assert( opt.b[1] == nil )
+assert( opt[''][1] == 'c' )
+assert( opt[''][2] == 'd' )
+assert( opt.x[1] == nil )
+assert( opt.y[1] == nil )
+
+local opt = cliparse{'--aa','--bb','c','--dd','e','f'}
+assert( opt[''] ~= nil )
+assert( opt.aa ~= nil )
+assert( opt.bb ~= nil )
+assert( opt.dd ~= nil )
+assert( opt.bb[1] == 'c' )
+assert( opt.dd[1] == 'e' )
+assert( opt[''][1] == 'f' )
+
+local opt = cliparse{'--aa=x','--bb:y','--cc=p','--cc=q','u'}
+assert( opt[''] ~= nil )
+assert( opt.aa ~= nil )
+assert( opt.bb ~= nil )
+assert( opt.aa[1] == 'x' )
+assert( opt.bb[1] == 'y' )
+assert( opt.cc[1] == 'p' )
+assert( opt.cc[2] == 'q' )
+assert( opt[''][1] == 'u' )
+----
+
 ==== Code
 
 [source,lua]
@@ -738,6 +780,8 @@ t( cliparse({'--aa=b=c','d'}), {['aa']={'b=c'},['']={'d'}}, t.deepsame )
 t( cliparse({'-a=b','c'}), {['a']={'b'},['']={'c'}}, t.deepsame )
 t( cliparse({'-a:b','c'}), {['a']={'b'},['']={'c'}}, t.deepsame )
 t( cliparse({'-aa=b','c'}), {['aa']={'b'},['']={'c'}}, t.deepsame )
+
+t( nil, t.embedded_example_fail 'cliparse' )
 
 t()
 ------------
