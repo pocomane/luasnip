@@ -15,7 +15,7 @@ t( t.readfile( "appendfile.txt" ), "12345678" )
 t( appendfile( "appendfile.txt", {"9","10"}, "<", ">" ), true )
 t( t.readfile( "appendfile.txt" ), "12345678<9><10>" )
 
-t( nil, t.embedded_example_fail 'appendfile' )
+t( nil, t.embedded_example_fail() )
 
 os.remove( "appendfile.txt" )
 

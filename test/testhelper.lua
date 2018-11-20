@@ -402,21 +402,16 @@ function th.number_tollerance( eps )
 end
 
 
-function th.embedded_example_fail(modulename)
+function th.embedded_example_fail()
 
-  local f, err
-  local ptherr, path = ''
-  for p in package.path:gmatch('[^;:]+') do
-    p = p:gsub('%?',modulename)
-    ptherr = ptherr .. p .. '\n'
-    f, err = io.open(p,'rb')
-    if f and not err then
-      path = p
-      break
-    end
-  end
-  if not path then
-    return 'Can not find module file, tryed:\n'..ptherr
+  local path = debug.getinfo(2).source
+  path = path:sub(2)
+  path = path:gsub('test([/\\])','src%1')
+  path = path:gsub('%.ex.%.','.')
+
+  local f, err = io.open(path,'rb')
+  if not f or err then
+    return 'Can not find module file "'..path..'"\n'
   end
 
   local src, err = f:read('a')
