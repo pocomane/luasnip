@@ -50,6 +50,22 @@ upper in the stack, by setting at 'true' a local variable called
 https://testanything.org/
 https://github.com/telemachus/tapered
 
+== Example
+
+[source,lua,example]
+----
+local taptest = require "taptest"
+
+assert( taptest( 1, 1 ):match("^ok %d+$") )
+assert( taptest( 'xxx' ) == '# xxx' )
+
+assert( taptest( 1, 2 ):match("^not ok %d+ %- .*%. Mismatch: %[1%] VS %[2%]%. $") )
+
+local summary = taptest()
+assert( summary:match("%d+ tests failed") )
+assert( summary:match("1..%d+$") )
+----
+
 ]===]
 
 local test_count = 0

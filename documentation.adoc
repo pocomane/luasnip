@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: templua.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua, stepdebug.ex1.lua , taptest.ex1.lua , object.ex1.lua , searchluakeyword.ex1.lua , timeprof.ex1.lua ,
+- extract some sensible example from the following tests and put them in the source file documentation: templua.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua, stepdebug.ex1.lua , object.ex1.lua , searchluakeyword.ex1.lua , timeprof.ex1.lua ,
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -4317,6 +4317,22 @@ upper in the stack, by setting at 'true' a local variable called
 
 https://testanything.org/
 https://github.com/telemachus/tapered
+
+==== Example
+
+[source,lua,example]
+----
+local taptest = require "taptest"
+
+assert( taptest( 1, 1 ):match("^ok %d+$") )
+assert( taptest( 'xxx' ) == '# xxx' )
+
+assert( taptest( 1, 2 ):match("^not ok %d+ %- .*%. Mismatch: %[1%] VS %[2%]%. $") )
+
+local summary = taptest()
+assert( summary:match("%d+ tests failed") )
+assert( summary:match("1..%d+$") )
+----
 
 ==== Code
 

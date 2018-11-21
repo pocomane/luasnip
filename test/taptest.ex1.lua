@@ -64,6 +64,8 @@ t( taptest( nil, nil ), "ok 12" )
 t( taptest( nil, true, function(a,b) return a~=b end ), "ok 13" )
 t( taptest( true, nil, function(a,b) return a~=b end ), "ok 14" )
 
+t.test_embedded_example()
+
 t()
 
 -- In case all the tests are successful, the line
