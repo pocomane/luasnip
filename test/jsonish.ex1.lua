@@ -1,4 +1,3 @@
-
 local jsonish = require 'jsonish'
 local t = require 'testhelper'
 
@@ -19,6 +18,8 @@ t( jsonish '["a","b]","c"]', {"a","b]","c"}, t.deepsame )
 t( jsonish '["a","[b","c"]', {"a","[b","c"}, t.deepsame )
 t( jsonish '["a","[b","c]"]', {"a","[b","c]"}, t.deepsame )
 t( jsonish '["a",["b","c"]]', {"a",{"b","c"}}, t.deepsame )
+
+t.test_embedded_example()
 
 t()
 

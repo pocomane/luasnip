@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: jsonish.ex1.lua , jsonishout.ex1.lua , keysort.ex1.lua , lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
+- extract some sensible example from the following tests and put them in the source file documentation: jsonishout.ex1.lua , keysort.ex1.lua , lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -1773,6 +1773,20 @@ however it is very simple and it should work in most the cases.
 This function internally works by trasforming the string into a valid lua table
 literal. For this reasons it accept also some syntax that is not actually valid
 JSON, e.g. mixed array/hash syntax: `{1, "a":"b"}.
+
+==== Example
+
+[source,lua,example]
+----
+local jsonish = require 'jsonish'
+
+local data = jsonish '{ "a":{"hello":"world"}, "b":[99,100,101]}'
+
+assert( data.a.hello == "world" )
+assert( data.b[1] == 99 )
+assert( data.b[2] == 100 )
+assert( data.b[3] == 101 )
+----
 
 ==== Code
 

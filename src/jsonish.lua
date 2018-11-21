@@ -15,6 +15,20 @@ This function internally works by trasforming the string into a valid lua table
 literal. For this reasons it accept also some syntax that is not actually valid
 JSON, e.g. mixed array/hash syntax: `{1, "a":"b"}.
 
+== Example
+
+[source,lua,example]
+----
+local jsonish = require 'jsonish'
+
+local data = jsonish '{ "a":{"hello":"world"}, "b":[99,100,101]}'
+
+assert( data.a.hello == "world" )
+assert( data.b[1] == 99 )
+assert( data.b[2] == 100 )
+assert( data.b[3] == 101 )
+----
+
 ]===]
 
 local function json_to_table_literal(s)
