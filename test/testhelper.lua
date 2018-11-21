@@ -259,6 +259,13 @@ end)()
 
 local th = {}
 
+setmetatable( th, {__call = function( s, ... )
+  local taptest_blame_caller = true
+  local r = t( ... )
+  print(r)
+  return r
+end})
+
 function th.diff( a, b )
   if a ~= b then return true end
   return false, tostring(a)..' VS '..tostring(b)
@@ -403,6 +410,7 @@ end
 
 
 function th.test_embedded_example()
+  local taptest_blame_caller = true
 
   local path = debug.getinfo(2).source
   path = path:sub(2)
@@ -411,11 +419,13 @@ function th.test_embedded_example()
 
   local f, err = io.open(path,'rb')
   if not f or err then
-    return 'Can not find module file "'..path..'"\n'
+    th( 'Unexpected error', 'Can not find module file "'..path..'"\n' )
   end
 
   local src, err = f:read('a')
-  if not src or err then return err end
+  if not src or err then
+    th( 'Unexpected error', err )
+  end
 
   local function clearsrc(str,pat)
     local result = ''
@@ -436,14 +446,14 @@ function th.test_embedded_example()
   local func, err = load(src,path,'t',setmetatable({
     assert = function(bool)
       local taptest_blame_caller = true
-      local r = t( bool, nil, th.diff )
-      print(r)
-      return r
+      return th( bool, nil, th.diff )
     end
   },{
     __index = _ENV,
   }))
-  if not func or err then return err end
+  if not func or err then
+    return th( 'Unexpected error', err )
+  end
 
   -- Check if there is some code (No empty src)
   local lineofcode = 0
@@ -452,18 +462,12 @@ function th.test_embedded_example()
   end
 
   if lineofcode < 2 then
-    return 'No valid example code in '..path
+    return th( 'Unexpected error', 'No valid example code in '..path )
   end
 
   ok, err = pcall(func)
-  return err
-end
 
-setmetatable( th, {__call = function( s, ... )
-  local taptest_blame_caller = true
-  local r = t( ... )
-  print(r)
-  return r
-end})
+  return th( nil, err )
+end
 
 return th
