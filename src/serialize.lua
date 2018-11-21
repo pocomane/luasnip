@@ -19,6 +19,27 @@ called multiple times with a single string parameter: a chunk of the serialized
 data. They can be, for example, saved in a file one afther the other; the
 resulting file can be read the common lua _load_/_loadstring_ function
 
+== Example
+
+[source,lua,example]
+----
+local serialize = require "serialize"
+
+local tab = {'a', b='b'}
+tab.ref = tab
+tab[tab] = 'key'
+
+local rec = serialize(tab)
+rec = load( 'return ' .. serialize( tab ))()
+
+assert( rec ~= tab )
+
+assert( rec[1] == 'a' )
+assert( rec.b == 'b' )
+assert( rec.ref == rec )
+assert( rec[rec] == 'key' )
+----
+
 ]===]
 
 local type = type

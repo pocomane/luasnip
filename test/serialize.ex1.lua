@@ -85,5 +85,7 @@ local got = ''
 t( serialize(atab, function(d) got = got .. d end), nil )
 t( got, exp )
 
+t.test_embedded_example()
+
 t()
 
