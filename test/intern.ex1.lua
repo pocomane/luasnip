@@ -41,5 +41,7 @@ x = nil
 collectgarbage('collect')
 t( gccount, 1 )
 
+t.test_embedded_example()
+
 t()
 

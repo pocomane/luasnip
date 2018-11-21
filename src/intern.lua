@@ -16,6 +16,23 @@ automatically garbage collected when no more used.
 
 * http://lua-users.org/wiki/SimpleTuples
 
+== Example
+
+[source,lua,example]
+----
+local intern = require 'intern'
+
+local int = intern()
+
+local a = int( 1, nil, 0/0, 3 )
+local b = int( 1, nil, 0/0, 2 )
+local c = int( 1, nil, 0/0, 2 )
+
+assert( a ~= b )
+assert( b == c )
+
+----
+
 ]===]
 
 local function intern() --> reference
