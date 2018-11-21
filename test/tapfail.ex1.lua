@@ -126,4 +126,6 @@ t( ts'ok 2', nil )
 t( ts'1..N', 'summary already found at line 1' )
 t( ts'ok 3', nil )
 
+t.test_embedded_example()
+
 t()

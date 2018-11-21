@@ -22,6 +22,20 @@ found).
 When called without argument, `streamFunc` will always return the last found
 error (in the current as in the previous calls).
 
+== Example
+
+[source,lua,example]
+----
+local tapfail = require 'tapfail'
+
+ts = tapfail()
+
+assert( ts'ok 1' == nil )
+assert( ts'#not ok masked by diagnostic' == nil )
+assert( ts'1..1' == nil )
+assert( ts'ok 2' == 'line after summary' )
+----
+
 ]===]
 
 local function ton( x )
