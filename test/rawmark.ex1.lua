@@ -40,5 +40,7 @@ t( rawmark( '{=}@{}' ), {'@', { '', type='default' }, type='default' }, t.deepsa
 
 t( rawmark( '{a}' ), {'a', type='default' }, t.deepsame )
 
+t.test_embedded_example()
+
 t()
 

@@ -47,6 +47,31 @@ will be expanded to the lua table
 { type='default', 'aaa', {type='bbb', 'ccc'} }
 ------------
 
+== Example
+
+[source,lua,example]
+----
+local rawmark = require 'rawmark'
+
+local data = rawmark '@M{@{a}} b @X{ @{c} }'
+
+assert( data.type == 'default' )
+
+assert( data[1].type == 'M' )
+assert( data[1][1].type == 'default' )
+assert( data[1][1].type == 'default' )
+assert( data[1][1][1] == 'a' )
+
+assert( data[2] == ' b ' )
+
+assert( data[3].type == 'X' )
+
+assert( data[3][1] == ' ' )
+assert( data[3][2].type == 'default' )
+assert( data[3][2][1] == 'c' )
+assert( data[3][3] == ' ' )
+----
+
 ]===]
 
 local function rawmark(str, typ)
