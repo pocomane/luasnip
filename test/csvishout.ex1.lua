@@ -26,5 +26,7 @@ t( csvishout{{'\n','ok'}}, '"\n";ok\n' )
 t( csvishout{{'"','ok'}}, '"""";ok\n' )
 t( csvishout{{'ok"ok','ok'}}, '"ok""ok";ok\n' )
 
+t.test_embedded_example()
+
 t()
 

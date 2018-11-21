@@ -19,6 +19,16 @@ quote (`"`). The double quote itself will be escaped with the sequence
 If an `outFunc` is passed, it is called on each output row. It this case the
 returned value will be always nil.
 
+== Example
+
+[source,lua,example]
+----
+local csvishout = require 'csvishout'
+
+assert( csvishout{{'a','b','c'},{'"\n;','ok'}} == 'a;b;c\n"""\n;";ok\n' )
+
+----
+
 ]===]
 
 local function csvishout( tab, outFunc )
