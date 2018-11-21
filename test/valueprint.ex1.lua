@@ -49,5 +49,7 @@ t( v, '^'
     ..'<nil|%1|1|out>'
     ..'$', t.patsame )
 
+t.test_embedded_example()
+
 t()
 

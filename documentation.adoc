@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: valueprint.ex1.lua , localbind.ex1.lua, stepdebug.ex1.lua , object.ex1.lua , searchluakeyword.ex1.lua , timeprof.ex1.lua ,
+- extract some sensible example from the following tests and put them in the source file documentation: localbind.ex1.lua, stepdebug.ex1.lua , object.ex1.lua , searchluakeyword.ex1.lua , timeprof.ex1.lua ,
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -4978,6 +4978,20 @@ arguments:
 
 When called on the entering/quitting of a sub-table, the key will be nil and
 the info string will be the string 'in' or 'out'.
+
+==== Example
+
+[source,lua,example]
+----
+local valueprint = require "valueprint"
+
+assert( valueprint"1\n2" == '"1\\n2"' )
+
+assert( valueprint({a={b="c"}}):match[[
+^table 0?x?%x*
+| "a": table 0?x?%x*
+| | "b": "c"$]])
+----
 
 ==== Code
 

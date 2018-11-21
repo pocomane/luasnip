@@ -38,6 +38,20 @@ arguments:
 When called on the entering/quitting of a sub-table, the key will be nil and
 the info string will be the string 'in' or 'out'.
 
+== Example
+
+[source,lua,example]
+----
+local valueprint = require "valueprint"
+
+assert( valueprint"1\n2" == '"1\\n2"' )
+
+assert( valueprint({a={b="c"}}):match[[
+^table 0?x?%x*
+| "a": table 0?x?%x*
+| | "b": "c"$]])
+----
+
 ]===]
 
 local function print_basic( cur )
