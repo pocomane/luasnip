@@ -18,6 +18,28 @@ separately, and to store it as an item of the returned array.
 
 In case of error, `nil` plus an error message string `errorStr` is returned.
 
+== Example
+
+[source,lua,example]
+----
+local readfile = require 'readfile'
+
+local f = io.open('tmp.txt', 'wb')
+f:write("1 1.2 -1e3\naaa")
+f:close()
+
+assert( readfile('tmp.txt') == "1 1.2 -1e3\naaa" )
+
+local data = readfile('tmp.txt', 'l')
+assert( data[1] == "1 1.2 -1e3" )
+assert( data[2] == "aaa" )
+
+local data = readfile('tmp.txt', 'n')
+assert( data[1] == 1 )
+assert( data[2] == 1.2 )
+assert( data[3] == -1e3 )
+----
+
 ]===]
 
 local function readfile( pathStr, optStr ) --> readTabStr

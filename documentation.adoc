@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , templua.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua, stepdebug.ex1.lua , taptest.ex1.lua , object.ex1.lua , timeprof.ex1.lua ,
+- extract some sensible example from the following tests and put them in the source file documentation: searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , templua.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua, stepdebug.ex1.lua , taptest.ex1.lua , object.ex1.lua , timeprof.ex1.lua ,
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -2869,6 +2869,28 @@ The avaiable read option string `optStr` are the same of the lua standard
 separately, and to store it as an item of the returned array.
 
 In case of error, `nil` plus an error message string `errorStr` is returned.
+
+==== Example
+
+[source,lua,example]
+----
+local readfile = require 'readfile'
+
+local f = io.open('tmp.txt', 'wb')
+f:write("1 1.2 -1e3\naaa")
+f:close()
+
+assert( readfile('tmp.txt') == "1 1.2 -1e3\naaa" )
+
+local data = readfile('tmp.txt', 'l')
+assert( data[1] == "1 1.2 -1e3" )
+assert( data[2] == "aaa" )
+
+local data = readfile('tmp.txt', 'n')
+assert( data[1] == 1 )
+assert( data[2] == 1.2 )
+assert( data[3] == -1e3 )
+----
 
 ==== Code
 

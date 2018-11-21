@@ -22,5 +22,7 @@ t( readfile('tmp_1.txt', 2), {'aa','aa'}, t.deepsame )
 t.writefile('tmp_1.txt', '1 1.2 -1e3')
 t( readfile('tmp_1.txt', 'n'), {1,1.2,-1e3}, t.deepsame )
 
+t.test_embedded_example()
+os.remove('tmp.txt')
 
 t()
