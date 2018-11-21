@@ -52,6 +52,31 @@ ends with _log_, the position used will be the one of the caller of the caller
 
 Note 2: in case of error `nil` will be returned, plus the `err` error string
 
+== Example
+
+[source,lua,example]
+----
+local logline = require "logline"
+
+logline( 30 )
+assert( logline( 29, "test" ) ~= nil)
+assert( logline( 30, "test" ) ~= nil)
+assert( logline( 31, "test" ) == nil)
+assert( logline( "error", "test" ) ~= nil)
+assert( logline( "debug", "test" ) == nil)
+assert( logline( "info", "test" ) == nil)
+assert( logline( "verbose", "test" ) == nil)
+
+logline( 50 )
+assert( logline( 26, "test" ) ~= nil)
+assert( logline( 50, "test" ) ~= nil)
+assert( logline( 51, "test" ) == nil)
+assert( logline( "error", "test" ) ~= nil)
+assert( logline( "debug", "test" ) ~= nil)
+assert( logline( "info", "test" ) == nil)
+assert( logline( "verbose", "test" ) == nil)
+----
+
 ]===]
 
 local skip_lower_level = 25

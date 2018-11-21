@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua 
+- extract some sensible example from the following tests and put them in the source file documentation: measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua 
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -2474,6 +2474,31 @@ ends with _log_, the position used will be the one of the caller of the caller
 (and so on).
 
 Note 2: in case of error `nil` will be returned, plus the `err` error string
+
+==== Example
+
+[source,lua,example]
+----
+local logline = require "logline"
+
+logline( 30 )
+assert( logline( 29, "test" ) ~= nil)
+assert( logline( 30, "test" ) ~= nil)
+assert( logline( 31, "test" ) == nil)
+assert( logline( "error", "test" ) ~= nil)
+assert( logline( "debug", "test" ) == nil)
+assert( logline( "info", "test" ) == nil)
+assert( logline( "verbose", "test" ) == nil)
+
+logline( 50 )
+assert( logline( 26, "test" ) ~= nil)
+assert( logline( 50, "test" ) ~= nil)
+assert( logline( 51, "test" ) == nil)
+assert( logline( "error", "test" ) ~= nil)
+assert( logline( "debug", "test" ) ~= nil)
+assert( logline( "info", "test" ) == nil)
+assert( logline( "verbose", "test" ) == nil)
+----
 
 ==== Code
 

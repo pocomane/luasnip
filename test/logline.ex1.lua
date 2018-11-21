@@ -73,5 +73,7 @@ t( logline( 99, "a", 1), "| a | 1 | $", t.patsame )
 
 print( "# "..logline( 80, "ok" ) )
 
+t.test_embedded_example()
+
 t( )
 
