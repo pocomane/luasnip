@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua , object.ex1.lua ,  
+- extract some sensible example from the following tests and put them in the source file documentation: rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , templua.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua, stepdebug.ex1.lua , taptest.ex1.lua , object.ex1.lua , timeprof.ex1.lua ,
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -2693,6 +2693,16 @@ the html one.
 
 The attribute of each tag is not parsed, but stored verbatim in the first
 sub-tag with the "attribute" type.
+
+==== Example
+
+[source,lua,example]
+----
+local rawhtml = require 'rawhtml'
+
+assert( rawhtml'<!--@{}--><div my-attr="hi">x< b  />y<div>bla</div></div>'
+  == '@=comment={{=}{+}{-}}@div{@=attribute={my-attr="hi"}x@b{}y@div{bla}}' )
+----
 
 ==== Code
 

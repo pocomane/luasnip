@@ -27,5 +27,7 @@ local r = require 'rawmark'
 
 t( r( rawhtml'<!--@{}--><div my-attr="hi">x< b  />y</div>' ), {type='default',{type='=comment=','@{}'},{type='div',{type='=attribute=','my-attr="hi"'},'x',{type='b',''},'y'}}, t.deepsame )
 
+t.test_embedded_example()
+
 t()
 

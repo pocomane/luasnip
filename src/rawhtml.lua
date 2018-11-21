@@ -19,6 +19,16 @@ the html one.
 The attribute of each tag is not parsed, but stored verbatim in the first
 sub-tag with the "attribute" type.
 
+== Example
+
+[source,lua,example]
+----
+local rawhtml = require 'rawhtml'
+
+assert( rawhtml'<!--@{}--><div my-attr="hi">x< b  />y<div>bla</div></div>'
+  == '@=comment={{=}{+}{-}}@div{@=attribute={my-attr="hi"}x@b{}y@div{bla}}' )
+----
+
 ]===]
 
 local function rawhtml( inStr ) --> outStr
