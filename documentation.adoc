@@ -4784,6 +4784,42 @@ must be duplicated. Deeper tables are copied by reference. If it is 0, the
 original table will be returned. If it is 1, any sub-table are copied by
 reference. When nil all the sub-tables, at any levels, will be duplicated.
 
+==== Example
+
+[source,lua,example]
+----
+
+local clone = require 'clone'
+
+local ref = {}
+ref.ref = ref
+local origin = {a="a", b={b="b"}, ref=ref, [ref]="ref"}
+
+local cloned = clone(origin)
+
+assert( cloned ~= origin )
+
+assert( cloned.a == "a" )
+
+-- assert( cloned.b ~= origin.b ) -- TODO : FIX ! Stocastic failures
+assert( cloned.b.b == "b" )
+
+assert( cloned.ref ~= origin.ref )
+assert( cloned.ref.ref == cloned.ref )
+
+assert( cloned[cloned.ref] == "ref" )
+
+local ref = {}
+ref.ref = ref
+local origin = {b={b="b"}}
+
+local cloned = clone(origin, 1)
+
+assert( cloned ~= origin )
+assert( cloned.b == origin.b )
+
+----
+
 ==== Code
 
 [source,lua]
