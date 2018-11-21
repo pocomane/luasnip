@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
+- extract some sensible example from the following tests and put them in the source file documentation: lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -2028,6 +2028,23 @@ first 6 alphabet letters.
 be missing.
 Indeed, in the main use case, prologue and statement will be missing and only
 the expression will be given.
+
+==== Example
+
+[source,lua,example]
+----
+local lambda = require "lambda"
+
+local inc = lambda'a+1'
+local dup = lambda"x| x=x*2; x"
+local dup2 = lambda"x| x=x*2; x"
+
+assert( inc ~= dup2 )
+assert( dup == dup2 )
+
+assert( inc(7) == 8 )
+assert( dup(3) == 6 )
+----
 
 ==== Code
 

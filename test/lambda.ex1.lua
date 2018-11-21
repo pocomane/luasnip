@@ -17,4 +17,6 @@ t( 1, lambda"a+1"( 0 ) )
 local m = lambda'a+1'
 t( m, lambda'a+1' )
 
+t.test_embedded_example()
+
 t()

@@ -34,6 +34,23 @@ be missing.
 Indeed, in the main use case, prologue and statement will be missing and only
 the expression will be given.
 
+== Example
+
+[source,lua,example]
+----
+local lambda = require "lambda"
+
+local inc = lambda'a+1'
+local dup = lambda"x| x=x*2; x"
+local dup2 = lambda"x| x=x*2; x"
+
+assert( inc ~= dup2 )
+assert( dup == dup2 )
+
+assert( inc(7) == 8 )
+assert( dup(3) == 6 )
+----
+
 ]===]
 
 local load = load
