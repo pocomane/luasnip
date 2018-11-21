@@ -13,6 +13,30 @@ path specified by the `dst` string.
 
 It will return `true` if the copy successes, otherwise `nil` plus an error string.
 
+== Example
+
+[source,lua,example]
+----
+local copyfile = require "copyfile"
+
+local data = tostring(math.random()*os.time())
+
+os.remove('s.txt')
+local s = io.open('s.txt','w')
+s:write(data)
+s:close()
+
+os.remove('d.txt')
+copyfile( 's.txt', 'd.txt')
+
+local d = io.open('d.txt','r')
+local copied = d:read('a')
+d:close()
+
+assert( data == copied )
+
+----
+
 ]===]
 
 local function copyfile( src, dst ) --> ok, err

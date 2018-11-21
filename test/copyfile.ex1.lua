@@ -12,4 +12,8 @@ t( t.readfile( outpath ), data )
 os.remove( inpath )
 os.remove( outpath )
 
+t.test_embedded_example()
+os.remove('s.txt')
+os.remove('d.txt')
+
 t()
