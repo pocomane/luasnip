@@ -37,6 +37,37 @@ In the second form, the statistics are calculated and returned.
 
 [1] Philippe Pébay. SANDIA REPORT SAND2008-6212 (2008) - https://prod.sandia.gov/techlib-noauth/access-control.cgi/2008/086212.pdf
 
+== Example
+
+[source,lua,example]
+----
+local measure = require 'measure'
+local m
+
+local a = measure()
+a(2)
+a(2)
+m = a()
+assert( m > 2 -1e-4 and m < 2 +1e04 )
+
+local b = measure()
+b(4)
+b(8)
+m = b()
+assert( m > 6 -1e-4 and m < 6 +1e04 )
+
+local c = measure{a, b}
+m = {c()}
+
+assert( m[1] > 4.0   -1e-4 and m[1] < 4.0   +1e04 )
+assert( m[2] > 2.828 -1e-4 and m[2] < 2.828 +1e04 )
+assert( m[3] > 0.816 -1e-4 and m[3] < 0.816 +1e04 )
+assert( m[4] > 2.0   -1e-4 and m[4] < 2.0   +1e04 )
+assert( m[5] > 4     -1e-4 and m[5] < 4     +1e04 )
+assert( m[6] > 2     -1e-4 and m[6] < 2     +1e04 )
+assert( m[7] > 8     -1e-4 and m[7] < 8     +1e04 )
+----
+
 ]===]
 
 local sqrt = math.sqrt

@@ -137,4 +137,6 @@ t( a[5], b[5], e002 )
 t( a[6], b[6], e002 )
 t( a[7], b[7], e002 )
 
+t.test_embedded_example()
+
 t()

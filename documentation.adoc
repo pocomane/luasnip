@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua 
+- extract some sensible example from the following tests and put them in the source file documentation: pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua , object.ex1.lua ,  
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -5119,6 +5119,37 @@ In the second form, the statistics are calculated and returned.
 ==== References
 
 [1] Philippe Pébay. SANDIA REPORT SAND2008-6212 (2008) - https://prod.sandia.gov/techlib-noauth/access-control.cgi/2008/086212.pdf
+
+==== Example
+
+[source,lua,example]
+----
+local measure = require 'measure'
+local m
+
+local a = measure()
+a(2)
+a(2)
+m = a()
+assert( m > 2 -1e-4 and m < 2 +1e04 )
+
+local b = measure()
+b(4)
+b(8)
+m = b()
+assert( m > 6 -1e-4 and m < 6 +1e04 )
+
+local c = measure{a, b}
+m = {c()}
+
+assert( m[1] > 4.0   -1e-4 and m[1] < 4.0   +1e04 )
+assert( m[2] > 2.828 -1e-4 and m[2] < 2.828 +1e04 )
+assert( m[3] > 0.816 -1e-4 and m[3] < 0.816 +1e04 )
+assert( m[4] > 2.0   -1e-4 and m[4] < 2.0   +1e04 )
+assert( m[5] > 4     -1e-4 and m[5] < 4     +1e04 )
+assert( m[6] > 2     -1e-4 and m[6] < 2     +1e04 )
+assert( m[7] > 8     -1e-4 and m[7] < 8     +1e04 )
+----
 
 ==== Code
 
