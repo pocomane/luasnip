@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: intersecationtab.ex1.lua , iscallable.ex1.lua , isinteger.ex1.lua , isreadable.ex1.lua , jsonish.ex1.lua , jsonishout.ex1.lua , keysort.ex1.lua , lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
+- extract some sensible example from the following tests and put them in the source file documentation: iscallable.ex1.lua , isinteger.ex1.lua , isreadable.ex1.lua , jsonish.ex1.lua , jsonishout.ex1.lua , keysort.ex1.lua , lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -1574,6 +1574,27 @@ The `selectFunc` function may be optionally passed to select which value to
 associate to the key.  It will be called with the two value associated to the
 same key in the two argument table.  Its result will be used in the
 intersecation table.
+
+==== Example
+
+[source,lua,example]
+----
+local intersecationtab = require 'intersecationtab'
+
+local int = intersecationtab({a='a',b='b',c='c',x='x1'},{a='A',d='d',x='x2'})
+
+assert( int.a == 'a' )
+assert( int.x == 'x1' )
+
+local count = 0
+for _ in pairs(int) do count = count + 1 end
+assert( count == 2 )
+
+local int = intersecationtab({a='a1'},{a='a2'},function(x,y) return y end)
+
+assert( int.a == 'a2' )
+
+----
 
 ==== Code
 

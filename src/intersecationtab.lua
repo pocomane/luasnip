@@ -16,6 +16,28 @@ associate to the key.  It will be called with the two value associated to the
 same key in the two argument table.  Its result will be used in the
 intersecation table.
 
+== Example
+
+[source,lua,example]
+----
+local intersecationtab = require 'intersecationtab'
+
+local int = intersecationtab({a='a',b='b',c='c',x='x1'},{a='A',d='d',x='x2'})
+
+assert( int.a == 'a' )
+assert( int.x == 'x1' )
+
+local count = 0
+for _ in pairs(int) do count = count + 1 end
+assert( count == 2 )
+
+local int = intersecationtab({a='a1'},{a='a2'},function(x,y) return y end)
+
+assert( int.a == 'a2' )
+
+----
+
+
 ]===]
 
 local function intersecationtab( firstTab, secondTab, selectFunc ) --> intersecationTab

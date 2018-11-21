@@ -15,4 +15,6 @@ t( intersecationtab({a='a'},{a='b'},function(a,b) return a..b end), {a='ab'}, t.
 
 t( intersecationtab({a='a',b='b',c='c'},{a='A',d='d'}), {a='a'}, t.deepsame )
 
+t.test_embedded_example()
+
 t()
