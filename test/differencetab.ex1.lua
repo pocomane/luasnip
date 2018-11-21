@@ -13,4 +13,6 @@ t( differencetab({a='a'},{a='b'}), {}, t.deepsame )
 
 t( differencetab({a='a',b='b',c='c'},{a='A',d='d'}), {b='b',c='c'}, t.deepsame )
 
+t.test_embedded_example()
+
 t()

@@ -12,6 +12,23 @@ not in the `secondTab` table.
 
 No checks are performed on the associated values.
 
+== Example
+
+[source,lua,example]
+----
+local differencetab = require 'differencetab'
+
+local diff = differencetab({a='a',b='b',c='c'},{a='A',d='d'})
+
+assert( diff.b == 'b' )
+assert( diff.c == 'c' )
+
+local c = 0
+for _ in pairs(diff) do c = c + 1 end
+assert( c == 2 )
+
+----
+
 ]===]
 
 local function differencetab( firstTab, secondTab ) --> differenceTab
