@@ -16,6 +16,32 @@ It takes the `csvStr` string containing the CSV data, and it return the table
 `datTab` containing the same data as an array. Each item represents a CSV
 record. The item is an array by itself containing the fields as a string.
 
+
+== Example
+
+[source,lua,example]
+----
+local csvish = require 'csvish'
+
+local data = csvish [[
+a;b;c
+d;;e;f;
+"g;\""
+]]
+
+assert( data[1][1] == 'a' )
+assert( data[1][2] == 'b' )
+assert( data[1][3] == 'c' )
+assert( data[1][4] == nil )
+assert( data[2][1] == 'd' )
+assert( data[2][2] == '' )
+assert( data[2][3] == 'e' )
+assert( data[2][4] == 'f' )
+assert( data[3][1] == 'g;\\"' )
+assert( data[3][2] == nil )
+
+----
+
 ]===]
 
 local function string_char_to_decimal( c )

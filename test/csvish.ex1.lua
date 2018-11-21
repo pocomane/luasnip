@@ -42,5 +42,7 @@ t( csvish'aa"\r"bb', {{'aa\rbb'}}, t.deepsame )
 t( csvish'aa"\n\r"bb', {{'aa\n\rbb'}}, t.deepsame )
 t( csvish'aa";"bb', {{'aa;bb'}}, t.deepsame )
 
+t.test_embedded_example()
+
 t()
 

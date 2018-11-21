@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: csvish.ex1.lua , csvishout.ex1.lua , deepsame.ex1.lua , differencetab.ex1.lua , escapeshellarg.ex1.lua , factory.ex1.lua , filenamesplit.ex1.lua , flatarray.ex1.lua , hexdecode.ex1.lua , hexencode.ex1.lua , intern.ex1.lua , intersecationtab.ex1.lua , iscallable.ex1.lua , isinteger.ex1.lua , isreadable.ex1.lua , jsonish.ex1.lua , jsonishout.ex1.lua , keysort.ex1.lua , lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
+- extract some sensible example from the following tests and put them in the source file documentation: csvishout.ex1.lua , deepsame.ex1.lua , differencetab.ex1.lua , escapeshellarg.ex1.lua , factory.ex1.lua , filenamesplit.ex1.lua , flatarray.ex1.lua , hexdecode.ex1.lua , hexencode.ex1.lua , intern.ex1.lua , intersecationtab.ex1.lua , iscallable.ex1.lua , isinteger.ex1.lua , isreadable.ex1.lua , jsonish.ex1.lua , jsonishout.ex1.lua , keysort.ex1.lua , lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -896,6 +896,32 @@ quote itself can be escaped with `""`.
 It takes the `csvStr` string containing the CSV data, and it return the table
 `datTab` containing the same data as an array. Each item represents a CSV
 record. The item is an array by itself containing the fields as a string.
+
+
+==== Example
+
+[source,lua,example]
+----
+local csvish = require 'csvish'
+
+local data = csvish [[
+a;b;c
+d;;e;f;
+"g;\""
+]]
+
+assert( data[1][1] == 'a' )
+assert( data[1][2] == 'b' )
+assert( data[1][3] == 'c' )
+assert( data[1][4] == nil )
+assert( data[2][1] == 'd' )
+assert( data[2][2] == '' )
+assert( data[2][3] == 'e' )
+assert( data[2][4] == 'f' )
+assert( data[3][1] == 'g;\\"' )
+assert( data[3][2] == nil )
+
+----
 
 ==== Code
 
