@@ -11,6 +11,22 @@ Recursively expands the nested array in the input array `inTab` array and
 return the result in the `outTab` array. The max depth level `depthInt` can be
 passed.
 
+== Example
+
+[source,lua,example]
+----
+local flatarray = require 'flatarray'
+
+local flat = flatarray({1,{2,{3}},{{{4,5}}}}, 2)
+
+assert( flat[1] == 1 )
+assert( flat[2] == 2 )
+assert( flat[3] == 3 )
+assert( flat[4][1] == 4 )
+assert( flat[4][2] == 5 )
+
+----
+
 ]===]
 
 local function flatarray( inTab, depthInt ) --> outTab
