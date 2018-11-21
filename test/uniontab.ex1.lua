@@ -15,4 +15,6 @@ t( uniontab({a='a'},{a='b'},function(a,b) return a..b end), {a='ab'}, t.deepsame
 
 t( uniontab({a='a',b='b',c='c'},{a='A',d='d'}), {a='a',b='b',c='c',d='d'}, t.deepsame )
 
+t.test_embedded_example()
+
 t()
