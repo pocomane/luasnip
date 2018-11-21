@@ -26,5 +26,7 @@ t( jsonishout{{a=1},{1}}, '[{"a":1},[1]]' )
 t( jsonishout'\"', '"\\x22"' )
 t( jsonishout'\n', '"\\x0A"' )
 
+t.test_embedded_example()
+
 t()
 

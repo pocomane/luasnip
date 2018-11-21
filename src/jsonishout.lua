@@ -20,6 +20,15 @@ use an empty table with an empty metatable to generate an empty JSON obkec.
 This access the tables with common lua `[]` operator, so metatable can be used
 to hook into the generator behaviour.
 
+== Example
+
+[source,lua,example]
+----
+local jsonishout = require 'jsonishout'
+
+assert( jsonishout{{a=1},{1,"b"}} == '[{"a":1},[1,"b"]]' )
+----
+
 ]===]
 
 local function quote_json_string(str)
