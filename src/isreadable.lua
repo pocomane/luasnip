@@ -10,6 +10,19 @@ function isreadable( path ) --> res
 Return `true` if the input `path` string points to a readable file. `false`
 otherwise.
 
+== Example
+
+[source,lua,example]
+----
+local isreadable = require "isreadable"
+
+io.open( "isreadable.txt", "wb" ):close()
+assert( isreadable( "isreadable.txt" ) == true )
+
+os.remove( "isreadable.txt" )
+assert( isreadable( "isreadable.txt" ) == false )
+----
+
 ]===]
 
 local function isreadable( path ) --> res
