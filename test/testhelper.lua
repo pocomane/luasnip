@@ -266,6 +266,12 @@ setmetatable( th, {__call = function( s, ... )
   return r
 end})
 
+function th.boolsame( a, b )
+  if a and b then return true end
+  if not a and not b then return true end
+  return false, tostring(a)..' VS '..tostring(b)
+end
+
 function th.diff( a, b )
   if a ~= b then return true end
   return false, tostring(a)..' VS '..tostring(b)
@@ -446,7 +452,7 @@ function th.test_embedded_example()
   local func, err = load(src,path,'t',setmetatable({
     assert = function(bool)
       local taptest_blame_caller = true
-      return th( bool, nil, th.diff )
+      return th( bool, true, th.boolsame )
     end
   },{
     __index = _ENV,
