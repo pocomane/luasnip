@@ -24,5 +24,7 @@ setmetatable( rectab_b, { __call = rectab_a } )
 
 t( iscallable( rectab_b ), false )
 
+t.test_embedded_example()
+
 t()
 

@@ -10,6 +10,19 @@ function iscallable( var ) --> res
 This function will return `true` if `var` is callable through the standard function call
 syntax. Otherwise it will return `false`.
 
+== Example
+
+[source,lua,example]
+----
+local iscallable = require "iscallable"
+
+assert( false == iscallable( 'hi' ) )
+assert( false == iscallable( {} ) )
+assert( true == iscallable( function()end ))
+assert( true == iscallable( setmetatable({},{__call=function()end }) ))
+
+----
+
 ]===]
 
 local function iscallable_rec( mask, i )
