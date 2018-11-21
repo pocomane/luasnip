@@ -16,4 +16,6 @@ t( {filenamesplit'path/name'}, {'path/','name',''}, t.deepsame )
 t( {filenamesplit'path//name.ext'}, {'path//','name','.ext'}, t.deepsame )
 t( {filenamesplit'path/name..ext'}, {'path/','name.','.ext'}, t.deepsame )
 
+t.test_embedded_example()
+
 t()

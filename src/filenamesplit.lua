@@ -16,6 +16,21 @@ three results.
 
 The valid path separators in the string are '/' and '\'.
 
+== Example
+
+[source,lua,example]
+----
+local filenamesplit = require 'filenamesplit'
+
+local a, b, c = filenamesplit'/path/path/name.ext'
+
+assert( a == '/path/path/' )
+assert( b == 'name' )
+assert( c == '.ext' )
+
+----
+
+
 ]===]
 
 local function filenamesplit( str ) --> pathStr, nameStr, extStr
