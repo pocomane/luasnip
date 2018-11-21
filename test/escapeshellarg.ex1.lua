@@ -48,4 +48,7 @@ t( t.readfile(outpath), d )
 
 t( escapeshellarg'-i', '-i' )
 
+t.test_embedded_example()
+os.remove('tmp.tmp')
+
 t()

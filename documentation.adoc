@@ -1204,6 +1204,21 @@ function and having it be treated as a single safe argument.
 This function should be used to escape individual arguments to shell functions
 coming from user input.
 
+==== Example
+
+[source,lua,example]
+----
+local escapeshellarg = require "escapeshellarg"
+
+local esced = escapeshellarg(" '")
+
+os.remove('tmp.tmp')
+os.execute('lua.exe -e "io.open([[tmp.tmp]],[[w]]):write(arg[0]);os.exit()" '..esced)
+
+assert( " '" == io.open('tmp.tmp','r'):read('a') )
+
+----
+
 ==== Code
 
 [source,lua]
