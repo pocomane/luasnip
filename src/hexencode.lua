@@ -14,6 +14,16 @@ upper case
 letters from 'A' to 'F'. Each pair represent a subsequent byte in the input
 string.
 
+== Example
+
+[source,lua,example]
+----
+local hexencode = require 'hexencode'
+
+assert( hexencode '\x10\xBA' == '10BA' )
+
+----
+
 ]===]
 
 local function hexencode( dataStr ) --> hexStr

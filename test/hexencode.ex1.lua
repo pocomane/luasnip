@@ -9,5 +9,7 @@ t( hexencode '\xFF\xFF', 'FFFF' )
 
 t( hexencode '\x10\xBA', '10BA' )
 
+t.test_embedded_example()
+
 t()
 
