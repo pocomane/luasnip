@@ -55,4 +55,6 @@ btab[btab.kv] = btab.kv
 btab[btab.kv][btab.kv] = btab[btab.kv]
 t( t.deepsame( atab, btab ), true )
 
+t.test_embedded_example()
+
 t()

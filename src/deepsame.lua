@@ -10,6 +10,28 @@ function deepsame( firstTab, secondTab ) --> sameBool
 Deep comparison of the two tables `firstTab` and `secondTab`. It will return
 `true` if they contain recursively the same data, otherwise `false`.
 
+== Example
+
+[source,lua,example]
+----
+local deepsame = require 'deepsame'
+
+local t = {1,2,3}
+
+assert( true == deepsame({
+    [t] = t,
+  }, {
+    [{1,2,3}] = {1,2,3},
+  }))
+
+assert( false == deepsame({
+    [t] = t,
+  }, {
+    [{1,2}] = {1,2,3},
+  }))
+
+----
+
 ]===]
 
 local deepsame
