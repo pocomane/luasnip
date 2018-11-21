@@ -415,23 +415,21 @@ function th.number_tollerance( eps )
 end
 
 
-function th.test_embedded_example()
+local function test_embedded_example_in()
   local taptest_blame_caller = true
 
-  local path = debug.getinfo(2).source
+  local path = debug.getinfo(3).source -- Only called by th.test_embedded_example
   path = path:sub(2)
   path = path:gsub('test([/\\])','src%1')
   path = path:gsub('%.ex.%.','.')
 
   local f, err = io.open(path,'rb')
   if not f or err then
-    th( 'Unexpected error', 'Can not find module file "'..path..'"\n' )
+    return 'Can not find module file "'..path..'"\n'
   end
 
   local src, err = f:read('a')
-  if not src or err then
-    th( 'Unexpected error', err )
-  end
+  if not src or err then return err end
 
   local function clearsrc(str,pat)
     local result = ''
@@ -457,9 +455,7 @@ function th.test_embedded_example()
   },{
     __index = _ENV,
   }))
-  if not func or err then
-    return th( 'Unexpected error', err )
-  end
+  if not func or err then return err end
 
   -- Check if there is some code (No empty src)
   local lineofcode = 0
@@ -468,12 +464,20 @@ function th.test_embedded_example()
   end
 
   if lineofcode < 2 then
-    return th( 'Unexpected error', 'No valid example code in '..path )
+    return 'No valid example code in '..path
   end
 
   ok, err = pcall(func)
+  if not ok or err then return err end
 
-  return th( nil, err )
+  return nil
+end
+
+function th.test_embedded_example()
+  local taptest_blame_caller = true
+  local err = test_embedded_example_in()
+  th( nil, err )
+  return err
 end
 
 return th
