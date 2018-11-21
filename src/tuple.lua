@@ -20,6 +20,23 @@ unused reference will be automatically garbage collected.
 
 * http://lua-users.org/wiki/SimpleTuples
 
+== Example
+
+[source,lua,example]
+----
+local tuple = require 'tuple'
+
+local field = tuple(1,nil,0/0,3)
+assert( field.n == 4 )
+assert( field[1] == 1 )
+assert( field[2] == nil )
+assert( field[3] ~= field[3] )
+assert( field[4] == 3 )
+
+local again = tuple(1,nil,0/0,3)
+assert( field == again )
+----
+
 ]===]
 
 local intern = (function()
