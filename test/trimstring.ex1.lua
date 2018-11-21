@@ -14,4 +14,6 @@ t( trimstring(' a a '), 'a a' )
 
 t( trimstring(' \nstr\r\t '), 'str' )
 
+t.test_embedded_example()
+
 t()
