@@ -47,5 +47,7 @@ function s.nestcall()
 end
 t( templua( "@{nestcall()}@{nestcall()}" )( s ), 'BB' )
 
+t.test_embedded_example()
+
 t()
 
