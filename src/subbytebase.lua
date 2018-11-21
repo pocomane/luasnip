@@ -35,6 +35,19 @@ base16 one, with the addition of only letters
 
 In base16 and base32 the letters are always uppercase.
 
+== Example
+
+[source,lua,example]
+----
+local subbytebase = require 'subbytebase'
+
+assert( subbytebase(6,'aaaaaa' ) == 'YWFhYWFh' )
+assert( subbytebase(-6, 'YWFhYWFh') == 'aaaaaa' )
+
+assert( subbytebase(1, ' ') == '00100000' )
+assert( subbytebase(1, ' ', {'x','Y'}) == 'xxYxxxxx' )
+----
+
 ]===]
 
 local bitpad = (function()

@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: subbytebase.ex1.lua , tapfail.ex1.lua , templua.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua, stepdebug.ex1.lua , taptest.ex1.lua , object.ex1.lua , searchluakeyword.ex1.lua , timeprof.ex1.lua ,
+- extract some sensible example from the following tests and put them in the source file documentation: tapfail.ex1.lua , templua.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua, stepdebug.ex1.lua , taptest.ex1.lua , object.ex1.lua , searchluakeyword.ex1.lua , timeprof.ex1.lua ,
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -3925,6 +3925,19 @@ base16 one, with the addition of only letters
 - For base128, the ASCII subset will be used (higher bit always zero)
 
 In base16 and base32 the letters are always uppercase.
+
+==== Example
+
+[source,lua,example]
+----
+local subbytebase = require 'subbytebase'
+
+assert( subbytebase(6,'aaaaaa' ) == 'YWFhYWFh' )
+assert( subbytebase(-6, 'YWFhYWFh') == 'aaaaaa' )
+
+assert( subbytebase(1, ' ') == '00100000' )
+assert( subbytebase(1, ' ', {'x','Y'}) == 'xxYxxxxx' )
+----
 
 ==== Code
 

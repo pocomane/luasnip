@@ -41,5 +41,7 @@ t( subbytebase(-7, '\x7F\x40======' ), '\xFF',   t.bytesame )
 t( subbytebase(8,  'hi' ), 'hi', t.bytesame )
 t( subbytebase(-8, 'hi' ), 'hi',   t.bytesame )
 
+t.test_embedded_example()
+
 t()
 
