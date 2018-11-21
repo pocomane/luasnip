@@ -15,6 +15,6 @@ t( argcheck({'table'}, false), 'Invalid argument #1 type. Must be table not bool
 t( argcheck({'number','string','boolean'}, 1, 'a', false), nil )
 t( argcheck({'number','string','boolean'}, 1, false, false), 'Invalid argument #2 type. Must be string not boolean.' )
 
-t( nil, t.embedded_example_fail() )
+t.test_embedded_example()
 
 t()

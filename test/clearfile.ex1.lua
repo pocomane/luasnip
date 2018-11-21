@@ -9,7 +9,7 @@ t.writefile( 'tmp.txt', 'xxx' )
 clearfile'tmp.txt'
 t( t.readfile'tmp.txt', '' )
 
-t( nil, t.embedded_example_fail() )
+t.test_embedded_example()
 
 t.removefile( 'tmp.txt' )
 

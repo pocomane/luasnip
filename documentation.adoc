@@ -5301,7 +5301,7 @@ function th.number_tollerance( eps )
 end
 
 
-function th.embedded_example_fail()
+function th.test_embedded_example()
 
   local path = debug.getinfo(2).source
   path = path:sub(2)
@@ -5332,7 +5332,16 @@ function th.embedded_example_fail()
   src = clearsrc(src, '%-%-%[(=*)%[DOC().-()%]%1]')
   src = clearsrc(src, '%[source,lua,example%][\r\n]*(%-+)()[^%-].-()%1')
 
-  local func, err = load(src,path,'t')
+  local func, err = load(src,path,'t',setmetatable({
+    assert = function(bool)
+      local taptest_blame_caller = true
+      local r = t( bool, nil, th.diff )
+      print(r)
+      return r
+    end
+  },{
+    __index = _ENV,
+  }))
   if not func or err then return err end
 
   -- Check if there is some code (No empty src)

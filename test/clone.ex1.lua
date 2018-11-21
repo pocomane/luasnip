@@ -77,7 +77,7 @@ for k in pairs(kc) do kcc = k end
 t( r, kc, t.diff )
 t( q, kcc )
 
-t( nil, t.embedded_example_fail() )
+t.test_embedded_example()
 
 t()
 
