@@ -9,4 +9,6 @@ t( isinteger( true ),  false )
 t( isinteger( { 1 } ), false )
 t( isinteger(),        false )
 
+t.test_embedded_example()
+
 t()

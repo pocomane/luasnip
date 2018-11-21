@@ -9,6 +9,18 @@ function isinteger( i ) --> res
 
 It returns `true` if the argument `i` is an integer or not. Otherwise `false`.
 
+== Example
+
+[source,lua,example]
+----
+local isinteger = require "isinteger"
+
+assert( false == isinteger( "1" ))
+assert( false == isinteger( 1.1 ))
+assert( true == isinteger( 1.0 ))
+
+----
+
 ]===]
 
 local function isinteger( i ) --> res
