@@ -12,7 +12,36 @@ list `firstTab, secondTab, ...`.
 
 A single combination is generated selecting for each key of any input table,
 the value from one of the tables. All the combinations will be considered
-exactly one time.
+exactly one time. An absent key will be considered as another possible
+value: 'nil'.
+
+
+== Example
+
+[source,lua,example]
+----
+
+local combinetab = require 'combinetab'
+
+local r, n = {}, 0
+local function tcol(x)
+  local t = {}
+  for k,v in pairs(x) do t[k] = v end
+  n = n + 1
+  r[n] = t
+end
+
+combinetab( {k='a',x='a'}, {k='b'}, tcol )
+
+assert( #r == 4 )
+assert( r[1].k == 'a' )
+assert( r[1].x == 'a' )
+assert( r[2].k == 'b' )
+assert( r[2].x == 'a' )
+assert( r[3].k == 'a' )
+assert( r[4].k == 'b' )
+
+----
 
 ]===]
 

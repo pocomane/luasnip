@@ -42,4 +42,6 @@ t( r[1], {k='a'}, t.deepsame )
 t( r[2], {k='b'}, t.deepsame )
 t( r[3], {k='c'}, t.deepsame )
 
+t.test_embedded_example()
+
 t()
