@@ -75,5 +75,7 @@ t( b.t, 'b' )
 t( isA(a), true )
 t( isA(b), true )
 
+t.test_embedded_example()
+
 t()
 

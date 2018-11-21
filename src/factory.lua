@@ -50,6 +50,67 @@ function checkFunc( aTab ) --> truthnessBool
 takes any `aTab` table as input and checks if it was constructed with the
 associated `buildFunc` or `buildproxyFunc`.
 
+== Example
+
+[source,lua,example]
+----
+local factory = require 'factory'
+
+local makeObj, isObj = factory(function(ins)
+  local private = {'ok'}
+  function ins:getprivate()
+    return private
+  end
+  return private
+end)
+
+local t2 = {}
+
+local o1, p1 = makeObj()
+local o2, p2 = makeObj(t2)
+
+assert( isObj(o1) == true )
+assert( isObj(o2) == true )
+assert( isObj({}) == false )
+
+assert( o1 ~= o2 )
+assert( t2 == o2 )
+
+local P1 = o1:getprivate()
+local P2 = o2:getprivate()
+
+assert( p1 == P1 )
+assert( p2 == P2 )
+assert( p1[1] == 'ok' )
+assert( p2[1] == 'ok' )
+
+p1.getprivate = nil
+assert( p1.getprivate == nil )
+
+local makeSub, isSub = factory(function(ins)
+  makeObj(ins)
+  local subprivate = {'OK'}
+  function ins:getsubprivate()
+    return subprivate
+  end
+end)
+
+local o3, p3 = makeSub()
+local P3b = o3:getprivate()
+local P3s = o3:getsubprivate()
+
+assert( p3 == nil )
+assert( P3s ~= P3b )
+assert( P3b[1] == 'ok' )
+assert( P3s[1] == 'OK' )
+
+assert( isSub(o1) == false )
+assert( isSub(o2) == false )
+assert( isSub(o3) == true )
+assert( isObj(o3) == true )
+
+----
+
 ]===]
 
 local setmetatable = setmetatable

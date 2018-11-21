@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: escapeshellarg.ex1.lua , factory.ex1.lua , filenamesplit.ex1.lua , flatarray.ex1.lua , hexdecode.ex1.lua , hexencode.ex1.lua , intern.ex1.lua , intersecationtab.ex1.lua , iscallable.ex1.lua , isinteger.ex1.lua , isreadable.ex1.lua , jsonish.ex1.lua , jsonishout.ex1.lua , keysort.ex1.lua , lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
+- extract some sensible example from the following tests and put them in the source file documentation: filenamesplit.ex1.lua , flatarray.ex1.lua , hexdecode.ex1.lua , hexencode.ex1.lua , intern.ex1.lua , intersecationtab.ex1.lua , iscallable.ex1.lua , isinteger.ex1.lua , isreadable.ex1.lua , jsonish.ex1.lua , jsonishout.ex1.lua , keysort.ex1.lua , lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -4739,6 +4739,67 @@ function checkFunc( aTab ) --> truthnessBool
 
 takes any `aTab` table as input and checks if it was constructed with the
 associated `buildFunc` or `buildproxyFunc`.
+
+==== Example
+
+[source,lua,example]
+----
+local factory = require 'factory'
+
+local makeObj, isObj = factory(function(ins)
+  local private = {'ok'}
+  function ins:getprivate()
+    return private
+  end
+  return private
+end)
+
+local t2 = {}
+
+local o1, p1 = makeObj()
+local o2, p2 = makeObj(t2)
+
+assert( isObj(o1) == true )
+assert( isObj(o2) == true )
+assert( isObj({}) == false )
+
+assert( o1 ~= o2 )
+assert( t2 == o2 )
+
+local P1 = o1:getprivate()
+local P2 = o2:getprivate()
+
+assert( p1 == P1 )
+assert( p2 == P2 )
+assert( p1[1] == 'ok' )
+assert( p2[1] == 'ok' )
+
+p1.getprivate = nil
+assert( p1.getprivate == nil )
+
+local makeSub, isSub = factory(function(ins)
+  makeObj(ins)
+  local subprivate = {'OK'}
+  function ins:getsubprivate()
+    return subprivate
+  end
+end)
+
+local o3, p3 = makeSub()
+local P3b = o3:getprivate()
+local P3s = o3:getsubprivate()
+
+assert( p3 == nil )
+assert( P3s ~= P3b )
+assert( P3b[1] == 'ok' )
+assert( P3s[1] == 'OK' )
+
+assert( isSub(o1) == false )
+assert( isSub(o2) == false )
+assert( isSub(o3) == true )
+assert( isObj(o3) == true )
+
+----
 
 ==== Code
 
