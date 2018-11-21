@@ -389,7 +389,7 @@ end
 local function generate_documentation(ent)
   -- Generate module and tool documentation
   local col = ent.in_collection
-  if ent.onfile and col and (col == 'tool' or col:match('^function_.*') or col == 'function_internal') then -- TODO : better check ?
+  if ent.onfile and col and (col == 'tool' or col:match('^function_.*')) then -- TODO : better check ?
     local n = 'function_reference'
     if ent.in_collection == 'tool' then
       n = 'tool_reference'
@@ -533,7 +533,6 @@ local function generate_main()
             newent.readonly = true
           end
           if t == 'internal' then
-            newent.in_collection = 'function_internal'
             newent.tolink = true
             newent.onfile = lspath(rec[3]..'/'..n)
             --newent.readonly = true
