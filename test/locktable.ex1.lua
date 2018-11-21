@@ -98,4 +98,6 @@ t( err(function() return global_y end), nil, t.diff )
 t( err(function() global_y = 2 end), nil )
 t( err(function() global_x = 2 end), nil )
 
+t.test_embedded_example()
+
 t()

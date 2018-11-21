@@ -32,6 +32,32 @@ _ENV = require 'locktable' ( _ENV, 'readnil' )
 local x = True --> this rises an error, while normally just nil was placed in x
 ```
 
+== Example
+
+[source,lua,example]
+----
+local locktable = require 'locktable'
+
+local o = { a = 1 }
+l = locktable( o, 'readnil', 'writenil' )
+
+assert( o ~= l )
+assert( l.a == 1 )
+l.a = true
+assert( l.a == true )
+assert( o.a == true )
+
+local ok, err
+
+ok, err = pcall(function() return l.b end)
+assert( ok == false )
+assert( err:match( 'Read of nil field was forbidden$' ))
+
+ok, err = pcall(function() l.b = true end)
+assert( ok == false )
+assert( err:match( 'Write of nil field was forbidden$' ))
+----
+
 ]===]
 
 local error, setmetatable = error, setmetatable
