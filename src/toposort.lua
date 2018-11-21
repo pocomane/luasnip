@@ -13,6 +13,24 @@ containing the all the items sorted with respect to the input dependencies.
 Each key of `dependeceTab` is an item to sort. The value associated to each of
 them must be an array containing the dependency of the item.
 
+== Example
+
+[source,lua,example]
+----
+local toposort = require 'toposort'
+
+local order = toposort{x={'e'},a={'x'},}
+assert( order[1] == 'e' )
+assert( order[2] == 'x' )
+assert( order[3] == 'a' )
+assert( #order == 3 )
+
+local order, err = toposort{a={'b'},b={'a'}}
+assert( err == 'cycle detected' )
+assert( order == nil )
+
+----
+
 ]===]
 
 local pairs, ipairs = pairs, ipairs

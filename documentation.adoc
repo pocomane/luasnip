@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: templua.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua, stepdebug.ex1.lua , object.ex1.lua , searchluakeyword.ex1.lua , timeprof.ex1.lua ,
+- extract some sensible example from the following tests and put them in the source file documentation: trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua, stepdebug.ex1.lua , object.ex1.lua , searchluakeyword.ex1.lua , timeprof.ex1.lua ,
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -4650,6 +4650,24 @@ containing the all the items sorted with respect to the input dependencies.
 
 Each key of `dependeceTab` is an item to sort. The value associated to each of
 them must be an array containing the dependency of the item.
+
+==== Example
+
+[source,lua,example]
+----
+local toposort = require 'toposort'
+
+local order = toposort{x={'e'},a={'x'},}
+assert( order[1] == 'e' )
+assert( order[2] == 'x' )
+assert( order[3] == 'a' )
+assert( #order == 3 )
+
+local order, err = toposort{a={'b'},b={'a'}}
+assert( err == 'cycle detected' )
+assert( order == nil )
+
+----
 
 ==== Code
 

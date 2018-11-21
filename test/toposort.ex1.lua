@@ -33,5 +33,7 @@ t( toposort{a={'b','c'},d={'b','c'},e={'f','g'}}, {'g','e'}, t.itemorder )
 local _, err = toposort{a={'b'},b={'a'}}
 t( err, 'cycle detected' )
 
+t.test_embedded_example()
+
 t()
 
