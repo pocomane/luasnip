@@ -68,6 +68,48 @@ end)()
 
 will print `1 0`
 
+== Example
+
+[source,lua,example]
+----
+local localbind = require 'localbind'
+
+local function check(a, b)
+  local M = localbind(3)
+
+  assert( M('a') == 'upvalue' )
+  assert( M('b') == 'local' )
+
+  assert( M.a == a )
+  assert( M.b == b )
+end
+
+local function set(a, b)
+  local M = localbind(3)
+  M.a = a
+  M.b = b
+end
+
+local a = 1
+(function()
+  a = 2
+  local b = 2
+  (function()
+
+    a,b = 3,3
+    check(3,3)
+
+    a,b = 0,0
+    check(0,0)
+
+    set(1,1)
+    assert( a == 1 )
+    assert( b == 1 )
+
+  end)()
+end)()
+----
+
 ]===]
 
 local pairs = pairs

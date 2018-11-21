@@ -161,5 +161,7 @@ t( iter.pairs, 'global function' )
 t( iter.type, 'global function' )
 t( count, 7 )
 
+t.test_embedded_example()
+
 t()
 
