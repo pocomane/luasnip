@@ -22,6 +22,23 @@ The strings in the array representation do not contain any path separator: each
 array entry correspond to a single path step, and contains exactly the folder
 name.
 
+== Example
+
+[source,lua,example]
+----
+local pathpart = require 'pathpart'
+
+local s = package.config:sub(1,1)
+
+local p = pathpart('path'..s..'to'..s..'name.ext')
+assert( p[1] == 'path' )
+assert( p[2] == 'to' )
+assert( p[3] == 'name.ext' )
+
+assert( pathpart{'path','to','name.ext'} == 'path'..s..'to'..s..'name.ext' )
+
+----
+
 ]===]
 
 local path_separator = package.config:sub(1,1)

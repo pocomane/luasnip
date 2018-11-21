@@ -21,4 +21,6 @@ t( pathpart{'path','pathb','name.ext'}, 'path'..s..'pathb'..s..'name.ext' )
 t( pathpart{'path','to'}, 'path'..s..'to', t.deepsame )
 t( pathpart{'name.ext'}, 'name.ext', t.deepsame )
 
+t.test_embedded_example()
+
 t()
