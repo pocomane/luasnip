@@ -11,5 +11,7 @@ t( hexdecode '10BA', '\x10\xBA' )
 
 t( hexdecode 'F', '\x0F' )
 
+t.test_embedded_example()
+
 t()
 

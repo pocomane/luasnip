@@ -16,6 +16,16 @@ from 'A' to 'F'.
 For each two bytes in the input, a byte of the output `hexStr` string is
 generated.
 
+== Example
+
+[source,lua,example]
+----
+local hexdecode = require 'hexdecode'
+
+assert( hexdecode '10BA' == '\x10\xBA' )
+
+----
+
 ]===]
 
 local function hexdecode( hexStr ) --> dataStr
