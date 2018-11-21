@@ -48,5 +48,7 @@ t( #o, 4 )
 t( o, 'ab', t.patsame )
 t( o, 'cd', t.patsame )
 
+t.test_embedded_example()
+
 t()
 

@@ -26,6 +26,20 @@ the one containied in this table field
 - `append`: if true and the `output` field is also set, the ouput will be
 appended to the file instead of overwrite previous data
 
+== Example
+
+[source,lua,example]
+----
+local shellcommand = require 'shellcommand'
+
+local cmd = shellcommand{'lua.exe', '-e', 'io.open([[tmp.tmp]],[[w]]):write(arg[0]);os.exit()', " '"}
+
+os.remove('tmp.tmp')
+os.execute(cmd)
+
+assert( " '" == io.open('tmp.tmp','r'):read('a') )
+----
+
 ]===]
 
 local escapeshellarg = (function()

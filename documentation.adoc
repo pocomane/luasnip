@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: shellcommand.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , templua.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua, stepdebug.ex1.lua , taptest.ex1.lua , object.ex1.lua , searchluakeyword.ex1.lua , timeprof.ex1.lua ,
+- extract some sensible example from the following tests and put them in the source file documentation: subbytebase.ex1.lua , tapfail.ex1.lua , templua.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua , localbind.ex1.lua, stepdebug.ex1.lua , taptest.ex1.lua , object.ex1.lua , searchluakeyword.ex1.lua , timeprof.ex1.lua ,
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -3630,6 +3630,20 @@ console ouput and error of the command into a file; the path to this file is
 the one containied in this table field
 - `append`: if true and the `output` field is also set, the ouput will be
 appended to the file instead of overwrite previous data
+
+==== Example
+
+[source,lua,example]
+----
+local shellcommand = require 'shellcommand'
+
+local cmd = shellcommand{'lua.exe', '-e', 'io.open([[tmp.tmp]],[[w]]):write(arg[0]);os.exit()', " '"}
+
+os.remove('tmp.tmp')
+os.execute(cmd)
+
+assert( " '" == io.open('tmp.tmp','r'):read('a') )
+----
 
 ==== Code
 
