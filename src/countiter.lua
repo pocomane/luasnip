@@ -12,6 +12,17 @@ same varargs a `for in` loop. It will return the number of iteration.
 
 E.g. `countiter(pairs(tab))` will count the number of key in the table `tab`.
 
+== Example
+
+[source,lua,example]
+----
+
+local countiter = require 'countiter'
+
+assert( 3 == countiter( pairs{ 1, 2, c='2' }) )
+
+----
+
 ]===]
 
 local function countiter( ... ) --> countInt
