@@ -16,4 +16,6 @@ t( keysort{[1]=9,["1"]=9,}, {'1',1}, t.deepsame )
 
 t( keysort{[1]=9,["1"]=9,}, {'1',1}, t.deepsame )
 
+t.test_embedded_example()
+
 t()

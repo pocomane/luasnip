@@ -57,7 +57,7 @@ there is a list of issue that should be solved before the hypothetical release
 of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
-- extract some sensible example from the following tests and put them in the source file documentation: keysort.ex1.lua , lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
+- extract some sensible example from the following tests and put them in the source file documentation: lambda.ex1.lua , lineposition.ex1.lua , localbind.ex1.lua , locktable.ex1.lua , logline.ex1.lua , measure.ex1.lua , object.ex1.lua , oopfull.ex1.lua , pathpart.ex1.lua , rawhtml.ex1.lua , rawmark.ex1.lua , readfile.ex1.lua , searchluakeyword.ex1.lua , serialize.ex1.lua , sha2.ex1.lua , shellcommand.ex1.lua , stepdebug.ex1.lua , subbytebase.ex1.lua , tapfail.ex1.lua , taptest.ex1.lua , templua.ex1.lua , timeprof.ex1.lua , toposort.ex1.lua , trimstring.ex1.lua , tuple.ex1.lua , uniontab.ex1.lua , valueprint.ex1.lua
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
@@ -1944,6 +1944,21 @@ This function return the list of all the keys of the input `inTab`
 table. The keys are alphabetically sorted. String keys came before any
 other key. Other key are sorted with respect to their string
 representation, i.e. `tostring` is internally used.
+
+==== Example
+
+[source,lua,example]
+----
+local keysort = require 'keysort'
+
+local sorted = keysort{[1]=400,[2]=300,['1']=200,['2']=100}
+assert( sorted[1] == '1' )
+assert( sorted[2] == '2' )
+assert( sorted[3] == 1 )
+assert( sorted[4] == 2 )
+assert( #sorted == 4 )
+
+----
 
 ==== Code
 

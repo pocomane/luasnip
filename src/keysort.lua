@@ -12,6 +12,21 @@ table. The keys are alphabetically sorted. String keys came before any
 other key. Other key are sorted with respect to their string
 representation, i.e. `tostring` is internally used.
 
+== Example
+
+[source,lua,example]
+----
+local keysort = require 'keysort'
+
+local sorted = keysort{[1]=400,[2]=300,['1']=200,['2']=100}
+assert( sorted[1] == '1' )
+assert( sorted[2] == '2' )
+assert( sorted[3] == 1 )
+assert( sorted[4] == 2 )
+assert( #sorted == 4 )
+
+----
+
 ]===]
 
 local sort, tostring, type, ipairs, pairs =
