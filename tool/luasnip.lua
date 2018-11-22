@@ -1232,7 +1232,6 @@ logline = (function()
 
 
 local skip_lower_level = 25
-local log_count = 0
 
 local level_list =  {
    { 25, "ERROR" },
@@ -1286,7 +1285,6 @@ local function logline( level, ... ) --> line
    if skip_lower_level < level then
       return
    end
-   log_count = log_count + 1
 
    -- Get info about the function in the correct stack position
    local d = debug.getinfo( 2 )
@@ -1308,7 +1306,7 @@ local function logline( level, ... ) --> line
 
    -- Log line common part
    local line = os.date( "%Y/%m/%d %H:%M:%S" ).." "..os.clock().." "
-                ..log_count.." "..level_class[ 1 ].."."..level_class[ 2 ].." "
+                ..level_class[ 1 ].."."..level_class[ 2 ].." "
                 ..d.short_src:match( "([^/\\]*)$" )..":"..d.currentline.." | "
 
    -- Append additional log info from arguments

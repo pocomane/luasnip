@@ -21,10 +21,10 @@ representing the verbosity class.
 
 The allowed verbosity classes are:
 
-- *ERROR* <-> 25
-- *DEBUG* <-> 50
-- *INFO* <-> 75
-- *VERBOSE* <-> 99
+- *ERROR* <==> 25
+- *DEBUG* <==> 50
+- *INFO* <==> 75
+- *VERBOSE* <==> 99
 
 Each class will be considered to cantain any integer level just below it, e.g.
 26, 30 and 50 all belongs to the *DEBUG* class.
@@ -35,18 +35,13 @@ All the other vararg are appended to the generated log line.
 
 The data included in the log are:
 
-- Date
-- Time
+- Date/time in a format such as the string order is the same of time order
 - _os.clock()_ result
-- Incremental number
-- Verbosity level of the log line
+- Verbosity level of the log line (both number and class name)
 - Source position of function call
 - Additional info in the arguments
 
-Note 1: The verbosity level will be reported both as number that as the
-symbolic class name.
-
-Note 2: if the caller is a tail call or a function with a name that starts or
+Note 1: if the caller is a tail call or a function with a name that starts or
 ends with _log_, the position used will be the one of the caller of the caller
 (and so on).
 
@@ -80,7 +75,6 @@ assert( logline( "verbose", "test" ) == nil)
 ]===]
 
 local skip_lower_level = 25
-local log_count = 0
 
 local level_list =  {
    { 25, "ERROR" },
@@ -134,7 +128,6 @@ local function logline( level, ... ) --> line
    if skip_lower_level < level then
       return
    end
-   log_count = log_count + 1
 
    -- Get info about the function in the correct stack position
    local d = debug.getinfo( 2 )
@@ -156,7 +149,7 @@ local function logline( level, ... ) --> line
 
    -- Log line common part
    local line = os.date( "%Y/%m/%d %H:%M:%S" ).." "..os.clock().." "
-                ..log_count.." "..level_class[ 1 ].."."..level_class[ 2 ].." "
+                ..level_class[ 1 ].."."..level_class[ 2 ].." "
                 ..d.short_src:match( "([^/\\]*)$" )..":"..d.currentline.." | "
 
    -- Append additional log info from arguments
