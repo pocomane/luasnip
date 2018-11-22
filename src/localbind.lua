@@ -28,7 +28,7 @@ default to 1. When selecting the value of this parameter, we should be careful
 to tail recursion call that just take one stack position for the caller and the
 callee.
 
-Note tath if a function does not access any global variable, the standard lua
+Note that if a function does not access any global variable, the standard lua
 compiler will not add a global reference into the compiled function. So the
 code
 
@@ -74,20 +74,20 @@ will print `1 0`
 ----
 local localbind = require 'localbind'
 
-local function check(a, b)
+local function check(A, B)
   local M = localbind(3)
 
   assert( M('a') == 'upvalue' )
   assert( M('b') == 'local' )
 
-  assert( M.a == a )
-  assert( M.b == b )
+  assert( M.a == A )
+  assert( M.b == B )
 end
 
-local function set(a, b)
+local function set(A, B)
   local M = localbind(3)
-  M.a = a
-  M.b = b
+  M.a = A
+  M.b = B
 end
 
 local a = 1
