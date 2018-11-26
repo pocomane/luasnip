@@ -131,6 +131,7 @@ local modules = [[
  module  ; measure ; math
  module  ; clone ; tab
  module  ; datestd ; parse
+ module  ; lineposition ; str
 
  internal  ; testhelper.lua  ; test/
  

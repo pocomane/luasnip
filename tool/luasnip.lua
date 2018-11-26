@@ -57,6 +57,7 @@ local factory;
 local measure;
 local clone;
 local datestd;
+local lineposition;
 
 appendfile = (function()
 
@@ -3199,6 +3200,43 @@ return datestd
 
 end)()
 
+lineposition = (function()
+
+
+local select = select
+
+local function lineposition( str, byteNum, ... ) --> columnNum | byteNum[, lineNum]
+
+  local lineNum = select('#', ...) > 0 and select(1, ...)
+
+  if lineNum then
+    local columnNum = byteNum
+    local pat = ( "[^\n]*\n" ):rep( lineNum -1 ) .. '()'
+    local lineoff = str:match( pat )
+    if lineoff then
+      return lineoff -1 + columnNum
+    end
+    return nil
+
+  else
+    local columnNum = byteNum
+    lineNum = 1
+
+    for c in str:gmatch('\n()') do
+      if c > byteNum then break end
+      columnNum = 1 + byteNum - c
+      lineNum = lineNum + 1
+    end
+
+    return columnNum, lineNum
+  end
+end
+
+return lineposition
+
+
+end)()
+
 return {
   appendfile = appendfile,
   argcheck = argcheck,
@@ -3253,4 +3291,5 @@ return {
   measure = measure,
   clone = clone,
   datestd = datestd,
+  lineposition = lineposition,
 }
