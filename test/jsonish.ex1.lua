@@ -19,6 +19,8 @@ t( jsonish '["a","[b","c"]', {"a","[b","c"}, t.deepsame )
 t( jsonish '["a","[b","c]"]', {"a","[b","c]"}, t.deepsame )
 t( jsonish '["a",["b","c"]]', {"a",{"b","c"}}, t.deepsame )
 
+t( jsonish[[{"a b": true}]], {["a b"]=true}, t.deepsame)
+
 t.test_embedded_example()
 
 t()

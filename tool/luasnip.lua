@@ -864,7 +864,7 @@ local function json_to_table_literal(s)
   end)
   s = s:gsub('%[','{')
   s = s:gsub('%]','}')
-  s = s:gsub('("[%w_-]-"):','[%1]=')
+  s = s:gsub('("[^"\n]-"):','[%1]=')
   return s
 end
 
