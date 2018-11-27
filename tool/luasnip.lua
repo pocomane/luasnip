@@ -3034,7 +3034,7 @@ end)()
 datestd = (function()
 
 
-local pack, unpack = table.pack, table.unpack
+local pack, unpack, modf = table.pack, table.unpack, math.modf
 
 local function validate_date( dateTab )
   -- TODO : implement !
@@ -3056,7 +3056,11 @@ local function datestd_encode( dateTab ) --> dateStr
     if dateTab.year then
       dateStr = dateStr .. ' '
     end
-    dateStr = dateStr .. string.format("%02d:%02d:%.3f", dateTab.hour, dateTab.min, dateTab.sec)
+    local sec, frac = modf(dateTab.sec)
+    dateStr = dateStr .. string.format("%02d:%02d:%02d", dateTab.hour, dateTab.min, sec)
+    if frac > 0 then
+				dateStr = dateStr .. tostring(frac):gsub("0(.-)0*$","%1")
+    end
   end
   if dateTab.zone then
     local zonestr = ''
