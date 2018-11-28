@@ -5,6 +5,7 @@ t( jsonish '', nil )
 t( jsonish '1', 1 )
 t( jsonish 'true', true )
 t( jsonish '"hi"', "hi" )
+t( jsonish '""', "" )
 
 t( jsonish [["\u0021"]],    [[!]] )
 t( jsonish [["h\u0021i"]],  [[h!i]] )
@@ -28,6 +29,7 @@ t( jsonish[[{"a b": true}]], {["a b"]=true}, t.deepsame)
 t( jsonish '{"hello" :"world"}', {hello="world"}, t.deepsame )
 
 t( jsonish[[{"\"b\"":true}]], {['"b"']=true}, t.deepsame)
+t( jsonish[[ ["a","b\"]","c"] ]], {"a","b\"]","c"}, t.deepsame )
 
 t.test_embedded_example()
 
