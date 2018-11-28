@@ -5,10 +5,12 @@ t( jsonish '', nil )
 t( jsonish '1', 1 )
 t( jsonish 'true', true )
 t( jsonish '"hi"', "hi" )
+
 t( jsonish '"\\u005D"', "]" )
 t( jsonish '"\\\\u005D"', "\\u005D" )
 t( jsonish '"h\\\\u005Di"', "h\\u005Di" )
 t( jsonish '"h\\u005Di"', "h]i" )
+t( jsonish '"\\\\\\u0021"', '\\!' )
 
 t( jsonish '{}', {}, t.deepsame )
 t( jsonish '{"hello":"world"}', {hello="world"}, t.deepsame )
