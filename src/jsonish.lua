@@ -52,9 +52,7 @@ local function json_to_table(s)
   local loader, e =
     load('return '..json_to_table_literal(s), 'jsondata', 't', {})
   if not loader or e then return nil, e end
-  local dataTab, e = loader()
-  if not dataTab or e then return nil, e end
-  return dataTab
+  return loader()
 end
 
 return json_to_table
