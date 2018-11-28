@@ -32,7 +32,7 @@ assert( data.b[3] == 101 )
 ]===]
 
 local function json_to_table_literal(s)
-  s = s:gsub("\\[uU](%x%x%x%x)","\\u{%1}")
+  s = s:gsub("([^\\])\\[uU](%x%x%x%x)","%1\\u{%2}")
   s = s:gsub('("[^"]*")', function(a)
     return a:gsub('[%[%]]', function (b)
       return string.format('\\u{%x}', b:byte())
