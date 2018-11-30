@@ -21,7 +21,7 @@ in the module documentation there are example tests.
 The output of each test is in the TAP format. you can use the
 `luasniputility.lua` with `test` argument to automatically run all the test and
 count how many fails you get. This script uses the `modules.txt` to decide
-which test to run, or alternatively you can pass the name of a single module to
+hich test to run, or alternatively you can pass the name of a single module to
 run all the tests of that module.
 
 When making changes to a source file, make sure to run the
@@ -76,6 +76,8 @@ generated code.
 ]===]
 
 -----------------------------------------------
+
+local exit_code = 0
 
 local modules = [[
  module  ; appendfile ; fs
@@ -742,9 +744,11 @@ local function main()
       if f then print("single module failed") end
       if failed then print("amalgamation failed") end
       print("SOME TEST FAILED")
+      exit_code = -1
     end
   end
 end
 
 main()
+os.exit(exit_code)
 

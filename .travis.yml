@@ -1,0 +1,21 @@
+language: c
+
+env:
+  global:
+    - LUA_PATH="./?.lua;./src/?.lua;./test/?.lua;./tool/?.lua" LUA_CPATH="./?.so;./src/?.so;./test/?.so;./tool/?.so;./lib?.so;./src/lib?.so;./test/lib?.so;./tool/lib?.so"
+
+branches:
+  only:
+    - master
+
+install:
+  - wget http://www.lua.org/ftp/lua-5.3.5.tar.gz
+  - tar -xzf lua-5.3.5.tar.gz
+  - cd lua-5.3.5
+  - make linux
+  - sudo make install
+  - cd ..
+
+script:
+  - lua tool/luasniputil.lua
+

@@ -1793,18 +1793,22 @@ assert( data.b[3] == 101 )
 [source,lua]
 ------------
 local function json_to_table_literal(s)
+
   s = s:gsub([[\\]],[[\u{5C}]])
   s = (' '..s):gsub('([^\\])(".-[^\\]")', function( prefix, quoted )
     -- Matched string: quoted, non empty
+
     quoted = quoted:gsub('\\"','\\u{22}')
     quoted = quoted:gsub('\\[uU](%x%x%x%x)', '\\u{%1}')
     quoted = quoted:gsub('%[','\\u{5B}')
     quoted = quoted:gsub('%]','\\u{5D}')
     return prefix .. quoted
   end)
+
   s = s:gsub('%[','{')
   s = s:gsub('%]','}')
   s = s:gsub('("[^"]-")%s*:','[%1]=')
+
   return s
 end
 
@@ -6041,7 +6045,7 @@ in the module documentation there are example tests.
 The output of each test is in the TAP format. you can use the
 `luasniputility.lua` with `test` argument to automatically run all the test and
 count how many fails you get. This script uses the `modules.txt` to decide
-which test to run, or alternatively you can pass the name of a single module to
+hich test to run, or alternatively you can pass the name of a single module to
 run all the tests of that module.
 
 When making changes to a source file, make sure to run the
