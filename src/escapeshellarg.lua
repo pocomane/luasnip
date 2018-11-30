@@ -22,8 +22,14 @@ local escapeshellarg = require "escapeshellarg"
 
 local esced = escapeshellarg(" '")
 
+local lua = 'lua'
+for a = 0, -99, -1 do
+  if not arg[a] then break end
+  lua = arg[a]
+end
+
 os.remove('tmp.tmp')
-os.execute('lua.exe -e "io.open([[tmp.tmp]],[[w]]):write(arg[0]);os.exit()" '..esced)
+os.execute(lua..' -e "io.open([[tmp.tmp]],[[w]]):write(arg[0]);os.exit()" '..esced)
 
 assert( " '" == io.open('tmp.tmp','r'):read('a') )
 

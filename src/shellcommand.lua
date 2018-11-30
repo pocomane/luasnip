@@ -32,7 +32,13 @@ appended to the file instead of overwrite previous data
 ----
 local shellcommand = require 'shellcommand'
 
-local cmd = shellcommand{'lua.exe', '-e', 'io.open([[tmp.tmp]],[[w]]):write(arg[0]);os.exit()', " '"}
+local lua = 'lua'
+for a = 0, -99, -1 do
+  if not arg[a] then break end
+  lua = arg[a]
+end
+
+local cmd = shellcommand{lua, '-e', 'io.open([[tmp.tmp]],[[w]]):write(arg[0]);os.exit()', " '"}
 
 os.remove('tmp.tmp')
 os.execute(cmd)
