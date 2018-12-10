@@ -121,7 +121,7 @@ in the `src/luasnip.lua` amalgamation it is used to collect the functions (e.g.
 
 - TYPE - These modules define or check new types: +
 // [SNIP:function_index_section_type[
-<<argcheck, argcheck>>, <<factory, factory>>, <<intern, intern>>, <<iscallable, iscallable>>, <<isinteger, isinteger>>, <<object, object>>, <<tuple, tuple>>
+<<argcheck, argcheck>>, <<factory, factory>>, <<intern, intern>>, <<iscallable, iscallable>>, <<object, object>>, <<tuple, tuple>>
 // ]SNIP:function_index_section_type]
 
 - STR - These modules operate on, or generate strings: +
@@ -1677,45 +1677,6 @@ local function iscallable( var ) --> res
 end
 
 return iscallable
-
-------------
-
-
-[#isinteger]
-Return to <<reference_rendez_vous,Module index>>
-
-=== isinteger
-
-[source,lua]
-----
-function isinteger( i ) --> res
-----
-
-It returns `true` if the argument `i` is an integer or not. Otherwise `false`.
-
-==== Example
-
-[source,lua,example]
-----
-local isinteger = require "isinteger"
-
-assert( false == isinteger( "1" ))
-assert( false == isinteger( 1.1 ))
-assert( true == isinteger( 1.0 ))
-
-----
-
-==== Code
-
-[source,lua]
-------------
-local function isinteger( i ) --> res
-   if "number" ~= type( i ) then return false end
-   local i, f = math.modf( i )
-   return ( 0 == f )
-end
-
-return isinteger
 
 ------------
 

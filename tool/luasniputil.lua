@@ -100,7 +100,6 @@ local modules = [[
  module  ; intern     ; type
  module  ; intersecationtab  ; tab
  module  ; iscallable ; type
- module  ; isinteger  ; type
  module  ; isreadable ; fs
  module  ; jsonish    ; parse
  module  ; jsonishout ; parse

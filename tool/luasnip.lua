@@ -24,7 +24,6 @@ local hexencode;
 local intern;
 local intersecationtab;
 local iscallable;
-local isinteger;
 local isreadable;
 local jsonish;
 local jsonishout;
@@ -819,20 +818,6 @@ local function iscallable( var ) --> res
 end
 
 return iscallable
-
-
-end)()
-
-isinteger = (function()
-
-
-local function isinteger( i ) --> res
-   if "number" ~= type( i ) then return false end
-   local i, f = math.modf( i )
-   return ( 0 == f )
-end
-
-return isinteger
 
 
 end)()
@@ -3263,7 +3248,6 @@ return {
   intern = intern,
   intersecationtab = intersecationtab,
   iscallable = iscallable,
-  isinteger = isinteger,
   isreadable = isreadable,
   jsonish = jsonish,
   jsonishout = jsonishout,
