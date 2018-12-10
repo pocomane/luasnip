@@ -841,18 +841,22 @@ jsonish = (function()
 
 
 local function json_to_table_literal(s)
+
   s = s:gsub([[\\]],[[\u{5C}]])
   s = (' '..s):gsub('([^\\])(".-[^\\]")', function( prefix, quoted )
     -- Matched string: quoted, non empty
+
     quoted = quoted:gsub('\\"','\\u{22}')
     quoted = quoted:gsub('\\[uU](%x%x%x%x)', '\\u{%1}')
     quoted = quoted:gsub('%[','\\u{5B}')
     quoted = quoted:gsub('%]','\\u{5D}')
     return prefix .. quoted
   end)
+
   s = s:gsub('%[','{')
   s = s:gsub('%]','}')
   s = s:gsub('("[^"]-")%s*:','[%1]=')
+
   return s
 end
 
