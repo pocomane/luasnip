@@ -66,23 +66,27 @@ local function main( )
   sandbox_prepare( sandbox, arg )
   local template_parser = sandbox.INCLUDE
 
-  if sandbox.output then
-    out = sandbox.output[1]
-  else
-    out = 'out.html'
+  if not sandbox.filelist then
+    sandbox.filelist = {}
   end
 
-  local inp = sandbox.template[1]
-  if inp == '' then
+  if #(sandbox.filelist) == 0 then
     template_cache_set( '', helptempl )
+    sandbox.filelist[1] = ''
   end
 
-  local result = template_parser(inp)
-
-  LS.clearfile( out )
-  LS.appendfile( out, result )
-
-  print(out..' should be generated')
+  for _, inp in ipairs(sandbox.filelist) do
+    local result = template_parser(inp)
+    local out
+    if inp == '' then
+      out = 'out.html'
+    else
+      out = inp .. '.out'
+    end
+    LS.clearfile( out )
+    LS.appendfile( out, result )
+    print(out..' should be generated')
+  end
 end
 
 ---------------------------------------------------------------------------
