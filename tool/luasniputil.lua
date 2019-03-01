@@ -558,7 +558,7 @@ local function generate_main()
 
   -- TODO : put in the module description string
   in_cache('luasnip_embed',{onfile=toolpath('luasnip.lua'),tag_prefix='%-%- ',skip_tag=true})
-  in_cache('htmltool',{onfile = toolpath('playground.html'),tolink=true,tag_prefix='// '})
+  in_cache('htmltool',{onfile = toolpath('playground.html'),tolink=true,tag_prefix='-- '})
 
   apply(load_file_content)
   apply(cut_lua_documentation)

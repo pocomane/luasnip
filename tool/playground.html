@@ -160,10 +160,68 @@ luasnip = {subbytebase=lsnf, sha2=lsnf}
 
 luasnip=(function()
 -- [SNIP:luasnip_embed[
-local luasnip_embed = (function()
+--[===[ LuaSnip - License
 
 
-local appendfile = (function()
+
+]===]
+
+local appendfile;
+local argcheck;
+local bitpad;
+local clearfile;
+local cliparse;
+local combinetab;
+local copyfile;
+local countiter;
+local csvish;
+local csvishout;
+local deepsame;
+local differencetab;
+local escapeshellarg;
+local filenamesplit;
+local flatarray;
+local hexdecode;
+local hexencode;
+local intern;
+local intersecationtab;
+local iscallable;
+local isreadable;
+local jsonish;
+local jsonishout;
+local keysort;
+local lambda;
+local localbind;
+local locktable;
+local logline;
+local pathpart;
+local rawhtml;
+local rawmark;
+local readfile;
+local searchluakeyword;
+local serialize;
+local sha2;
+local shellcommand;
+local stepdebug;
+local subbytebase;
+local tapfail;
+local taptest;
+local templua;
+local timeprof;
+local toposort;
+local trimstring;
+local tuple;
+local uniontab;
+local valueprint;
+local object;
+local factory;
+local measure;
+local clone;
+local datestd;
+local lineposition;
+
+appendfile = (function()
+
 
 local function appendfile( path, data, prefix, suffix ) --> res, err
 
@@ -210,11 +268,11 @@ end
 
 return appendfile
 
+
 end)()
 
+argcheck = (function()
 
-
-local argcheck = (function()
 
 local function argcheck( specTab, ... ) --> wrapFunc
   local arg = table.pack(...)
@@ -230,11 +288,11 @@ end
 
 return argcheck
 
+
 end)()
 
+bitpad = (function()
 
-
-local bitpad = (function()
 
 local function bitpad( pad, bit, str, map, imap, off )
   if not bit then bit = 1 end
@@ -330,11 +388,11 @@ end
 
 return bitpad
 
+
 end)()
 
+clearfile = (function()
 
-
-local clearfile = (function()
 
 local function clearfile( pathStr ) --> statusBool, errorStr
   local f, err = io.open( pathStr, 'wb' )
@@ -347,11 +405,11 @@ end
 
 return clearfile
 
+
 end)()
 
+cliparse = (function()
 
-
-local cliparse = (function()
 
 local function addvalue( p, k, value )
   local prev = p[k]
@@ -423,11 +481,11 @@ end
 
 return cliparse
 
+
 end)()
 
+combinetab = (function()
 
-
-local combinetab = (function()
 
 local function combinetab(...)
   local n = select('#',...)
@@ -468,11 +526,11 @@ end
 
 return combinetab
 
+
 end)()
 
+copyfile = (function()
 
-
-local copyfile = (function()
 
 local function copyfile( src, dst ) --> ok, err
 
@@ -517,11 +575,11 @@ end
 
 return copyfile
 
+
 end)()
 
+countiter = (function()
 
-
-local countiter = (function()
 
 local function countiter( ... ) --> countInt
   local countInt = 0
@@ -535,11 +593,11 @@ end
 
 return countiter
 
+
 end)()
 
+csvish = (function()
 
-
-local csvish = (function()
 
 local function string_char_to_decimal( c )
   return string.format( '\\%d', c:byte( 1,1 ))
@@ -583,11 +641,11 @@ end
 
 return csvish
 
+
 end)()
 
+csvishout = (function()
 
-
-local csvishout = (function()
 
 local function csvishout( tab, outFunc )
   local result = ''
@@ -617,11 +675,11 @@ end
 
 return csvishout
 
+
 end)()
 
+deepsame = (function()
 
-
-local deepsame = (function()
 
 local deepsame
 
@@ -648,17 +706,23 @@ function deepsame( a, b, s )
   s[ a ] = b
   s[ b ] = a
 
+  local ca = 0
   for ak, av in pairs( a ) do
+    ca = ca + 1
     local o = keycheck( ak, b, s )
     if o == nil then return false end
   end
 
+  local cb = 0
   for bk, bv in pairs( b ) do
+    cb = cb + 1
     local o = keycheck( bk, a, s )
     if o == nil then return false end
 
     if not deepsame( bv, o, s ) then return false end
   end
+
+  if cb ~= ca then return false end
 
   s[ a ] = nil
   s[ b ] = nil
@@ -667,11 +731,11 @@ end
 
 return deepsame
 
+
 end)()
 
+differencetab = (function()
 
-
-local differencetab = (function()
 
 local function differencetab( firstTab, secondTab ) --> differenceTab
   local differenceTab = {}
@@ -690,11 +754,11 @@ end
 
 return differencetab
 
+
 end)()
 
+escapeshellarg = (function()
 
-
-local escapeshellarg = (function()
 
 local quote_function
 
@@ -731,11 +795,11 @@ end
 
 return escapeshellarg
 
+
 end)()
 
+filenamesplit = (function()
 
-
-local filenamesplit = (function()
 
 local function filenamesplit( str ) --> pathStr, nameStr, extStr
   if not str then str = '' end
@@ -759,11 +823,11 @@ end
 
 return filenamesplit
 
+
 end)()
 
+flatarray = (function()
 
-
-local flatarray = (function()
 
 local function flatarray( inTab, depthInt ) --> outTab
   local outTab = {}
@@ -788,11 +852,11 @@ end
 
 return flatarray
 
+
 end)()
 
+hexdecode = (function()
 
-
-local hexdecode = (function()
 
 local function hexdecode( hexStr ) --> dataStr
   return hexStr:gsub( "..?", function( h )
@@ -802,11 +866,11 @@ end
 
 return hexdecode
 
+
 end)()
 
+hexencode = (function()
 
-
-local hexencode = (function()
 
 local function hexencode( dataStr ) --> hexStr
   return dataStr:gsub( ".", function( c )
@@ -816,11 +880,11 @@ end
 
 return hexencode
 
+
 end)()
 
+intern = (function()
 
-
-local intern = (function()
 
 local function intern() --> reference
 
@@ -866,11 +930,11 @@ end
 
 return intern
 
+
 end)()
 
+intersecationtab = (function()
 
-
-local intersecationtab = (function()
 
 local function intersecationtab( firstTab, secondTab, selectFunc ) --> intersecationTab
   local intersecationTab = {}
@@ -890,11 +954,11 @@ end
 
 return intersecationtab
 
+
 end)()
 
+iscallable = (function()
 
-
-local iscallable = (function()
 
 local function iscallable_rec( mask, i )
 
@@ -917,25 +981,11 @@ end
 
 return iscallable
 
-end)()
-
-
-
-local isinteger = (function()
-
-local function isinteger( i ) --> res
-   if "number" ~= type( i ) then return false end
-   local i, f = math.modf( i )
-   return ( 0 == f )
-end
-
-return isinteger
 
 end)()
 
+isreadable = (function()
 
-
-local isreadable = (function()
 
 local function isreadable( path ) --> res
    local f = io.open(path, "r" )
@@ -946,33 +996,29 @@ end
 
 return isreadable
 
+
 end)()
 
+jsonish = (function()
 
-
-local jsonish = (function()
-
--- local function json_to_table_literal(s)
---   s = s:gsub("\\u(%d%d%d%d)","\\u{%1}")
---   local function do_json_list(s,is_list)
---     if is_list then s = s:sub(2,-2) end
---     s = s:gsub("(%b[])()",do_json_list)
---     if is_list then s = '{' .. s ..'}' end
---     return s
---   end
---   return do_json_list(s):gsub('("[%w_-]-"):','[%1]=')
--- end
 
 local function json_to_table_literal(s)
-  s = s:gsub("\\[uU](%x%x%x%x)","\\u{%1}")
-  s = s:gsub('("[^"]*")', function(a)
-    return a:gsub('[%[%]]', function (b)
-      return string.format('\\u{%x}', b:byte())
-    end)
+
+  s = s:gsub([[\\]],[[\u{5C}]])
+  s = (' '..s):gsub('([^\\])(".-[^\\]")', function( prefix, quoted )
+    -- Matched string: quoted, non empty
+
+    quoted = quoted:gsub('\\"','\\u{22}')
+    quoted = quoted:gsub('\\[uU](%x%x%x%x)', '\\u{%1}')
+    quoted = quoted:gsub('%[','\\u{5B}')
+    quoted = quoted:gsub('%]','\\u{5D}')
+    return prefix .. quoted
   end)
+
   s = s:gsub('%[','{')
   s = s:gsub('%]','}')
-  s = s:gsub('("[%w_-]-"):','[%1]=')
+  s = s:gsub('("[^"]-")%s*:','[%1]=')
+
   return s
 end
 
@@ -980,18 +1026,16 @@ local function json_to_table(s)
   local loader, e =
     load('return '..json_to_table_literal(s), 'jsondata', 't', {})
   if not loader or e then return nil, e end
-  local dataTab, e = loader()
-  if not dataTab or e then return nil, e end
-  return dataTab
+  return loader()
 end
 
 return json_to_table
 
+
 end)()
 
+jsonishout = (function()
 
-
-local jsonishout = (function()
 
 local function quote_json_string(str)
   return '"'
@@ -1065,11 +1109,11 @@ end
 
 return table_to_json
 
+
 end)()
 
+keysort = (function()
 
-
-local keysort = (function()
 
 local sort, tostring, type, ipairs, pairs =
   table.sort, tostring, type, ipairs, pairs
@@ -1096,11 +1140,11 @@ end
 
 return keysort
 
+
 end)()
 
+lambda = (function()
 
-
-local lambda = (function()
 
 local load = load
 local memo = setmetatable( {}, { __mode = "kv" } )
@@ -1140,11 +1184,11 @@ end
 
 return lambda
 
+
 end)()
 
+localbind = (function()
 
-
-local localbind = (function()
 
 local pairs = pairs
 local setmetatable = setmetatable
@@ -1257,13 +1301,15 @@ end
 
 return localbind
 
+
 end)()
 
+locktable = (function()
 
-
-local locktable = (function()
 
 local error, setmetatable = error, setmetatable
+local pairs, ipairs = pairs, ipairs
+local rawget, rawset = rawget, rawset
 
 local function iterate( )
   error('Iteration on fielad was forbidden', 2)
@@ -1277,25 +1323,25 @@ local function writeall( )
   error('Change of any field was forbidden', 2)
 end
 
-local function locktable( inTab, ... ) --> lockedTab
+local function lockingmeta( inTab, ... ) --> proxyMet
 
   local function readnil( s, k )
-    local v = inTab[k]
+    local v = rawget( inTab, k )
     if nil == v then
       error('Read of nil field was forbidden', 2) end
     return v
   end
 
   local function writenil( s, k, v )
-    if nil == inTab[k] then 
+    if nil == rawget( inTab, k ) then
       error('Write of nil field was forbidden', 2)
     end
-    inTab[k] = v
+    rawset( inTab, k, v )
   end
 
   local metatable = {
-    __newindex = function(s, k, v) inTab[k] = v end,
-    __index = function(s,k) return inTab[k] end,
+    __newindex = function(s, k, v) rawset( inTab, k, v ) end,
+    __index = function(s,k) return rawget( inTab, k ) end,
     __pairs = function(...) return pairs(inTab, ...) end,
     __ipairs = function(...) return ipairs(inTab, ...) end,
   }
@@ -1324,19 +1370,22 @@ local function locktable( inTab, ... ) --> lockedTab
     end
   end
 
-  return setmetatable( {}, metatable )
+  return metatable
+end
+
+local function locktable( inTab, ... ) --> lockedTab
+  return setmetatable( {}, lockingmeta( inTab, ... ))
 end
 
 return locktable
 
+
 end)()
 
+logline = (function()
 
-
-local logline = (function()
 
 local skip_lower_level = 25
-local log_count = 0
 
 local level_list =  {
    { 25, "ERROR" },
@@ -1390,7 +1439,6 @@ local function logline( level, ... ) --> line
    if skip_lower_level < level then
       return
    end
-   log_count = log_count + 1
 
    -- Get info about the function in the correct stack position
    local d = debug.getinfo( 2 )
@@ -1412,7 +1460,7 @@ local function logline( level, ... ) --> line
 
    -- Log line common part
    local line = os.date( "%Y/%m/%d %H:%M:%S" ).." "..os.clock().." "
-                ..log_count.." "..level_class[ 1 ].."."..level_class[ 2 ].." "
+                ..level_class[ 1 ].."."..level_class[ 2 ].." "
                 ..d.short_src:match( "([^/\\]*)$" )..":"..d.currentline.." | "
 
    -- Append additional log info from arguments
@@ -1425,11 +1473,11 @@ end
 
 return logline
 
+
 end)()
 
+pathpart = (function()
 
-
-local pathpart = (function()
 
 local path_separator = package.config:sub(1,1)
 
@@ -1457,11 +1505,11 @@ end
 
 return pathpart
 
+
 end)()
 
+rawhtml = (function()
 
-
-local rawhtml = (function()
 
 local function rawhtml( inStr ) --> outStr
   if inStr == '' then return '' end
@@ -1486,11 +1534,11 @@ end
 
 return rawhtml
 
+
 end)()
 
+rawmark = (function()
 
-
-local rawmark = (function()
 
 local function rawmark(str, typ)
   if not typ or typ == '' then typ = 'default' end
@@ -1525,11 +1573,11 @@ end
 
 return rawmark
 
+
 end)()
 
+readfile = (function()
 
-
-local readfile = (function()
 
 local function readfile( pathStr, optStr ) --> readTabStr
   local f, err = io.open( pathStr, 'rb' )
@@ -1552,11 +1600,11 @@ end
 
 return readfile
 
+
 end)()
 
+searchluakeyword = (function()
 
-
-local searchluakeyword = (function()
 
 local clear_bracket_string_end
 
@@ -1654,18 +1702,18 @@ end
 
 return searchluakeyword
 
+
 end)()
 
+serialize = (function()
 
-
-local serialize = (function()
 
 local type = type
 
 local function basic_representation( value, outfunc )
   local tv = type(value)
   if "string" == tv then
-    outfunc(string.format( "%q", value ))
+    outfunc(string.format( "%q", value ):gsub('\n','n'))
     return true
   elseif "table" ~= tv then
     outfunc(tostring( value ))
@@ -1786,11 +1834,11 @@ end
 
 return serialize
 
+
 end)()
 
+sha2 = (function()
 
-
-local sha2 = (function()
 
 -- Note: Big-endian convention is used when parsing message block data from
 -- bytes to words, for example, the first word of the input message "abc" after
@@ -2093,11 +2141,13 @@ end
 
 return sha2
 
+
 end)()
 
+shellcommand = (function()
 
 
-local shellcommand = (function()
+
 
 local function shellcommand( commandTab ) --> commandStr
   if not commandTab then return '' end
@@ -2131,11 +2181,11 @@ end
 
 return shellcommand
 
+
 end)()
 
+stepdebug = (function()
 
-
-local stepdebug = (function()
 
 local function stackbottom()
   local result = 1
@@ -2237,11 +2287,13 @@ end
 
 return stepdebug
 
+
 end)()
 
+subbytebase = (function()
 
 
-local subbytebase = (function()
+
 
 -- This can be used for base2-4-8-16 and crockford base32
 local subbyte_multipurpose_alphabet = {
@@ -2329,11 +2381,11 @@ end
 
 return subbytebase
 
+
 end)()
 
+tapfail = (function()
 
-
-local tapfail = (function()
 
 local function ton( x )
   local _, x = pcall(function() return tonumber(x) end)
@@ -2424,11 +2476,11 @@ end
 
 return tapfail
 
+
 end)()
 
+taptest = (function()
 
-
-local taptest = (function()
 
 local test_count = 0
 local fail_count = 0
@@ -2504,8 +2556,8 @@ local function taptest( ... ) --> msg
       -- Append automatic info
       if not ok and not info then
         msg = msg
-          .. "Expectation ["..tostring( expected ).."] "
-          .. "does not match with ["..tostring( got ).."]. "
+          .. "Mismatch: ["..tostring( got ).."] "
+          .. "VS ["..tostring( expected ).."]. "
       end
 
       -- Append user-provided info
@@ -2531,11 +2583,11 @@ end
 
 return taptest
 
+
 end)()
 
+templua = (function()
 
-
-local templua = (function()
 
 local function templua( template, ename ) --> ( sandbox ) --> expstr, err
    if not ename then ename = '_o' end
@@ -2584,11 +2636,11 @@ end
 
 return templua
 
+
 end)()
 
+timeprof = (function()
 
-
-local timeprof = (function()
 
 local clock, sqrt = os.clock, math.sqrt
 
@@ -2643,11 +2695,11 @@ end
 
 return timeprof
 
+
 end)()
 
+toposort = (function()
 
-
-local toposort = (function()
 
 local pairs, ipairs = pairs, ipairs
 
@@ -2690,11 +2742,11 @@ end
 
 return toposort
 
+
 end)()
 
+trimstring = (function()
 
-
-local trimstring = (function()
 
 local function trimstring( inStr ) --> trimStr
   return inStr:match('^[ %c]*(.-)[ %c]*$')
@@ -2702,11 +2754,13 @@ end
 
 return trimstring
 
+
 end)()
 
+tuple = (function()
 
 
-local tuple = (function()
+
 
 local tuplefact = intern()
 
@@ -2735,11 +2789,11 @@ end
 
 return tuple
 
+
 end)()
 
+uniontab = (function()
 
-
-local uniontab = (function()
 
 local function uniontab( firstTab, secondTab, selectFunc ) --> unionTab
   local unionTab = {}
@@ -2764,65 +2818,609 @@ end
 
 return uniontab
 
+
 end)()
 
+valueprint = (function()
 
-
-local valueprint = (function()
 
 local function print_basic( cur )
   if "string" == type( cur ) then
-    return string.format( "%q", cur ):gsub( '\n', '10' )
+    return string.format( "%q", cur ):gsub( '\n', 'n' )
   else
     return tostring( cur ):gsub( ':', '' )
   end
 end
 
-local function print_record( key, value, depth )
-  return not key and value or '\n'..('| '):rep(depth)..key..': '..value
+local function print_with_annotation( cur, memo )
+  local s = print_basic( cur )
+  if type(cur) == 'table' then
+    if memo == true or memo[cur] then
+      s = s .. ' content is not shown here'
+    end
+  end
+  return s
+end
+
+local function print_record( key, value, depth, info )
+  return (key and '\n'..('| '):rep(depth)..key..': '..value)
+    or (depth == 1 and info == 'in' and value) or ''
+end
+
+local function print_record_lua( k, v, d, i )
+  local y = ''
+  if not k then
+    if i == 'in' then
+      y = '{ --[[' .. v .. ']]\n'
+    elseif i == 'out' then
+      y = ((' '):rep(d)) .. '},\n'
+    end
+  else
+    if k ~= 'true' and k ~= 'false' and not tonumber(k) and k:sub(1,1) ~= '"' then
+      k = '"'..k..'"'
+    end
+    y = y .. ((' '):rep(d+1)) .. '[' .. k .. '] = '
+    if i ~= 'table' then
+      y = y .. v .. ',\n'
+    end
+  end
+  return y
 end
 
 local function valueprint( value, format ) --> str
 
   local memo = {}
+  if format == 'default' then format = print_record end
+  if format == 'lua' then format = print_record_lua end
   if 'function' ~= type(format) then format = print_record end
 
   local function valueprint_rec( cur, depth )
 
     -- Flat type pr already processed table
     if "table" ~= type(cur)then
-      return print_basic( cur )
+      return print_with_annotation( cur )
     end 
-    if memo[cur] then return '' end
-    memo[cur] = true
 
-    -- First table iteration
     local subtab = {}
-    if depth == 0 then
-      table.insert( subtab, format( nil, print_basic( value ), 0 ))
-      depth = 1
-    end
+
+    -- Start table iteration
+    local is_hidden = ' content not shown here'
+    local ref = print_with_annotation( cur, memo )
+    table.insert( subtab, format( nil, ref, depth, 'in'))
 
     -- Recurse over each key and each value
-    for k, v in pairs( cur ) do
-      k = print_basic( k )
-      local vs = print_basic( v )
-      table.insert( subtab, format( k, vs, depth ) or '' )
-      if 'table' == type(v) then
-        table.insert( subtab, valueprint_rec( v, depth+1 ) or '')
+    if not memo[cur] then
+      memo[cur] = true
+      for k, v in pairs( cur ) do
+        k = print_with_annotation( k, true )
+        local vs = print_with_annotation( v, memo )
+        table.insert( subtab, format( k, vs, depth, type( v )) or '' )
+        if 'table' == type(v) then
+          table.insert( subtab, valueprint_rec( v, depth+1 ) or '')
+        end
       end
     end
 
+    -- -- End table iteration
+    table.insert( subtab, format( nil, ref, depth, 'out'))
+
     return table.concat( subtab )
   end
-  return valueprint_rec( value, 0 )
+  return valueprint_rec( value, 1 )
 end
 
 return valueprint
 
+
 end)()
 
+object = (function()
 
+
+local setmetatable, move = setmetatable, table.move
+
+local prototype_map = setmetatable({},{__mode="kv"})
+local function protoadd( instance, protochain )
+
+  local protos = prototype_map[instance]
+  if not protos then
+    protos = setmetatable( {meta={}}, {__mode="kv"} )
+    prototype_map[instance] = protos
+  end
+  local meta = protos.meta
+
+  local pn = #protochain
+  if pn > 0 then
+    move( protos, 1, #protos, pn+1)
+  end
+  move( protochain, 1, pn, 1, protos )
+  pn = #protos
+
+  if pn == 1 then
+    meta.__index = protos[1]
+  else
+    meta.__index = function( _, k )
+      for p = 1, pn do
+        local field = protos[p][k]
+        if field ~= nil then
+          return field
+        end
+      end
+    end
+  end
+
+  return setmetatable( instance, meta )
+end
+
+local function inherit(b, o)
+  o = o or {}
+  return protoadd(o, b)
+end
+
+local function has_proto( derived, base )
+  local protos = prototype_map[derived]
+  if protos then
+    for _, b in pairs(protos) do
+      if b == base then return true end
+      if has_proto( b, base ) then return true end -- TODO : avoid recursion? memoize?
+    end
+  end
+  return false
+end
+
+return {
+  inherit = inherit,
+  isderived = has_proto,
+}
+
+
+end)()
+
+factory = (function()
+
+
+--[[
+
+-- TODO : super accessor IDEA :
+local function method_accessor(obj)
+    local result = {}
+    for k, v in pairs(obj) do
+        if 'function' == type(v) then
+            result[k] = v
+        end
+    end
+    return setmetatable(result,{
+        __index = obj,
+        __newindex = obj,
+    })
+end
+
+-- TODO : super accessor IDEA USAGE :
+print(math.random())
+local makeP1D = factory(function(ins)
+    local x = ins[1]
+    ins.scale = ins.scale or 1
+    function ins:getX() return self.scale * x end
+    function ins:getR2() return self.scale * x*x end
+end)
+local makeP2D = factory(function(ins)
+    makeP1D(ins)
+    local super = method_accessor(ins)
+    local y = ins[2]
+    function ins:getY() return self.scale * y end
+    function ins:getR2() return super:getR2() + self.scale * y*y end
+end)
+local p2d = makeP2D{ 1, 2 }
+p2d.scale = 1
+print(p2d:getX(),p2d:getY(),p2d:getR2())
+p2d.scale = 2
+print(p2d:getX(),p2d:getY(),p2d:getR2())
+
+--]]
+
+local type, setmetatable = type, setmetatable
+
+local function factory(a, b)
+
+  local makeproxy = (a == 'proxy')
+  local initializer = makeproxy and b or a
+
+  if 'function' ~= type(initializer) then
+      return nil, 'Wrong initializer: it must be a function'
+  end
+
+  local made_here = setmetatable({},{__mode='kv'})
+  local function checker(i) return made_here[i] or false end
+
+  local function constructor(instance)
+    instance = instance or {}
+    local result = instance
+    if makeproxy then
+      result = setmetatable({}, { __index = instance })
+      made_here[result] = true
+    end
+    made_here[instance] = true
+    return result, initializer(instance)
+  end
+
+  return constructor, checker
+end
+
+return factory
+
+
+end)()
+
+measure = (function()
+
+
+local sqrt = math.sqrt
+
+local aux_get_state = {}
+
+local function measure( partMea ) -->
+
+  -- init
+  local M1 = 0
+  local M2 = 0
+  local M3 = 0
+  local M4 = 0
+  local n = 0
+  local min = nil
+  local max = nil
+
+  local function import_set(M1F2, M2F2, M3F2, M4F2, n2, min2, max2)
+    if n == 0 then
+      M1, M2, M3, M4, n = M1F2, M2F2, M3F2, M4F2, n2
+      min = min2
+      max = max2
+    else
+      -- Formula: Philippe Pébay. SANDIA REPORT SAND2008-6212 (2008) - https://prod.sandia.gov/techlib-noauth/access-control.cgi/2008/086212.pdf
+      local M1F1, M2F1, M3F1, M4F1, n1 = M1, M2, M3, M4, n
+      local n1p2 = n1 + n2
+      local nn = n1 * n2
+      local n1sq = n1 * n1
+      local n2sq = n2 * n2
+      local D = (M1F2 - M1F1) / n1p2
+      local DSQ = D * D
+      M1 = M1F1 + n2 * D
+      M2 = M2F1 + M2F2
+           + nn * DSQ * n1p2
+      M3 = M3F1 + M3F2
+           + nn * (n1 - n2) * n1p2 * D * DSQ
+           + 3 * (n1 * M2F2 - n2 * M2F1) * D
+      M4 = M4F1 + M4F2
+           + nn * (n1sq + n2sq - nn) * n1p2 * DSQ * DSQ
+           + 6 * (n1sq * M2F2 + n2sq * M2F1) * DSQ
+           + 4 * (n1 * M3F2 - n2 * M3F1) * D
+      n = n1p2
+      if min2 and min2<min then
+        min = min2
+      end
+      if max2 and max2>max then
+        max = max2
+      end
+    end
+  end
+
+  local function import_all( ml )
+    for _, m in pairs( ml ) do
+      import_set( m( aux_get_state ))
+    end
+  end
+
+  local function get_measure( value )
+    if value == aux_get_state then
+      return M1, M2, M3, M4, n, min, max
+    elseif value ~= nil then
+      import_set(value, 0, 0, 0, 1, value, value)
+    end
+    local m, d, s, k = M1, 0, 0, 0
+    if n > 1 then
+      d = sqrt( M2 /( n - 1 ))
+    end
+    if n > 1 and d > 0 then
+      -- s = M3 /( n * d * d * d ) -- wikipedia
+      s = M3 * sqrt(n) /sqrt( M2 * M2 * M2 ) -- wolfram
+    end
+    if M2 > 0 then
+      k = M4 * n /( M2 * M2 )
+    end
+    return m,d,s,k,n,min,max
+  end
+
+  if partMea then import_all(partMea) end
+  return get_measure
+end
+
+return measure
+
+
+end)()
+
+clone = (function()
+
+
+local function shallow_copy( depth, cloned, toclone )
+  local source = toclone[#toclone]
+  if not source then return end
+  toclone[#toclone]=nil
+
+  local root = cloned[ source ]
+  if not root then
+    root = {}
+    cloned[ source ] = root
+
+    for k, v in pairs( source ) do
+      root[k] = v
+
+      if not depth or depth > 1 then
+        if type(k) == 'table' then
+          toclone[1+#toclone] = k
+        end
+
+        if type(v) == 'table' then
+          toclone[1+#toclone] = v
+        end
+      end
+    end
+
+    return shallow_copy( depth and depth-1, cloned, toclone )
+  end
+end
+
+local function link_clones( cloned )
+  for _, tolink in pairs(cloned) do
+
+    local K, V = {}, {}
+    for k, v in pairs( tolink ) do
+      local newk = cloned[k]
+      local newv = cloned[v]
+
+      if newk then
+         tolink[k] = nil
+
+        -- Note: New key adding is postponed since it is forbidden
+        -- during iteration
+        K[#K+1] = newk or k
+        V[#V+1] = newv or v
+
+      elseif newv then
+        tolink[k] = newv
+      end
+    end
+
+    for i = 1, #K do
+      tolink[K[i]] = V[i]
+    end
+  end
+end
+
+local function clone( sourceTab, depthNum )
+  if depthNum == 0 then return sourceTab end
+  if depthNum and depthNum < 1 then return sourceTab end
+  local toclone = {sourceTab}
+  local cloned = {}
+  shallow_copy( depthNum, cloned, toclone )
+  link_clones( cloned )
+  return cloned[sourceTab]
+end
+
+return clone
+
+
+end)()
+
+datestd = (function()
+
+
+local pack, unpack, modf = table.pack, table.unpack, math.modf
+
+local function validate_date( dateTab )
+  -- TODO : implement !
+  return dateTab
+end
+
+local function datestd_encode( dateTab ) --> dateStr
+
+  local dateTab, e = validate_date( dateTab )
+  if not dateTab then
+    return nil, e
+  end
+
+  local dateStr = ''
+  if dateTab.year then
+    dateStr = dateStr .. string.format("%04d-%02d-%02d", dateTab.year, dateTab.month, dateTab.day)
+  end
+  if dateTab.hour then
+    if dateTab.year then
+      dateStr = dateStr .. ' '
+    end
+    local sec, frac = modf(dateTab.sec)
+    dateStr = dateStr .. string.format("%02d:%02d:%02d", dateTab.hour, dateTab.min, sec)
+    if frac > 0 then
+				dateStr = dateStr .. tostring(frac):gsub("0(.-)0*$","%1")
+    end
+  end
+  if dateTab.zone then
+    local zonestr = ''
+    if dateTab.zone == 0 then
+      zonestr = 'Z'
+    end
+    if dateTab.zone > 0 then
+      zonestr = '+' .. string.format("%02d:00", dateTab.zone)
+    end
+    if dateTab.zone < 0 then
+      zonestr = '-' .. string.format("%02d:00", -dateTab.zone)
+    end
+    dateStr = dateStr .. zonestr
+  end
+  return dateStr
+end
+
+local function datestd_decode( dateStr ) --> dateTab
+  local dateTab = {}
+
+  local cursor = 1
+
+  local function check_pattern( pat )
+    return dateStr:sub(cursor):match( '^'..pat )
+  end
+
+  local function match_pattern( pat )
+
+    local result = pack(check_pattern( pat .. '()' ))
+    if not result[1] then return nil end
+
+    local n = result[#result]
+    result[#result] = nil
+    result.n = result.n - 1
+
+    cursor = cursor + n - 1
+    return unpack(result)
+  end
+
+  local function match_date()
+    return match_pattern('(%d%d%d%d)%-([0-1][0-9])%-([0-3][0-9])')
+  end
+  
+  local function match_separator()
+    return match_pattern('([T ])')
+  end
+
+  local function match_time()
+    return match_pattern('([0-2][0-9])%:([0-6][0-9])%:(%d+%.?%d*)')
+  end
+
+  local function match_utc_zone()
+    return match_pattern('(Z)')
+  end
+
+  local function match_zone()
+    return match_pattern('([%+%-])([0-9][0-9])%:([0-9][0-9])')
+  end
+
+	local function parse_date()
+    local year, month, day = match_date()
+    if not year then return nil, "Invalid date" end
+
+    local hour, minute, second = '', '', '', ''
+
+    local date_time_separator = false
+    if match_separator() then
+      date_time_separator = true
+    end
+
+    if date_time_separator then
+      hour, minute, second, n = match_time()
+      if not hour then return nil, "Invalid date" end
+    end
+
+    local zone
+    if match_utc_zone() then
+      zone = 0
+    else
+      local eastwest, offset = match_zone()
+      if eastwest then
+        zone = tonumber(eastwest..offset)
+      end
+    end
+
+    local value = {
+      year = tonumber(year),
+      month = tonumber(month),
+      day = tonumber(day),
+      hour = tonumber(hour),
+      min = tonumber(minute),
+      sec = tonumber(second),
+      zone = zone,
+    }
+
+    local e
+    value, e = validate_date(value)
+    if not value then return nil, e end
+
+    return value
+  end
+
+	local function parse_time()
+		hour, minute, second, n = match_time()
+		if not hour then return nil, "Invalid date" end
+
+		local value = {
+			hour = tonumber(hour),
+			min = tonumber(minute),
+			sec = tonumber(second),
+		}
+
+		local value, e = validate_date(value)
+		if not value then return nil, e end
+
+		return value
+	end
+
+  if check_pattern("%d%d%d") then
+    return parse_date()
+  elseif check_pattern("%d%d%:") then
+    return parse_time()
+  else
+    return nil, "Invalid date formmat"
+  end
+
+  return dateTab
+end
+
+local function datestd( dateIn ) --> dateOut
+  if type( dateIn ) == 'string' then
+    return datestd_decode( dateIn )
+  elseif type( dateIn ) == 'table' then
+    return datestd_encode( dateIn )
+  else
+    return nil, "Argument #1 must be a string o ar table."
+  end
+end
+
+return datestd
+
+
+end)()
+
+lineposition = (function()
+
+
+local select = select
+
+local function lineposition( str, byteNum, ... ) --> columnNum | byteNum[, lineNum]
+
+  local lineNum = select('#', ...) > 0 and select(1, ...)
+
+  if lineNum then
+    local columnNum = byteNum
+    local pat = ( "[^\n]*\n" ):rep( lineNum -1 ) .. '()'
+    local lineoff = str:match( pat )
+    if lineoff then
+      return lineoff -1 + columnNum
+    end
+    return nil
+
+  else
+    local columnNum = byteNum
+    lineNum = 1
+
+    for c in str:gmatch('\n()') do
+      if c > byteNum then break end
+      columnNum = 1 + byteNum - c
+      lineNum = lineNum + 1
+    end
+
+    return columnNum, lineNum
+  end
+end
+
+return lineposition
+
+
+end)()
 
 return {
   appendfile = appendfile,
@@ -2845,7 +3443,6 @@ return {
   intern = intern,
   intersecationtab = intersecationtab,
   iscallable = iscallable,
-  isinteger = isinteger,
   isreadable = isreadable,
   jsonish = jsonish,
   jsonishout = jsonishout,
@@ -2873,11 +3470,14 @@ return {
   tuple = tuple,
   uniontab = uniontab,
   valueprint = valueprint,
+  object = object,
+  factory = factory,
+  measure = measure,
+  clone = clone,
+  datestd = datestd,
+  lineposition = lineposition,
 }
-
-end)()
 -- ]SNIP:luasnip_embed]
-return luasnip_embed -- TODO : avoid this and the luasnip_embed wrapping (function/end)
 end)()
 
 </script>
