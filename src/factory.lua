@@ -113,39 +113,68 @@ assert( isObj(o3) == true )
 
 ]===]
 
-local setmetatable = setmetatable
+--[[
 
-local function proxy(instance)
-  return setmetatable({}, { __index = instance })
+-- TODO : super accessor IDEA :
+local function method_accessor(obj)
+    local result = {}
+    for k, v in pairs(obj) do
+        if 'function' == type(v) then
+            result[k] = v
+        end
+    end
+    return setmetatable(result,{
+        __index = obj,
+        __newindex = obj,
+    })
 end
+
+-- TODO : super accessor IDEA USAGE :
+print(math.random())
+local makeP1D = factory(function(ins)
+    local x = ins[1]
+    ins.scale = ins.scale or 1
+    function ins:getX() return self.scale * x end
+    function ins:getR2() return self.scale * x*x end
+end)
+local makeP2D = factory(function(ins)
+    makeP1D(ins)
+    local super = method_accessor(ins)
+    local y = ins[2]
+    function ins:getY() return self.scale * y end
+    function ins:getR2() return super:getR2() + self.scale * y*y end
+end)
+local p2d = makeP2D{ 1, 2 }
+p2d.scale = 1
+print(p2d:getX(),p2d:getY(),p2d:getR2())
+p2d.scale = 2
+print(p2d:getX(),p2d:getY(),p2d:getR2())
+
+--]]
+
+local type, setmetatable = type, setmetatable
 
 local function factory(a, b)
 
-  local initializer, makeproxy
-  if a == 'proxy' then
-    initializer, makeproxy = b, true
-  else
-    initializer, makeproxy = a, false
+  local makeproxy = (a == 'proxy')
+  local initializer = makeproxy and b or a
+
+  if 'function' ~= type(initializer) then
+      return nil, 'Wrong initializer: it must be a function'
   end
 
   local made_here = setmetatable({},{__mode='kv'})
+  local function checker(i) return made_here[i] or false end
 
   local function constructor(instance)
     instance = instance or {}
-    local result
-    if not makeproxy then
-      result = instance
-    else
-      result = proxy(instance)
+    local result = instance
+    if makeproxy then
+      result = setmetatable({}, { __index = instance })
       made_here[result] = true
     end
     made_here[instance] = true
     return result, initializer(instance)
-  end
-
-  local checker = function(instance)
-    if made_here[instance] then return true end
-    return false
   end
 
   return constructor, checker
