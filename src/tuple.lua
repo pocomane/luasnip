@@ -87,6 +87,8 @@ return intern
 -- ]SNIP:intern.lua]
 end)()
 
+local select, getmetatable, setmetatable = select, getmetatable, setmetatable
+
 local tuplefact = intern()
 
 local function tuple( ... ) --> tupleTable

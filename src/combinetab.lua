@@ -39,7 +39,9 @@ assert( r[1].x == 'a' )
 assert( r[2].k == 'b' )
 assert( r[2].x == 'a' )
 assert( r[3].k == 'a' )
+assert( r[3].x == nil )
 assert( r[4].k == 'b' )
+assert( r[4].x == nil )
 
 ----
 
