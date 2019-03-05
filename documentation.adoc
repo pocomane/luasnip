@@ -75,7 +75,6 @@ of LuaSnip 1.0. More realistically, this list will never be empty.
 - Remove the object module ? is the factory module enough?
 - Iprove serialize: metatables?
 - Add a new module: tabclear ?
-- Add a new module: stringlineiterator ?
 - Add a new module: memoize ?
 - Add a new module: tabsearch ?
 - Add a new module: converter rawtag_table -> rawtag_string ???
@@ -693,7 +692,9 @@ assert( r[1].x == 'a' )
 assert( r[2].k == 'b' )
 assert( r[2].x == 'a' )
 assert( r[3].k == 'a' )
+assert( r[3].x == nil )
 assert( r[4].k == 'b' )
+assert( r[4].x == nil )
 
 ----
 
@@ -4856,6 +4857,8 @@ return intern
 -- ]SNIP:intern.lua]
 end)()
 
+local select, getmetatable, setmetatable = select, getmetatable, setmetatable
+
 local tuplefact = intern()
 
 local function tuple( ... ) --> tupleTable
@@ -6071,8 +6074,8 @@ the sources and in the documentation.
 Be careful, it update the source/documentation IN-PLACE, so it is recomanded to
 take a backup of any changes before running it.
 
-This utility uses `modules.txt` to decide what modules to load. So, if for
-example a module is added, a line must be added to that file.
+In the source of this utility there is a list of Luasnip modules. So, if for
+example a module is added, a line must be added into the source.
 
 In the source/documentation, the injected code is placed between two tags. When
 this tool is run all the text between this tags are deleted and substituted

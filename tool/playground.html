@@ -159,8 +159,7 @@ local function lsnf() return 'luasnip NOT LOADED !' end
 luasnip = {subbytebase=lsnf, sha2=lsnf}
 
 luasnip=(function()
--- [SNIP:luasnip_embed[
---[===[ LuaSnip - License
+-- [SNIP:luasnip_embed[--[===[ LuaSnip - License
 
 
 
@@ -2762,6 +2761,8 @@ tuple = (function()
 
 
 
+local select, getmetatable, setmetatable = select, getmetatable, setmetatable
+
 local tuplefact = intern()
 
 local function tuple( ... ) --> tupleTable
@@ -3476,8 +3477,7 @@ return {
   clone = clone,
   datestd = datestd,
   lineposition = lineposition,
-}
--- ]SNIP:luasnip_embed]
+}-- ]SNIP:luasnip_embed]
 end)()
 
 </script>

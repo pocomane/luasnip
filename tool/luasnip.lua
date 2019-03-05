@@ -2600,6 +2600,8 @@ tuple = (function()
 
 
 
+local select, getmetatable, setmetatable = select, getmetatable, setmetatable
+
 local tuplefact = intern()
 
 local function tuple( ... ) --> tupleTable
