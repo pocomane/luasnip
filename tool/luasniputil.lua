@@ -45,8 +45,8 @@ the sources and in the documentation.
 Be careful, it update the source/documentation IN-PLACE, so it is recomanded to
 take a backup of any changes before running it.
 
-This utility uses `modules.txt` to decide what modules to load. So, if for
-example a module is added, a line must be added to that file.
+In the source of this utility there is a list of Luasnip modules. So, if for
+example a module is added, a line must be added into the source.
 
 In the source/documentation, the injected code is placed between two tags. When
 this tool is run all the text between this tags are deleted and substituted
@@ -622,6 +622,7 @@ local function load_example_list(module)
       f:close()
       result[1+#result] = testfile
     end
+    if i < 2 then error('No test files found for the module "'..m..'"') end
   end
   return result
 end
@@ -678,7 +679,7 @@ local function test_main( arg )
     pre_lua = ' -e "package.path=package.path..[[;'..toolpath('')..'/?.lua]] local x=require[[luasnip]] for k,v in pairs(x)do package.loaded[k]=v end;" '
     module = load_module_list()
   elseif #arg > 0 then
-    module = { name=arg[1], type='module' }
+    module = { arg[1] }
   else
     module = load_module_list()
   end
