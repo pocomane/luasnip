@@ -2822,67 +2822,48 @@ factory = (function()
 --[[
 
 -- TODO : super accessor IDEA :
-local function method_accessor(obj)
-    local result = {}
-    for k, v in pairs(obj) do
-        if 'function' == type(v) then
-            result[k] = v
-        end
+local function method_accessor( obj )
+  local result = {}
+  for k, v in pairs( obj ) do
+    if 'function' == type( v ) then
+      result[ k ] = v
     end
-    return setmetatable(result,{
-        __index = obj,
-        __newindex = obj,
-    })
+  end
+  return setmetatable( result, { __index = obj, __newindex = obj, })
 end
 
 -- TODO : super accessor IDEA USAGE :
-print(math.random())
-local makeP1D = factory(function(ins)
-    local x = ins[1]
-    ins.scale = ins.scale or 1
-    function ins:getX() return self.scale * x end
-    function ins:getR2() return self.scale * x*x end
+local make3DPoint, is3DPoint = factory(function(ins)
+  make2DPoint(ins)
+  local super = method_accessor(ins)
+  local z = ins[3]
+  function ins:getZ() return self.scale * z end
+  function ins:getR2() return super:getR2() + self.scale * z*z end
 end)
-local makeP2D = factory(function(ins)
-    makeP1D(ins)
-    local super = method_accessor(ins)
-    local y = ins[2]
-    function ins:getY() return self.scale * y end
-    function ins:getR2() return super:getR2() + self.scale * y*y end
-end)
-local p2d = makeP2D{ 1, 2 }
-p2d.scale = 1
-print(p2d:getX(),p2d:getY(),p2d:getR2())
-p2d.scale = 2
-print(p2d:getX(),p2d:getY(),p2d:getR2())
 
 --]]
 
-local type, setmetatable = type, setmetatable
+local type, select, setmetatable = type, select, setmetatable
 
-local function factory(a, b)
-
-  local makeproxy = (a == 'proxy')
-  local initializer = makeproxy and b or a
-
-  if 'function' ~= type(initializer) then
-      return nil, 'Wrong initializer: it must be a function'
-  end
+local function factory( initializer )
 
   local made_here = setmetatable({},{__mode='kv'})
   local function checker(i) return made_here[i] or false end
 
-  local function constructor(instance)
+  local function constructor( instance )
     instance = instance or {}
-    local result = instance
-    if makeproxy then
-      result = setmetatable({}, { __index = instance })
-      made_here[result] = true
-    end
     made_here[instance] = true
-    return result, initializer(instance)
-  end
 
+    local replace, err = initializer( instance )
+    if nil ~= err then
+      return replace, err
+    elseif nil ~= replace then
+      instance = replace
+      made_here[instance] = true
+    end
+
+    return instance, err
+  end
   return constructor, checker
 end
 
