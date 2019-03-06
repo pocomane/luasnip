@@ -39,26 +39,29 @@ t( isB(c), true )
 t( isC(c), true )
 
 makeA, isA = factory(function(ins)
-  local private1, private2 = {}, {}
+  local private1, private2 = {'p1'}, {'p2'}
   function ins:getprivate()
     return private1, private2
   end
-  return private1, private2
 end)
 
-local a, b, c = makeA()
-local d, e, f = makeA()
+local a = makeA()
+local d = makeA()
 
 local B, C = a:getprivate()
 local E, F = d:getprivate()
 
-t( b, B )
-t( c, C )
-t( e, E )
-t( f, F )
+t( true, B ~= E )
+t( true, C ~= F )
+t( 'p1', B[1] )
+t( 'p1', E[1] )
+t( 'p2', C[1] )
+t( 'p2', F[1] )
 
-makeA, isA = factory('proxy', function(ins)
+-- Method protection example
+makeA, isA = factory(function(ins)
   ins.t = 'a'
+  return setmetatable({}, { __index = ins })
 end)
 a = {}
 b = makeA(a)
@@ -72,7 +75,7 @@ b.t = 'b'
 t( a.t, 'c' )
 t( b.t, 'b' )
 
-t( isA(a), true )
+t( isA(a), true ) -- TODO : change this ?
 t( isA(b), true )
 
 t.test_embedded_example()
