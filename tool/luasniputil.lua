@@ -134,6 +134,8 @@ local modules = [[
  module  ; datestd ; parse
  module  ; lineposition ; str
 
+ module  ; new_module_scratch ; draft
+
  internal  ; testhelper.lua  ; test/
  
  tool  ; climint.lua ; tool
@@ -549,6 +551,10 @@ local function generate_main()
             newent.toamalgam = true
             newent.searchexample = true
             newent.tag_prefix = '%-%- '
+            if rec[3] == 'draft' then
+              newent.in_collection = nil
+              newent.toamalgam = false
+            end
           end
           in_cache(n, newent)
         end
