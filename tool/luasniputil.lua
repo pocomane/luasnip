@@ -133,6 +133,7 @@ local modules = [[
  module  ; clone ; tab
  module  ; datestd ; parse
  module  ; lineposition ; str
+ module  ; memo ; type
 
  module  ; new_module_scratch ; draft
 

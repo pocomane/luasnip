@@ -62,30 +62,6 @@ new_module_scratch.dispatcher = dispatcher
 
 ----------------------------------------------------------
 
-local intern = require 'intern'
-
-local setmetatable, pack, unpack = setmetatable, table.pack, table.unpack
-
-local function memo(func)
-
-  local memo_input = intern()
-  local memo_output = setmetatable({},{__mode='k'})
-
-  return function( ... )
-    local i = memo_input( ... )
-    local v = memo_output[i]
-    if not v then
-      v = pack(func(...))
-      memo_output[i] = v
-    end
-    return unpack(v)
-  end
-end
-
-new_module_scratch.memo = memo
-
-----------------------------------------------------------
-
 local function method_accessor( obj )
   local result = {}
   for k, v in pairs( obj ) do

@@ -71,7 +71,7 @@ local function intern() --> reference
         rawset( currentintern, tonext, subintern )
       end
 
-      currentintern = subintern 
+      currentintern = subintern
     end
     return currentintern
   end

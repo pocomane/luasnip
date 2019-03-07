@@ -109,40 +109,6 @@ t( b.x, 2 )
 
 --------------------------------------------------------------------------
 
-local memo = new_module_scratch.memo
-
-local c = 0
-local add=memo(function(a,b) c=c+1 return a+b end)
-
-t(c, 0)
-t(add(1,2), 3)
-t(c, 1)
-t(add(1,2), 3)
-t(c, 1)
-t(add(1,2), 3)
-t(c, 1)
-t(add(2,2), 4)
-t(c, 2)
-t(add(2,2), 4)
-t(c, 2)
-
-local y,x,mt
-mt = function(a,b) if a<1 or b<1 then return 1 end return (a+b)*mt(a-1,b-1)/mt(a-2,b-2) end
-
-local s = os.clock()
-x = mt(26,26)
-t(true, os.clock()-s>0.01)
-
-mt = memo(mt)
-
-local s = os.clock()
-y = mt(26,26)
-t(true, os.clock()-s<0.01)
-
-t(x,y)
-
---------------------------------------------------------------------------
-
 local method_accessor = new_module_scratch.method_accessor
 
 local function inc(self,val) self.field = val+self.field return self.field end

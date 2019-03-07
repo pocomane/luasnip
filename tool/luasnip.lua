@@ -57,6 +57,7 @@ local measure;
 local clone;
 local datestd;
 local lineposition;
+local memo;
 
 appendfile = (function()
 
@@ -760,7 +761,7 @@ local function intern() --> reference
         rawset( currentintern, tonext, subintern )
       end
 
-      currentintern = subintern 
+      currentintern = subintern
     end
     return currentintern
   end
@@ -3243,6 +3244,34 @@ return lineposition
 
 end)()
 
+memo = (function()
+
+
+
+
+local setmetatable, pack, unpack = setmetatable, table.pack, table.unpack
+
+local function memo(func)
+
+  local memo_input = intern()
+  local memo_output = setmetatable({},{__mode='k'})
+
+  return function( ... )
+    local i = memo_input( ... )
+    local v = memo_output[i]
+    if not v then
+      v = pack(func(...))
+      memo_output[i] = v
+    end
+    return unpack(v)
+  end
+end
+
+return memo
+
+
+end)()
+
 return {
   appendfile = appendfile,
   argcheck = argcheck,
@@ -3297,4 +3326,5 @@ return {
   clone = clone,
   datestd = datestd,
   lineposition = lineposition,
+  memo = memo,
 }
