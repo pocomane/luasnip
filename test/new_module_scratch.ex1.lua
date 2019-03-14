@@ -27,26 +27,6 @@ t( count, 2 )
 t( nil, a )
 t( nil, b )
 
---- TODO : remove !! performace test...
-
-local select = select
-
-local a = function(r,...) r[1]=select('#',...) return ... end
-local b = function() return nil,2,3,nil,5,6,7,8,nil end
-local c = function(...) return ...,select('#',...)  end
-
-local N = 99999
-local s
-
-local u={}
-s=os.clock()
-for k=1,N do a(u,b()) end
-print('# info ',os.clock()-s)
-
-s=os.clock()
-for k=1,N do c(b()) end
-print('# info ',os.clock()-s)
-
 --------------------------------------------------------------------------
 
 local dispatcher = new_module_scratch.dispatcher
@@ -161,8 +141,28 @@ local tableclear = new_module_scratch.tableclear
 -- TODO : test ??
 
 --------------------------------------------------------------------------
+-- TODO : delete !!! just some benchmarks !!! vvvvvvvvvvvvvvvvvvvvvvvvvvvv
+local do_banchmark = false if do_banchmark then
 
--- TODO : remove !!! a benchmark
+local select = select
+
+local a = function(r,...) r[1]=select('#',...) return ... end
+local b = function() return nil,2,3,nil,5,6,7,8,nil end
+local c = function(...) return ...,select('#',...)  end
+
+local N = 99999
+local s
+
+local u={}
+s=os.clock()
+for k=1,N do a(u,b()) end
+print('# info ',os.clock()-s)
+
+s=os.clock()
+for k=1,N do c(b()) end
+print('# info ',os.clock()-s)
+
+------------------------
 
 local N = 99 --2000
 local S = 10000
@@ -202,9 +202,10 @@ for i=1,S do x = cur.x end
 print('# info x',os.clock()-s)
 print('# info x',cur.x)
 
-----------------------------------------------------------
+end
+-- TODO : delete !!! just some benchmarks !!! ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------------------------
 
 t.test_embedded_example()
 
 t()
-

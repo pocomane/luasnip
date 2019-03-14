@@ -134,6 +134,7 @@ local modules = [[
  module  ; datestd ; parse
  module  ; lineposition ; str
  module  ; memo ; type
+ module  ; pegcore ; str
 
  module  ; new_module_scratch ; draft
 
