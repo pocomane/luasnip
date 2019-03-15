@@ -501,7 +501,7 @@ local function save_content(ent)
       path = ent.onfile
     end
     print('GENERATING '..path)
-    local f = io.open(path,'wb')
+    local f = io.open(path,'w')
     if ent.documentation then f:write(ent.documentation,'\n') end
     f:write(ent.content or '')
     f:close()
@@ -625,7 +625,7 @@ local function load_example_list(module)
     while true do
       i = i + 1
       local testfile = lspath('test/'..m..'.ex'..i..'.lua')
-      local f, err = io.open( testfile, 'rb' )
+      local f, err = io.open( testfile, 'r' )
       if not f or err then break end
       f:close()
       result[1+#result] = testfile
@@ -647,7 +647,7 @@ local function tapfail(line, inf)
 end
 
 local function tapvalid(path)
-  local f, err = io.open( path, 'rb' )
+  local f, err = io.open( path, 'r' )
   if not f or err then error() end
   local last
   while true do
