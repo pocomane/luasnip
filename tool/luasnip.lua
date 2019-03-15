@@ -3401,16 +3401,16 @@ local function create_core_parser( match_handler )
     whitespace =   PAT'[ \t\n\r]*',
 
     identifier =   SEQ{ REF'whitespace', PAT'[a-zA-Z]+[%-_0-9a-zA-Z]*', },
-    verbatim =     SEQ{ REF'whitespace', PAT"'[^'][^']-'", },
+    pattern =      SEQ{ REF'whitespace', PAT"'[^'][^']-'", },
     empty =        SEQ{ REF'whitespace', PAT'~', },
     subexpr =      SEQ{ REF'whitespace', PAT'%(', REF'alternation', REF'whitespace', PAT'%)', },
 
-    primary =      ALT{ REF'identifier', REF'verbatim', REF'empty', REF'subexpr', NOT( PAT'<%-' ), },
+    primary =      ALT{  REF'subexpr', REF'pattern', REF'empty', REF'identifier', NOT( PAT'<%-' ), }, -- TODO : !<- should be in a sequence
 
-    prefix =       SEQ{ REF'whitespace', PAT'[&!]?', REF'primary', },
-    suffix =       SEQ{ REF'prefix', REF'whitespace', PAT'[*+?]?', },
+    suffix =       SEQ{ REF'primary', REF'whitespace', PAT'[*+?]?', },
+    prefix =       SEQ{ REF'whitespace', PAT'[&!]?', REF'suffix', },
 
-    sequence =     SEQ{ REF'suffix',   ZER( SEQ{ REF'whitespace', PAT',', REF'sequence', }), },
+    sequence =     SEQ{ REF'prefix',   ZER( SEQ{ REF'whitespace', PAT',', REF'sequence', }), },
     alternation =  SEQ{ REF'sequence', ZER( SEQ{ REF'whitespace', PAT'/', REF'alternation', }), },
 
     rule =         SEQ{ REF'identifier', REF'whitespace', PAT'<%-', REF'alternation', REF'whitespace', },
@@ -3426,7 +3426,7 @@ local function create_compiler( match_handler )
 
   local T = {} -- sub-transformer
 
-  function  T.verbatim( x )
+  function  T.pattern( x )
     x = x[2][1]:sub( 2, -2 ):gsub( '\\%x%x', function( h )
       return string.char(tonumber( h:sub( 2 ), 16 ))
     end)

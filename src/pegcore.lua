@@ -63,15 +63,17 @@ some other parser and operation are defined in 'pegcore' to make easier to write
 
 Actuallym the grammar of 'grammarStr' is more flexible of the one described till now. For example you can use spaces and newlines to format it. The whole grammar, written itself with PEG, is the following:
 
-(THERE ARE SOME DIFFERENCES !!! -- TODO : WRITE HERE THE REAL ONE !!!):
-  grammar <- (nonterminal ’<-’ sp pattern)+
-  pattern <- alternative (’/’ sp alternative)*
-  alternative <- ([!&]? sp suffix)+
-  suffix <- primary ([*+?] sp)*
-  primary <- ’(’ sp pattern ’)’ sp / ’.’ sp / literal / charclass / nonterminal !’<-’
-  literal <- [’] (![’] .)* [’] sp
-  charclass <- ’[’ (!’]’ (. ’-’ . / .))* ’]’ sp
-  nonterminal <- [a-zA-Z]+ sp
+toplevel <- rule*
+rule <- identifier, ws, ’<-’, alternation, ws
+alternation <- sequence, (ws, ’/’, sequence)*
+sequence <- (ws, '[!&]'?, suffix)+
+suffix <- primary, ws, '[*+?]'
+primary <- subexpr / pattern / empty / (identifier, !’<-’)
+subexpr <- ws, ’(’, alternation, ws, ’)’
+pattern <- ws, '%\27', '[^\27][^\27]-', '%\27'
+empty <- ws, '~'
+identifier <- ws, '[a-zA-Z]'+, '[%%-_0-9a-zA-Z]'*
+ws <- '[ \0D\10\09]'
 
 It follows a description of the other arguments and parameters used with 'pegcore' and 'parserFunc'.
 
@@ -219,16 +221,16 @@ local function create_core_parser( match_handler )
     whitespace =   PAT'[ \t\n\r]*',
 
     identifier =   SEQ{ REF'whitespace', PAT'[a-zA-Z]+[%-_0-9a-zA-Z]*', },
-    verbatim =     SEQ{ REF'whitespace', PAT"'[^'][^']-'", },
+    pattern =      SEQ{ REF'whitespace', PAT"'[^'][^']-'", },
     empty =        SEQ{ REF'whitespace', PAT'~', },
     subexpr =      SEQ{ REF'whitespace', PAT'%(', REF'alternation', REF'whitespace', PAT'%)', },
 
-    primary =      ALT{ REF'identifier', REF'verbatim', REF'empty', REF'subexpr', NOT( PAT'<%-' ), },
+    primary =      ALT{  REF'subexpr', REF'pattern', REF'empty', REF'identifier', NOT( PAT'<%-' ), }, -- TODO : !<- should be in a sequence
 
-    prefix =       SEQ{ REF'whitespace', PAT'[&!]?', REF'primary', },
-    suffix =       SEQ{ REF'prefix', REF'whitespace', PAT'[*+?]?', },
+    suffix =       SEQ{ REF'primary', REF'whitespace', PAT'[*+?]?', },
+    prefix =       SEQ{ REF'whitespace', PAT'[&!]?', REF'suffix', },
 
-    sequence =     SEQ{ REF'suffix',   ZER( SEQ{ REF'whitespace', PAT',', REF'sequence', }), },
+    sequence =     SEQ{ REF'prefix',   ZER( SEQ{ REF'whitespace', PAT',', REF'sequence', }), },
     alternation =  SEQ{ REF'sequence', ZER( SEQ{ REF'whitespace', PAT'/', REF'alternation', }), },
 
     rule =         SEQ{ REF'identifier', REF'whitespace', PAT'<%-', REF'alternation', REF'whitespace', },
@@ -244,7 +246,7 @@ local function create_compiler( match_handler )
 
   local T = {} -- sub-transformer
 
-  function  T.verbatim( x )
+  function  T.pattern( x )
     x = x[2][1]:sub( 2, -2 ):gsub( '\\%x%x', function( h )
       return string.char(tonumber( h:sub( 2 ), 16 ))
     end)

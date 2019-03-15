@@ -90,6 +90,10 @@ t( chca( "toplevel<-'a'/'b'+", "bb" ), { true, true, '' },   t.deepsame )
 t( chca( "toplevel<-!'a'/'a'", "a" ),        { true, true, '' },     t.deepsame )
 t( chca( "a<-'a'/'a'   toplevel<-!a", "a" ), { true, false, 'a' },   t.deepsame )
 
+-- + precedence over !
+t( chca( "toplevel<-!'a'+", "bb" ), { true, true,  'bb' }, t.deepsame )
+t( chca( "toplevel<-!'a'+", "aa" ), { true, false, 'aa' }, t.deepsame )
+
 -- ~ precedence over /
 t( chca( "toplevel<-'a'/~", "a" ), { true, true, '' },  t.deepsame )
 t( chca( "toplevel<-'a'/~", "" ),  { true, true, '' },  t.deepsame )

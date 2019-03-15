@@ -6050,7 +6050,6 @@ Return to <<reference_rendez_vous,Module index>>
 THIS IS A DRAFT ! -- TODO : CLEAN UP !
 
 -- TODO : ADD comment in grammar ?
--- TODO : ADD lua pattern in grammar ?
 
 [source,lua]
 ----
@@ -6063,12 +6062,13 @@ This module let you to write parser though PEG.
 A parser is a 'parserFunc' function that works on the 'inputStr' string and returns
 nil if the string does not match a specific pattern. If it does, the parser returns the 'sizeInt' number. It represents the size of a substring starting at beginning of 'inputStr'. This substring does match the pattern.
 
-The 'grammarStr' string describes the parser and so the pattern that it try to
-match. The basic patter that this string can describe are like "
-toplevel<-'\XX' " where XX are two hex digits. These parsers returns 1 if the
-first character of the 'inputStr' is exactly the character represented by the
-XX number. If the characxeter is not ' and \, it can be used directly, e.g. ' '
-is the same of '\20'.  
+The 'grammarStr' string describes the parser and so the pattern that it try
+to match. The basic patter that this string can describe are like "
+toplevel<-'%\XX' " where XX are two hex digits. These parsers returns 1 if
+the first character of the 'inputStr' is exactly the character represented by
+the XX number. If the characeter is not ' and \, it can be used directly,
+e.g. ' ' is the same of '\20'. The ' and \ can be matched with '%\27' and
+'%\5C'.
 
 All the other parser can be obtained by the previous one, using four
 composition mechanisms.
@@ -6089,9 +6089,12 @@ terminal MUST be defined, otherwise 'pegcore' will return nil.
 Every parser can be composed from the basic ones, using the prevous operation. However
 some other parser and operation are defined in 'pegcore' to make easier to write grammars.
 - Basic parser sequence - ...
-- Lua pattern parser - ... -- TODO : IMPLEMENT !!!
-- Any char -- ...
-- Empty " toplevel<-~ " - it always match, and always returns 0 (empty substring). It can be sintesized as (!'a')/(!!'a'). [1]
+- Lua pattern parser - Anything in a between two ' is interepreted as a lua
+  pattern (after the \XX sequence expansion). ... . This can be used instead of
+  common PEG extensions, e.g. the any character parser '.' or the character
+  sets like '[a-zA-Z]'. ...
+- Empty " toplevel<-~ " - it always match, and always returns 0 (empty
+  substring). It can be sintesized as (!'a')/(!!'a'). [1]
 - Optional - ...
 - Zero or more - ...
 - One or more - ...
@@ -6105,7 +6108,17 @@ some other parser and operation are defined in 'pegcore' to make easier to write
 
 Actuallym the grammar of 'grammarStr' is more flexible of the one described till now. For example you can use spaces and newlines to format it. The whole grammar, written itself with PEG, is the following:
 
--- TODO : ADD THE GRAMMAR !!!!
+toplevel <- rule*
+rule <- identifier, ws, ’<-’, alternation, ws
+alternation <- sequence, (ws, ’/’, sequence)*
+sequence <- (ws, '[!&]'?, suffix)+
+suffix <- primary, ws, '[*+?]'
+primary <- subexpr / pattern / empty / (identifier, !’<-’)
+subexpr <- ws, ’(’, alternation, ws, ’)’
+pattern <- ws, '%\27', '[^\27][^\27]-', '%\27'
+empty <- ws, '~'
+identifier <- ws, '[a-zA-Z]'+, '[%%-_0-9a-zA-Z]'*
+ws <- '[ \0D\10\09]'
 
 It follows a description of the other arguments and parameters used with 'pegcore' and 'parserFunc'.
 
@@ -6255,16 +6268,16 @@ local function create_core_parser( match_handler )
     whitespace =   PAT'[ \t\n\r]*',
 
     identifier =   SEQ{ REF'whitespace', PAT'[a-zA-Z]+[%-_0-9a-zA-Z]*', },
-    verbatim =     SEQ{ REF'whitespace', PAT"'[^'][^']-'", },
+    pattern =      SEQ{ REF'whitespace', PAT"'[^'][^']-'", },
     empty =        SEQ{ REF'whitespace', PAT'~', },
     subexpr =      SEQ{ REF'whitespace', PAT'%(', REF'alternation', REF'whitespace', PAT'%)', },
 
-    primary =      ALT{ REF'identifier', REF'verbatim', REF'empty', REF'subexpr', NOT( PAT'<%-' ), },
+    primary =      ALT{  REF'subexpr', REF'pattern', REF'empty', REF'identifier', NOT( PAT'<%-' ), }, -- TODO : !<- should be in a sequence
 
-    prefix =       SEQ{ REF'whitespace', PAT'[&!]?', REF'primary', },
-    suffix =       SEQ{ REF'prefix', REF'whitespace', PAT'[*+?]?', },
+    suffix =       SEQ{ REF'primary', REF'whitespace', PAT'[*+?]?', },
+    prefix =       SEQ{ REF'whitespace', PAT'[&!]?', REF'suffix', },
 
-    sequence =     SEQ{ REF'suffix',   ZER( SEQ{ REF'whitespace', PAT',', REF'sequence', }), },
+    sequence =     SEQ{ REF'prefix',   ZER( SEQ{ REF'whitespace', PAT',', REF'sequence', }), },
     alternation =  SEQ{ REF'sequence', ZER( SEQ{ REF'whitespace', PAT'/', REF'alternation', }), },
 
     rule =         SEQ{ REF'identifier', REF'whitespace', PAT'<%-', REF'alternation', REF'whitespace', },
@@ -6280,7 +6293,7 @@ local function create_compiler( match_handler )
 
   local T = {} -- sub-transformer
 
-  function  T.verbatim( x )
+  function  T.pattern( x )
     x = x[2][1]:sub( 2, -2 ):gsub( '\\%x%x', function( h )
       return string.char(tonumber( h:sub( 2 ), 16 ))
     end)
