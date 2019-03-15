@@ -28,7 +28,11 @@ t( chca( "toplevel<-'u'", "uu" ),  { true, true, 'u' },    t.deepsame )
 t( chca( "toplevel<-'u'", "" ),    { true, false, '' },    t.deepsame )
 
 t( chca("toplevel<-'xyzzzz'", "xyzzzz"),  { true,true,'' }, t.deepsame)
-t( chca([[toplevel<-'x\20y']], "x\x20y"), { true,true,'' }, t.deepsame)
+t( chca([[toplevel<-'%%']], "%"), { true,true,'' }, t.deepsame)
+t( chca([[toplevel<-'%%']], "a"), { true,false,'a' }, t.deepsame)
+t( chca([[toplevel<-'.']], "a"), { true,true,'' }, t.deepsame)
+t( chca([[toplevel<-'.']], "b"), { true,true,'' }, t.deepsame)
+t( chca([[toplevel<-'x%\5C20y']], "x\\20y"), { true,true,'' }, t.deepsame)
 
 t( chca( "arule<-'u'   toplevel<-arule", "u" ), { true, true, '' }, t.deepsame)
 t( chca( "toplevel<-arule   arule<-'u'", "u" ), { true, true, '' }, t.deepsame)

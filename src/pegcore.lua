@@ -5,7 +5,6 @@
 THIS IS A DRAFT ! -- TODO : CLEAN UP !
 
 -- TODO : ADD comment in grammar ?
--- TODO : ADD lua pattern in grammar ?
 
 [source,lua]
 ----
@@ -18,12 +17,13 @@ This module let you to write parser though PEG.
 A parser is a 'parserFunc' function that works on the 'inputStr' string and returns
 nil if the string does not match a specific pattern. If it does, the parser returns the 'sizeInt' number. It represents the size of a substring starting at beginning of 'inputStr'. This substring does match the pattern.
 
-The 'grammarStr' string describes the parser and so the pattern that it try to
-match. The basic patter that this string can describe are like "
-toplevel<-'\XX' " where XX are two hex digits. These parsers returns 1 if the
-first character of the 'inputStr' is exactly the character represented by the
-XX number. If the characxeter is not ' and \, it can be used directly, e.g. ' '
-is the same of '\20'.  
+The 'grammarStr' string describes the parser and so the pattern that it try
+to match. The basic patter that this string can describe are like "
+toplevel<-'%\XX' " where XX are two hex digits. These parsers returns 1 if
+the first character of the 'inputStr' is exactly the character represented by
+the XX number. If the characeter is not ' and \, it can be used directly,
+e.g. ' ' is the same of '\20'. The ' and \ can be matched with '%\27' and
+'%\5C'.
 
 All the other parser can be obtained by the previous one, using four
 composition mechanisms.
@@ -44,9 +44,12 @@ terminal MUST be defined, otherwise 'pegcore' will return nil.
 Every parser can be composed from the basic ones, using the prevous operation. However
 some other parser and operation are defined in 'pegcore' to make easier to write grammars.
 - Basic parser sequence - ...
-- Lua pattern parser - ... -- TODO : IMPLEMENT !!!
-- Any char -- ...
-- Empty " toplevel<-~ " - it always match, and always returns 0 (empty substring). It can be sintesized as (!'a')/(!!'a'). [1]
+- Lua pattern parser - Anything in a between two ' is interepreted as a lua
+  pattern (after the \XX sequence expansion). ... . This can be used instead of
+  common PEG extensions, e.g. the any character parser '.' or the character
+  sets like '[a-zA-Z]'. ...
+- Empty " toplevel<-~ " - it always match, and always returns 0 (empty
+  substring). It can be sintesized as (!'a')/(!!'a'). [1]
 - Optional - ...
 - Zero or more - ...
 - One or more - ...
