@@ -3400,12 +3400,12 @@ local function create_core_parser( match_handler )
   rules = {
     whitespace =   PAT'[ \t\n\r]*',
 
-    identifier =   SEQ{ REF'whitespace', PAT'[a-zA-Z]+[%-_0-9a-zA-Z]*', },
-    pattern =      SEQ{ REF'whitespace', PAT"'[^'][^']-'", },
+    identifier =   SEQ{ REF'whitespace', PAT'[a-zA-Z][_0-9a-zA-Z]*', },
+    pattern =      SEQ{ REF'whitespace', PAT"'[^']*'", },
     empty =        SEQ{ REF'whitespace', PAT'~', },
-    subexpr =      SEQ{ REF'whitespace', PAT'%(', REF'alternation', REF'whitespace', PAT'%)', },
+    expression =   SEQ{ REF'whitespace', PAT'%(', REF'alternation', REF'whitespace', PAT'%)', },
 
-    primary =      ALT{  REF'subexpr', REF'pattern', REF'empty', REF'identifier', NOT( PAT'<%-' ), }, -- TODO : !<- should be in a sequence
+    primary =      ALT{  REF'expression', REF'pattern', REF'empty', REF'identifier', NOT( PAT'<%-' ), }, -- TODO : !<- should be in a sequence
 
     suffix =       SEQ{ REF'primary', REF'whitespace', PAT'[*+?]?', },
     prefix =       SEQ{ REF'whitespace', PAT'[&!]?', REF'suffix', },
@@ -3467,7 +3467,7 @@ local function create_compiler( match_handler )
     end
   end
   function T.empty(x)        return peg_empty() end
-  function T.subexpr(x)      return x[3].func end
+  function T.expression(x)   return x[3].func end
 
   -- TODO : add somehow the automatic fallback ??!
   T.primary = T.peg_alternation

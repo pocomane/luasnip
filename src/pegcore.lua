@@ -64,15 +64,15 @@ some other parser and operation are defined in 'pegcore' to make easier to write
 Actuallym the grammar of 'grammarStr' is more flexible of the one described till now. For example you can use spaces and newlines to format it. The whole grammar, written itself with PEG, is the following:
 
 toplevel <- rule*
-rule <- identifier, ws, ’<-’, alternation, ws
-alternation <- sequence, (ws, ’/’, sequence)*
+rule <- identifier, ws, '<-', alternation, ws
+alternation <- sequence, (ws, '/', sequence)*
 sequence <- (ws, '[!&]'?, suffix)+
 suffix <- primary, ws, '[*+?]'
-primary <- subexpr / pattern / empty / (identifier, !’<-’)
-subexpr <- ws, ’(’, alternation, ws, ’)’
-pattern <- ws, '%\27', '[^\27][^\27]-', '%\27'
+primary <- expression / pattern / empty / (identifier, !'<-')
+expression <- ws, '(', alternation, ws, ')'
+pattern <- ws, '%\27', (!'%\27', '.')*, '%\27'
 empty <- ws, '~'
-identifier <- ws, '[a-zA-Z]'+, '[%%-_0-9a-zA-Z]'*
+identifier <- ws, '[a-zA-Z]', '[_0-9a-zA-Z]'+
 ws <- '[ \0D\10\09]'
 
 It follows a description of the other arguments and parameters used with 'pegcore' and 'parserFunc'.
@@ -220,12 +220,12 @@ local function create_core_parser( match_handler )
   rules = {
     whitespace =   PAT'[ \t\n\r]*',
 
-    identifier =   SEQ{ REF'whitespace', PAT'[a-zA-Z]+[%-_0-9a-zA-Z]*', },
-    pattern =      SEQ{ REF'whitespace', PAT"'[^'][^']-'", },
+    identifier =   SEQ{ REF'whitespace', PAT'[a-zA-Z][_0-9a-zA-Z]*', },
+    pattern =      SEQ{ REF'whitespace', PAT"'[^']*'", },
     empty =        SEQ{ REF'whitespace', PAT'~', },
-    subexpr =      SEQ{ REF'whitespace', PAT'%(', REF'alternation', REF'whitespace', PAT'%)', },
+    expression =   SEQ{ REF'whitespace', PAT'%(', REF'alternation', REF'whitespace', PAT'%)', },
 
-    primary =      ALT{  REF'subexpr', REF'pattern', REF'empty', REF'identifier', NOT( PAT'<%-' ), }, -- TODO : !<- should be in a sequence
+    primary =      ALT{  REF'expression', REF'pattern', REF'empty', REF'identifier', NOT( PAT'<%-' ), }, -- TODO : !<- should be in a sequence
 
     suffix =       SEQ{ REF'primary', REF'whitespace', PAT'[*+?]?', },
     prefix =       SEQ{ REF'whitespace', PAT'[&!]?', REF'suffix', },
@@ -287,7 +287,7 @@ local function create_compiler( match_handler )
     end
   end
   function T.empty(x)        return peg_empty() end
-  function T.subexpr(x)      return x[3].func end
+  function T.expression(x)   return x[3].func end
 
   -- TODO : add somehow the automatic fallback ??!
   T.primary = T.peg_alternation
