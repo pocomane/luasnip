@@ -102,7 +102,7 @@ local function peg_pattern_matcher( pattern )
   result = function( DATA, CURR )
     CURR = CURR or 1
     local d = DATA:sub( CURR )
-    local ast = {tag='peg_pattern', d:match( pattern )}
+    local ast = { d:match( pattern ) }
     if #ast == 0 then
       return nil, nil
     end
@@ -124,7 +124,7 @@ local function peg_alternation( alternatives )
     for p = 1, np do
       local X, r = alternatives[p]( DATA, CURR )
       if nil ~= r then
-        r = { r, selected = p, tag = 'peg_alternation'}
+        r = { r, selected = p }
         return X, r
       end
     end
@@ -137,7 +137,7 @@ local function peg_sequence( sequence )
   for p = 1, np do local P = sequence[p] end
   return function( DATA, CURR )
     CURR = CURR or 1
-    local OLD, ast = CURR, {tag='peg_sequence'}
+    local OLD, ast = CURR, {}
     for p = 1, np do
       local X, r = sequence[p]( DATA, CURR )
       if nil == r then
@@ -152,7 +152,7 @@ end
 
 local function peg_not( child_parser )
   return function( DATA, CURR )
-    local ast = { tag = 'peg_not' }
+    local ast = {}
     local X, r = child_parser( DATA, CURR )
     if nil == r then
       return 0, ast
@@ -163,7 +163,7 @@ end
 
 local function peg_empty( )
   return function( DATA, CURR )
-    local ast = { tag = 'peg_empty' }
+    local ast = {}
     return 0, ast
   end
 end
@@ -197,7 +197,7 @@ local function peg_zero_or_more( child_parser )
 --   return rec
   return function( DATA, CURR )
     CURR = CURR or 1
-    local OLD, ast = CURR, { tag = 'peg_zero_or_more' }
+    local OLD, ast = CURR, {}
     while true do
       local X, r = child_parser( DATA, CURR )
       if nil == r then break end
@@ -254,7 +254,6 @@ local function create_compiler( match_handler )
   end
 
   function T.identifier(x)   return REF( x[2][1] ) end
-  function T.peg_alternation(x)   return x[1].func end
   function T.sequence(x)
     if 0 == #(x[2]) then return x[1].func end
     local seq = {x[1].func}
@@ -289,8 +288,7 @@ local function create_compiler( match_handler )
   function T.empty(x)        return peg_empty() end
   function T.expression(x)   return x[3].func end
 
-  -- TODO : add somehow the automatic fallback ??!
-  T.primary = T.peg_alternation
+  function T.primary(x)   return x[1].func end
   
   function T.rule( x )
     local tag = x[1][2][1]
