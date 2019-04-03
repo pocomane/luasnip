@@ -437,6 +437,18 @@ local function generate_documentation(ent)
   end
 end
 
+local function fix_embed(ent)
+  -- quick fix. find a general solution?
+  -- When linked in the playground.html, the first line is
+  -- merged to the tagline in playground.html. So the first line
+  -- is commented out.
+  if ent.name == 'luasnip_embed' then
+    local n = #(ent.content_pieces)
+    ent.content_pieces[1] = '\n' .. ent.content_pieces[1]
+    ent.content_pieces[n] = ent.content_pieces[n] .. '\n'
+  end
+end
+
 local function snippet_link(ent)
   if not ent.content_pieces then return end
   local linked = {}
@@ -580,6 +592,7 @@ local function generate_main()
   apply(generate_collection)
   apply(generate_section_link)
   apply(generate_documentation)
+  apply(fix_embed)
   apply(snippet_link)
   apply(merge_content_pieces)
   apply(generate_amalgamation)
