@@ -40,6 +40,15 @@
         fengari.load(luacode ,"init.lua")();
       }
 
+      function get_url_data(){
+        var href = document.location.href;
+        var n = href.indexOf('?');
+        if (n>0) {
+          return href.substring(n+1, href.length);
+        }
+        return "";
+      }
+
       function init(){
         prepare_lua_output();
 
@@ -47,6 +56,16 @@
         fengari.load(L)();
 
         var exscr = document.getElementById("startup_code").innerHTML;
+
+        var urldata = get_url_data();
+        if (urldata != "") {
+          try {
+            exscr = atob(urldata);
+          } catch (x) {
+            console.log("using default code in the editor")
+            console.log(x)
+          }
+        }
 
         var editor = ace.edit("editor");
         editor.session.setMode("ace/mode/lua");
@@ -107,6 +126,23 @@
         a.click();
       }
 
+      function get_const_url(){
+        var href = document.location.href;
+        var n = href.indexOf('?');
+        if (n>0) {
+          return href.substring(0,n);
+        }
+        return href;
+      }
+
+      function generatelink(){
+        var d = ace.edit("editor").getValue();
+        append_output("\nthe following link should automatically load the current code:\n");
+        append_output(get_const_url()+'?');
+        append_output(btoa(d));
+        append_output("\n");
+      }
+
     </script>
 </head>
 <body onload="init()" style="overflow:hidden;margin:0;padding:0" >
@@ -126,6 +162,7 @@
       <button id="loadbutton" onclick="document.getElementById('loadfile').click()" >Load</button>
       <a id="savelink" style="width:0;height:0" download="script.lua" ></a>
       <button id="savebutton" onclick="savefile()" >Save</button>
+      <button id="genlink" onclick="generatelink()" >Script link</button>
 
     </div>
   </div>
