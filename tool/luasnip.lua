@@ -3276,6 +3276,8 @@ end)()
 pegcore = (function()
 
 
+-- TODO : CLEAN UP ! -- THIS IS A DRAFT ! -- 
+
 local function peg_pattern_matcher( pattern )
   -- TODO : memo ?
   pattern = '^(' .. pattern .. ')'
@@ -3359,7 +3361,10 @@ local function peg_non_terminal( match_handler, grammar, rule )
     end
     local a,b = p( data, curr )
     if b then b.tag = rule end
-    if b and match_handler then b = match_handler( b ) end
+    if b and match_handler then
+      b = match_handler( b )
+      -- TODO : do not match if b == nil !!?
+    end
     return a,b
   end
 end
@@ -3489,9 +3494,7 @@ local function create_compiler( match_handler )
 end
 
 local function pegcore( peg_rules, rule_handler )
-  -- NOTE : here the compiler is implemente as a matching-time handler. For the
-  -- user defined languages, it could be more efficicient to operate on the
-  -- final abstract-tree instead.
+  -- NOTE : here the compiler is implemente as a matching-time handler.
   local compiler_callback = create_compiler( rule_handler )
   local meta_parser = create_core_parser( compiler_callback )
   return meta_parser( peg_rules, 1 )
