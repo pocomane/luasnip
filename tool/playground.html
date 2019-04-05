@@ -6,39 +6,9 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <script src='ace.js' type="text/javascript"></script>
-    <script src="fengari-web.js" type="text/javascript"></script>
+    <script src='editor-ace.js' type="text/javascript"></script>
+    <script src='walua.js' type="text/javascript"></script>
     <script type="text/javascript">
-
-      function get_lua_output() {
-        if (window.LUA_OUTPUT === undefined) {
-          window.LUA_OUTPUT = "";
-        }
-        var result = window.LUA_OUTPUT;
-        window.LUA_OUTPUT = "";
-        return result;
-      }
-
-      function prepare_lua_output() {
-        get_lua_output();
-        var luacode = "\
-          io={} \
-          function io.write(...) \
-            local win = require'js'.global \
-            for i,a in ipairs({...}) do \
-              win.LUA_OUTPUT=win.LUA_OUTPUT..tostring(a) \
-            end \
-          end \
-          function print(...) \
-            for i,a in ipairs({...}) do \
-              if i~=1 then io.write(' ') end \
-              io.write(tostring(a)) \
-            end \
-            io.write('\\n') \
-          end \
-        ";
-        fengari.load(luacode ,"init.lua")();
-      }
 
       function get_url_data(){
         var href = document.location.href;
@@ -49,11 +19,46 @@
         return "";
       }
 
-      function init(){
-        prepare_lua_output();
+     var Module;
+     function WaLuaSet(m){
+        Module = m;
+        Module.print = function() {
+          if (arguments.length > 0) {
+            text = Array.prototype.slice.call(arguments).join(' ');
+            append_output(text);
+          }
+          append_output("\n");
+        };
+        Module.printErr = function() {
+          if (arguments.length > 0) {
+            text = Array.prototype.slice.call(arguments).join(' ');
+            append_output(text);
+          }
+          append_output("\n");
+        }
+      }
 
-        var L = document.getElementById("luasnip_source").innerHTML;
-        fengari.load(L)();
+      function clear_output(){
+        document.getElementById("output").innerHTML = "";
+      }
+
+      function append_output(msg){
+        var o = document.getElementById("output");
+        o.innerHTML = o.innerHTML + msg;
+        if (msg != "\n") {
+          console.log(msg)
+        }
+      }
+
+      function append_error(msg){
+        var o = document.getElementById("output");
+        o.innerHTML = o.innerHTML + msg;
+        if (msg != "\n") {
+          console.log(msg)
+        }
+      }
+
+      function init(){
 
         var exscr = document.getElementById("startup_code").innerHTML;
 
@@ -75,18 +80,17 @@
           // fix to some issue of ACE editor with user resizing...
           editor.resize();
         }
+
+        WaLua().then(function(){
+          var L = document.getElementById("lua_global").innerHTML;
+          //fengari.load(L)();
+          clear_output();
+          append_output("Output\n");
+          Module.ccall("run_lua", 'number', ['string'], [L]);
+        });
       }
 
-      function clear_output(){
-        document.getElementById("output").innerHTML = "";
-      }
-      
-      function append_output(msg){
-        var o = document.getElementById("output");
-        o.innerHTML = o.innerHTML + msg;
-      }
-
-      function run(){
+      function run_editor_code(){
 
         if (document.getElementById("appendoutput").checked === false) {
           clear_output();
@@ -97,13 +101,13 @@
    
         var e = false;
         try {
-          fengari.load(scr, "achunk")();
+          //fengari.load(scr, "achunk")();
+          Module.ccall("run_lua", 'number', ['string'], [scr]);
         } catch (err) {
           e = String(err) + "\n";
-          console.error(e);
+          append_error(e);
         }
 
-        append_output(get_lua_output());
         if (e) { append_output(e); }
       }
 
@@ -156,7 +160,7 @@
     </div>
     <div id="middlemenu" style="flex:0 0 auto" >
 
-      <button type="button" onclick="run()" >Run</button>
+      <button type="button" onclick="run_editor_code()" >Run</button>
       <input type="checkbox" id="appendoutput" checked=true >Append to the output</input>
       <input type="file" id="loadfile" onchange="loadfile()" style="width:0;height:0" ></input>
       <button id="loadbutton" onclick="document.getElementById('loadfile').click()" >Load</button>
@@ -174,26 +178,31 @@
 </div>
 
 <script id="startup_code" type="text/verbatim">
-local header = [[ 
+
+print [[
   This is a playground designed to try LuaSnip
-  - https://github.com/pocomane/luasnip/blob/master/documentation.adoc.
+  - https://github.com/pocomane/luasnip/blob/master/documentation.adoc
 
-  It runs the lua code fully in-browser, thanks to Fengari
-  - https://github.com/fengari-lua/fengari.
+  It uses the official lua VM
+  - https://lua.org
 
-  It has a nice code editor, thanks to ACE
-  - https://ace.c9.io.
+  It runs fully in-browser thanks to web assembly and Emscripten
+  - https://webassembly.org
+  - https://emscripten.org
+  - https://github.com/pocomane/walua
+
+  It has a nice code editor thanks to ACE
+  - https://ace.c9.io
 ]]
 
-io.write(header, '\n')
+print(math.random())
 print(luasnip.subbytebase(6,luasnip.sha2'Hello World!'))
-print(math.random(), require'js'.global)
 
 </script>
 
-<script id="luasnip_source" type="text/verbatim">
-local function lsnf() return 'luasnip NOT LOADED !' end
-luasnip = {subbytebase=lsnf, sha2=lsnf}
+<script id="lua_global" type="text/verbatim">
+
+-- This is executed when the page is loaded
 
 luasnip=(function()
 -- [SNIP:luasnip_embed[
