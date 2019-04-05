@@ -13,7 +13,7 @@ For a deeper introduction, implementation details and modules reference, you
 can continue [here](documentation.adoc).
 
 If you would like to try LuaSnip, there is the online, client-side
-[Playground](https://rawgit.com/pocomane/luasnip/master/tool/playground.html)
+[Playground](https://raw.githack.com/pocomane/luasnip/master/tool/playground.html)
 
 LuaSnip is strongly ispired by [Lua Zero Dependency
 Functions](https://github.com/aiq/luazdf).
