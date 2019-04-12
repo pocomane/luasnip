@@ -53,8 +53,8 @@ local function dispatcher( a, b, c )
   return setmetatable({},{
     __newindex = write,
     __index = read,
-    __pairs = read,
-    __ipairs = read,
+    __pairs = read, -- wrong when 'hide' ?!!!
+    __ipairs = read, -- wrong when 'hide' ?!!!
   })
 end
 
@@ -134,6 +134,43 @@ local function tableclear( ... )
     end
   end
 end
+
+-----------------------------------------------------------
+
+local except
+do
+  local cocreate, costatus = coroutine.create, coroutine.status
+  local coresume, coyield = coroutine.resume, coroutine.yield
+
+  local EXCEPTION = {}
+
+  local function trow(...)
+      return coyield(EXCEPTION, ...)
+  end
+
+  local function try(f,h)
+    local t = cocreate(f)
+    return (function(ok, ex, ...)
+      if not ok then error(ex, ...) end
+      if ex == EXCEPTION then
+          return h(...)
+      else
+        -- handle normal yielding from/to a coroutine
+        if costatus(t) == 'suspended' then
+          return coresume(coyield(ex, ...))
+        end
+        return ok, ex, ...
+      end
+    end)(coresume(t))
+  end
+
+  except = {
+    try = try,
+    trow = trow,
+  }
+end
+
+new_module_scratch.except = except
 
 ----------------------------------------------------------
 

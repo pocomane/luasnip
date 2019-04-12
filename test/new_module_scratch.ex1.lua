@@ -141,6 +141,28 @@ local tableclear = new_module_scratch.tableclear
 -- TODO : test ??
 
 --------------------------------------------------------------------------
+
+t('EXCEPT START')
+
+local except = new_module_scratch.except
+
+local result = {}
+
+except.try(function()
+  result[1+#result] = 'a'
+  except.trow(1)
+  result[1+#result] = 'WRONG'
+end, function(x)
+  result[1+#result] = 'b'
+  result[1+#result] = x
+  result[1+#result] = 'c'
+end)
+
+t( result, {'a','b',1,'c'}, t.deepsame )
+
+t('EXCEPT END')
+
+--------------------------------------------------------------------------
 -- TODO : delete !!! just some benchmarks !!! vvvvvvvvvvvvvvvvvvvvvvvvvvvv
 local do_banchmark = false if do_banchmark then
 
