@@ -163,6 +163,22 @@ t( result, {'a','b',1,'c'}, t.deepsame )
 t('EXCEPT END')
 
 --------------------------------------------------------------------------
+
+local tempnest = new_module_scratch.tempnest
+
+t( tempnest[[ print( @{"1"..'@{"2"}'.."3"} ) ]], [[ print( 123 ) ]])
+t( tempnest[[ print( "@{{for @{"i".."i"}=1,3 do}}@{ii}@{{end}}" ) ]], [[ print( "123" ) ]])
+
+--------------------------------------------------------------------------
+
+local loadfunc = new_module_scratch.loadfunc
+
+local f = loadfunc [[ return x ]]
+
+t( f{x=1}, 1 )
+t( f{x=2}, 2 )
+
+--------------------------------------------------------------------------
 -- TODO : delete !!! just some benchmarks !!! vvvvvvvvvvvvvvvvvvvvvvvvvvvv
 local do_banchmark = false if do_banchmark then
 

@@ -15,7 +15,7 @@ Here there is some scratch for some new Luasnip module, or improvement ideas.
 ----
 local new_module_scratch = require 'new_module_scratch'
 
-assert ( nil == new_module_scratch.nothing() )
+assert ( nil == new_module_scratch.a_new_idea() )
 
 ----
 
@@ -29,59 +29,70 @@ assert ( nil == new_module_scratch.nothing() )
 ----------------------------------------------------------
 
 local new_module_scratch = {}
-function new_module_scratch.nothing() return nil end
 
-----------------------------------------------------------
-
-local function varesult( ... )
-  return select( '#', ... ), ...
-end
-
-new_module_scratch.varesult = varesult
-
-----------------------------------------------------------
-
-local function dispatcher( a, b, c )
-  local read, write
-  if a == 'hide' then
-    if b then read = function(t,k) return b[k] end end
-    if c then write = function(t,k,v) c[k]=v end end
-  else
-    read = a
-    write = b
+do
+  local function a_new_idea()
   end
-  return setmetatable({},{
-    __newindex = write,
-    __index = read,
-    __pairs = read, -- wrong when 'hide' ?!!!
-    __ipairs = read, -- wrong when 'hide' ?!!!
-  })
-end
 
-new_module_scratch.dispatcher = dispatcher
+  new_module_scratch.a_new_idea = a_new_idea
+end
 
 ----------------------------------------------------------
 
-local function method_accessor( obj )
-  local result = {}
-  for k, v in pairs( obj ) do
-    if 'function' == type( v ) then
-      result[ k ] = v
+do
+  local function varesult( ... )
+    return select( '#', ... ), ...
+  end
+
+  new_module_scratch.varesult = varesult
+end
+
+----------------------------------------------------------
+
+do
+  local function dispatcher( a, b, c )
+    local read, write
+    if a == 'hide' then
+      if b then read = function(t,k) return b[k] end end
+      if c then write = function(t,k,v) c[k]=v end end
+    else
+      read = a
+      write = b
     end
+    return setmetatable({},{
+      __newindex = write,
+      __index = read,
+      __pairs = read, -- wrong when 'hide' ?!!!
+      __ipairs = read, -- wrong when 'hide' ?!!!
+    })
   end
-  return setmetatable( result, { __index = obj, __newindex = obj, })
+
+  new_module_scratch.dispatcher = dispatcher
 end
 
-new_module_scratch.method_accessor = method_accessor
+----------------------------------------------------------
+
+do
+  local function method_accessor( obj )
+    local result = {}
+    for k, v in pairs( obj ) do
+      if 'function' == type( v ) then
+        result[ k ] = v
+      end
+    end
+    return setmetatable( result, { __index = obj, __newindex = obj, })
+  end
+
+  new_module_scratch.method_accessor = method_accessor
+end
 
 -----------------------------------------------------------
 
-local getsource
 do
 
   local cachesource = {}
 
-  function getsource( level )
+  local function getsource( level )
     if not level then level = 1 end
     local info = debug.getinfo( 1+level )
     if not info then return nil, 'Invalid level' end
@@ -107,37 +118,41 @@ do
       __newindex = function() error('xxx',2) end,
     }), info.short_src .. ':' .. info.currentline
   end
-end
 
-new_module_scratch.getsource = getsource
+  new_module_scratch.getsource = getsource
+end
 
 -----------------------------------------------------------
 
-local function tableclear( ... )
-  local a = select(1,...)
-  if a == 'meta' then
-  -- if a == 'raw' then
-    for k=2,select('#',...) do
-      local v=select(k,...)
-      for K in pairs(v) do
-        -- rawset(v,K)
-        v[K]=nil
+local tableclear
+do
+  local function tableclear( ... )
+    local a = select(1,...)
+    if a == 'meta' then
+    -- if a == 'raw' then
+      for k=2,select('#',...) do
+        local v=select(k,...)
+        for K in pairs(v) do
+          -- rawset(v,K)
+          v[K]=nil
+        end
       end
-    end
-  else
-    for k=1,select('#',...) do
-      local v=select(k,...)
-      for K in pairs(v) do
-        rawset(v,K)
-        -- v[K]=nil
+    else
+      for k=1,select('#',...) do
+        local v=select(k,...)
+        for K in pairs(v) do
+          rawset(v,K)
+          -- v[K]=nil
+        end
       end
     end
   end
+
+  new_module_scratch.tableclear = tableclear
 end
 
 -----------------------------------------------------------
 
-local except
 do
   local cocreate, costatus = coroutine.create, coroutine.status
   local coresume, coyield = coroutine.resume, coroutine.yield
@@ -164,13 +179,83 @@ do
     end)(coresume(t))
   end
 
-  except = {
+  new_module_scratch.except = {
     try = try,
     trow = trow,
   }
 end
 
-new_module_scratch.except = except
+----------------------------------------------------------
+
+do
+
+  -- templua simplification ?!!
+  local function templua( template, ename ) --> scriptString
+     if not ename then ename = '_o' end
+     local function expr(e) return ' '..ename..'('..e..')' end
+
+     local script = template:gsub( '(.-)@(%b{})([^@]*)',
+       function( prefix, code, suffix )
+          prefix = expr( string.format( '%q', prefix ) )
+          suffix = expr( string.format( '%q', suffix ) )
+          code = code:sub( 2, #code-1 )
+
+          if code:match( '^{.*}$' ) then
+             return prefix .. code:sub( 2, #code-1 ) .. suffix
+          else
+             return prefix .. expr( code ) .. suffix
+          end
+       end
+     )
+
+     return script
+  end
+
+  local function tempnest( script )
+    local stepcount = 0
+    while true do
+        local translated = templua( script )
+        if translated == script then break end
+        stepcount = stepcount + 1
+        script = translated
+    end
+    local expanded = script
+    for i = 1, stepcount do
+      local nextstep = ''
+      local env = setmetatable( {}, { __index = _ENV })
+      env._o = function(x) nextstep = nextstep .. tostring(x) end -- TODO : use ename somehow
+      local f, e = load( expanded, "expander", "t", env )
+      if e ~= nil then return nil, e end
+      local s, e = pcall(f)
+      if not s then return e end
+      expanded = nextstep
+    end
+    return expanded
+  end
+
+  new_module_scratch.tempnest = tempnest
+end
+
+----------------------------------------------------------
+
+do
+  local function loadfunc(a,b,c,...)
+    local env = {}
+    local func, err = load( a, b or 'template', c or 't', env, ...)
+    if err ~= nil then return nil, err end
+    return function( sandbox )
+        sandbox = sandbox or {}
+        local metatable = {
+            __index = sandbox,
+            __newindex == sandbox,
+        }
+        setmetatable( env , metatable )
+        return func()
+    end
+  end
+
+  new_module_scratch.loadfunc = loadfunc
+end
 
 ----------------------------------------------------------
 
