@@ -4533,23 +4533,32 @@ local function templua( template ) --> ( sandbox ) --> expstr, err
      end
    )
 
-   -- The generator must be run only if at least one @{} was found
-   local run_generator = ( script ~= template )
+   -- Special case when no template tag is found
+   if script == template then
+     return function() return script end
+   end
 
-   -- Return a function that executes the script with a custom environment
+   -- Template expander basic environmnent
+   local expstr = ''
+   local metaenv = {}
+   local env = setmetatable( {}, metaenv )
+   env[env] = function( out ) expstr = expstr..tostring(out) end
+
+   -- Compile the template expander
+   local generate, err = load( script, 'templua_script', 't', env )
+   if err ~= nil then return nil, err end
+
+   -- Return a function that runs the expander with a custom environment
    return function( sandbox )
     local ok, result = pcall(function()
-      if not run_generator then return script end
-      local expstr = ''
-      local env = {}
-      env[env] = function( out ) expstr = expstr..tostring(out) end
+      expstr = ''
       if sandbox then
-        setmetatable( env, {
-          __index = sandbox,
-          __newindex = sandbox,
-        })
+        metaenv.__index = sandbox
+        metaenv.__newindex = sandbox
+      else
+        metaenv.__index = nil
+        metaenv.__newindex = nil
       end
-      local generate, err = load( script, 'mint_script', 't', env )
       if err ~= nil then error(err) end
       generate()
       return expstr

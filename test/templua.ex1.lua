@@ -26,12 +26,10 @@ t( 'true ok', m{} )
 m = templua( "@{true} ok" )
 t( 'true ok', m{} )
 
--- The script is reported when a compile error is found
-m = templua( "@{{][}}" )
-local s, e = m{}
-t( s, nil )
-t( e, 'Template script: ', t.patsame )
-t( e, '_ENV%[_ENV%]%(""%)%]%[ _ENV%[_ENV%]%(""%)', t.patsame )
+-- Compile error is found
+local m, e = templua( "@{{][}}" )
+t( m, nil )
+t( e, 'string "templua_script"%]:1: unexpected symbol', t.patsame )
 
 -- The script is reported when a running error is found
 m = templua( "@{{undefined_function()}}" )
