@@ -4,7 +4,7 @@
 
 [source,lua]
 ----
-function templua( template [, ename] ) --> ( sandbox ) --> expstr, err
+function templua( template ) --> ( sandbox ) --> expstr, err
 ----
 
 Expand the Lua code contained in the `template` string and generates a
@@ -19,9 +19,10 @@ Will be substituted with the result of the Lua expression.
 `@{{luastm}}`::
 Embeds the Lua statement. This allow to mix Lua code and verbatim text.
 
-From the code in the statement pattern, the `_o` function can be used to
-produce the `template` output. This name can be changed using the optional
-`ename` string parameter.
+From the code in the statement pattern, the a global function can be used to
+produce the `template` output. The function is in `_ENV[_ENv]`. If you need to
+use it several times, you can consider to place on the top of the template
+somethink like '${{ O = _ENV[_ENV] }}'.
 
 The `sandbox` table is used as the  environment of the Lua code (both
 expressions and statements). This allows you to pass parameters to the
@@ -43,7 +44,7 @@ local exp = templua( "Hello @{upper(W)}!" )
 assert( exp{ W = "Anne", upper = string.upper } == "Hello ANNE!")
 assert( exp{ W = "Bob", upper = string.upper } == "Hello BOB!")
 
-assert( templua( "@{{for i=1,3 do out('Hello All! ') end}}", 'out' )({})
+assert( templua( "@{{for i=1,3 do}}Hello All! @{{end}}" )({})
   == 'Hello All! Hello All! Hello All! ' )
 ----
 
@@ -53,9 +54,8 @@ local setmetatable, load = setmetatable, load
 local fmt, tostring = string.format, tostring
 local error = error
 
-local function templua( template, ename ) --> ( sandbox ) --> expstr, err
-   if not ename then ename = '_o' end
-   local function expr(e) return ' '..ename..'('..e..')' end
+local function templua( template ) --> ( sandbox ) --> expstr, err
+   local function expr(e) return ' _ENV[_ENV]('..e..')' end
   
    -- Generate a script that expands the template
    local script = template:gsub( '(.-)@(%b{})([^@]*)',
@@ -80,9 +80,8 @@ local function templua( template, ename ) --> ( sandbox ) --> expstr, err
     local ok, result = pcall(function()
       if not run_generator then return script end
       local expstr = ''
-      local env = {
-          [ename] = function( out ) expstr = expstr..tostring(out) end,
-      }
+      local env = {}
+      env[env] = function( out ) expstr = expstr..tostring(out) end
       if sandbox then
         setmetatable( env, {
           __index = sandbox,

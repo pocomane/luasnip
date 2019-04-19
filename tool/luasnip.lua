@@ -2433,9 +2433,8 @@ local setmetatable, load = setmetatable, load
 local fmt, tostring = string.format, tostring
 local error = error
 
-local function templua( template, ename ) --> ( sandbox ) --> expstr, err
-   if not ename then ename = '_o' end
-   local function expr(e) return ' '..ename..'('..e..')' end
+local function templua( template ) --> ( sandbox ) --> expstr, err
+   local function expr(e) return ' _ENV[_ENV]('..e..')' end
   
    -- Generate a script that expands the template
    local script = template:gsub( '(.-)@(%b{})([^@]*)',
@@ -2460,9 +2459,8 @@ local function templua( template, ename ) --> ( sandbox ) --> expstr, err
     local ok, result = pcall(function()
       if not run_generator then return script end
       local expstr = ''
-      local env = {
-          [ename] = function( out ) expstr = expstr..tostring(out) end,
-      }
+      local env = {}
+      env[env] = function( out ) expstr = expstr..tostring(out) end
       if sandbox then
         setmetatable( env, {
           __index = sandbox,
