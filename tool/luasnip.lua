@@ -2431,6 +2431,7 @@ templua = (function()
 
 local setmetatable, load = setmetatable, load
 local fmt, tostring = string.format, tostring
+local error = error
 
 local function templua( template, ename ) --> ( sandbox ) --> expstr, err
    if not ename then ename = '_o' end
@@ -2456,26 +2457,27 @@ local function templua( template, ename ) --> ( sandbox ) --> expstr, err
 
    -- Return a function that executes the script with a custom environment
    return function( sandbox )
-    if not run_generator then return script end
-    local expstr = ''
-    local env = {
-        [ename] = function( out ) expstr = expstr..tostring(out) end,
-    }
-    if sandbox then
-      setmetatable( env, {
-        __index = sandbox,
-        __newindex = sandbox,
-      })
-    end
-    local generate, err = load( script, 'mint_script', 't', env )
-    if not generate or err then
-       return nil, err..'\nTemplate script: [[\n'..script..'\n]]'
-    end
-    local ok, err = pcall(generate)
-    if not ok or err then
-       return nil, err..'\nTemplate script: [[\n'..script..'\n]]'
-    end
-    return expstr
+    local ok, result = pcall(function()
+      if not run_generator then return script end
+      local expstr = ''
+      local env = {
+          [ename] = function( out ) expstr = expstr..tostring(out) end,
+      }
+      if sandbox then
+        setmetatable( env, {
+          __index = sandbox,
+          __newindex = sandbox,
+        })
+      end
+      local generate, err = load( script, 'mint_script', 't', env )
+      if err ~= nil then error(err) end
+      generate()
+      return expstr
+    end)
+    if not ok then
+       return nil, result..'\nTemplate script: [[\n'..script..'\n]]'
+     end
+    return result
   end
 end
 
