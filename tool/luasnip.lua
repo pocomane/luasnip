@@ -2462,7 +2462,7 @@ local function templua( template, ename ) --> ( sandbox ) --> expstr, err
     sandbox[ ename ] = function( out ) expstr = expstr..tostring(out) end
     local generate, err = load( script, 'mint_script', 't', sandbox )
     if not generate or err then
-        sandbox[ ename ] = oldout
+       sandbox[ ename ] = oldout
        return nil, err..'\nTemplate script: [[\n'..script..'\n]]'
     end
     local ok, err = pcall(generate)

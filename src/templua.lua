@@ -23,9 +23,9 @@ From the code in the statement pattern, the `_o` function can be used to
 produce the `template` output. This name can be changed using the optional
 `ename` string parameter.
 
-Moreover, the content of the `sandbox` table is injected into the environment
-of the Lua code (both expressions and statements). This allows you to pass
-parameters to the template.
+The `sandbox` table is used as the  environment of the Lua code (both
+expressions and statements). This allows you to pass parameters to the
+template.
 
 To escape the template sequencies, `@` can be substituded with `@{"@"}`, e.g.
 `@{"@"}{error()}` can be used to insert `@{error()}` in the document without
@@ -82,7 +82,7 @@ local function templua( template, ename ) --> ( sandbox ) --> expstr, err
     sandbox[ ename ] = function( out ) expstr = expstr..tostring(out) end
     local generate, err = load( script, 'mint_script', 't', sandbox )
     if not generate or err then
-        sandbox[ ename ] = oldout
+       sandbox[ ename ] = oldout
        return nil, err..'\nTemplate script: [[\n'..script..'\n]]'
     end
     local ok, err = pcall(generate)
