@@ -30,13 +30,16 @@ t( 'true ok', m{} )
 local m, e = templua( "@{{][}}" )
 t( m, nil )
 t( e, 'string "templua_script"%]:1: unexpected symbol', t.patsame )
+t( e, 'Template script: ', t.patsame )
+t( e, '_ENV%[_ENV%]%(""%)', t.patsame )
 
--- The script is reported when a running error is found
+-- Error while expanding
 m = templua( "@{{undefined_function()}}" )
 local s, e = m{}
 t( s, nil )
+t( e, 'string "templua_script"%]:1: attempt to call a nil value', t.patsame )
 t( e, 'Template script: ', t.patsame )
-t( e, '_ENV%[_ENV%]%(""%)undefined_function%(%) _ENV%[_ENV%]%(""%)', t.patsame )
+t( e, '_ENV%[_ENV%]%(""%)', t.patsame )
 
 -- Nested template
 local s = {}

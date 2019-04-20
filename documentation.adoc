@@ -4533,6 +4533,11 @@ local function templua( template ) --> ( sandbox ) --> expstr, err
      end
    )
 
+   -- Utility to append the script to the error string
+   local function report_error( err )
+     return nil, err..'\nTemplate script: [[\n'..script..'\n]]'
+   end
+
    -- Special case when no template tag is found
    if script == template then
      return function() return script end
@@ -4546,27 +4551,21 @@ local function templua( template ) --> ( sandbox ) --> expstr, err
 
    -- Compile the template expander
    local generate, err = load( script, 'templua_script', 't', env )
-   if err ~= nil then return nil, err end
+   if err ~= nil then return report_error( err ) end
 
    -- Return a function that runs the expander with a custom environment
    return function( sandbox )
-    local ok, result = pcall(function()
-      expstr = ''
-      if sandbox then
-        metaenv.__index = sandbox
-        metaenv.__newindex = sandbox
-      else
-        metaenv.__index = nil
-        metaenv.__newindex = nil
-      end
-      if err ~= nil then error(err) end
-      generate()
-      return expstr
-    end)
-    if not ok then
-       return nil, result..'\nTemplate script: [[\n'..script..'\n]]'
+     expstr = ''
+     if sandbox then
+       metaenv.__index = sandbox
+       metaenv.__newindex = sandbox
+     else
+       metaenv.__index = nil
+       metaenv.__newindex = nil
      end
-    return result
+     local ok, err = pcall(generate)
+     if not ok then return report_error( err ) end
+     return expstr
   end
 end
 
