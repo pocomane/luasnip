@@ -9,15 +9,15 @@ function rawhtml( htmlStr ) --> rawmarkStr
 
 This function, togheter with `rawmark`, allows the parsing of html-like data.
 
-Infact, you can use this function to trasfrom the `htmlStr` string, containint
-html data, into the `rawmarkStr` string. This result can be oarsed with the
-<<rawmark>> module.
+Infact, you can use this function to trasfrom the `htmlStr` string, containing
+html data, into the `rawmarkStr` string containing an rawmark equivalent. This
+result can be oarsed with the <<rawmark>> module.
 
 No html validation is performed and actually the syntax is more permissive than
 the html one.
 
 The attribute of each tag is not parsed, but stored verbatim in the first
-sub-tag with the "attribute" type.
+sub-tag using the "=attribute=" type.
 
 == Example
 
@@ -25,8 +25,8 @@ sub-tag with the "attribute" type.
 ----
 local rawhtml = require 'rawhtml'
 
-assert( rawhtml'<!--@{}--><div my-attr="hi">x< b  />y<div>bla</div></div>'
-  == '@=comment={{=}{+}{-}}@div{@=attribute={my-attr="hi"}x@b{}y@div{bla}}' )
+assert( rawhtml'<!--{:}--><div my-attr="hi">x< b  />y<div>bla</div></div>'
+  == '{=comment=:{+}{=}{-}}{div:{=attribute=:my-attr="hi"}x{b:}y{div:bla}}' )
 ----
 
 ]===]
@@ -34,8 +34,8 @@ assert( rawhtml'<!--@{}--><div my-attr="hi">x< b  />y<div>bla</div></div>'
 local function rawhtml( inStr ) --> outStr
   if inStr == '' then return '' end
   local outStr = inStr
-  outStr = outStr:gsub('([{@}])',{['{']='{+}',['}']='{-}',['@']='{=}' })
-  outStr = outStr:gsub('<!%-%-','@=comment={')
+  outStr = outStr:gsub('([{:}])',{['{']='{+}',['}']='{-}',[':']='{=}' })
+  outStr = outStr:gsub('<!%-%-','{=comment=:')
   outStr = outStr:gsub('%-%->','}')
   outStr = outStr:gsub('<(/?)([^>]-)(/?)>',function(p,a,s)
     a = a:gsub('^[ \t]*(.-)[ \t]*$','%1')
@@ -44,9 +44,9 @@ local function rawhtml( inStr ) --> outStr
     if s == '/' then s = '}' end
     if b and b ~= '' then
       b = b:gsub('^[ \t]*(.-)[ \t]*$','%1')
-      b = '@=attribute={'..b..'}'
+      b = '{=attribute=:'..b..'}'
     end
-    return '@'..a..'{'..b..s
+    return '{'..a..':'..b..s
 
   end)
   return outStr

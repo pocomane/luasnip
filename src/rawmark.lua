@@ -11,41 +11,31 @@ This function implement a raw markup language. It take an input `dataStr`
 string and generate the `parsedTab` table representation of it. The format of the
 input strigs is based on the following core expansion:
 
-`@type{data}`::
+`{type:data}`::
 Where `type` is the only metadata that can be added and `data` is the content.
-If `type` is not present, the default `default` will be used.  The type can be
-any sequence of letters, numbers and any of '_+-.,/=%'. The content can
-be any string. In the content the `@{}` is recursively expanded.
+If `type` is not present, the empty string will be used as default.  The type
+can contain any character except `:`, `{` and `}`. The data can be any string,
+also the empty one.  In the data the `{}` is recursively expanded.
 
-Moreover, the escape sequence `{x}`, is replaced with `x`, where `x` is any
-single byte character. The only exceptions are:
+The `:` can be omitted: the sequences like `{abc}` are equivalent to `{:abc}`.
 
-- `{=}` is expanded to `@`
+The following exact sequences are substituted:
+
+- `{=}` is expanded to `:`
 - `{+}` is expanded to `{`
 - `{-}` is expanded to `}`
 
-However, `{+}` and `{-}` are just needed to insert unbalanced `{` and `}`,
-otherwise `{=}` is enough to escape mark tags.
+Note that the sequences like `{:=}` are expanded as usual, i.e. a sub-tag with
+the default type and containing only `=`.
 
 The function will return a table with the only string key `type` containing
-`default`. All the other keys form a sequence of natural number from 1 to N. To
-each key is associated the string value for a verbatim content, or a sub-table
-in case of `@{}` sub-expansion. This sub-table is contructed at same way with
-the `type` field set to the metatada in the tag, or `default` if not present.
+``. All the other keys form a sequence of natural number from 1 to N. To each
+key is associated the string value for a verbatim content, or a sub-table in
+case of `{}` sub-expansion. This sub-table is contructed at same way with the
+`type` field set to the metatada in the tag, or `default` if not present.
 
-For example the string
-
-[source]
-------------
-aaa@bbb{ccc}
-------------
-
-will be expanded to the lua table
-
-[source,lua]
-------------
-{ type='default', 'aaa', {type='bbb', 'ccc'} }
-------------
+For example the string `aaa{bbb:ccc}` will be expanded to the lua table `{
+type='', 'aaa', {type='bbb', 'ccc'} }`.
 
 == Example
 
@@ -53,13 +43,13 @@ will be expanded to the lua table
 ----
 local rawmark = require 'rawmark'
 
-local data = rawmark '@M{@{a}} b @X{ @{c} }'
+local data = rawmark '{M:{a}} b {X: {c} }'
 
-assert( data.type == 'default' )
+assert( data.type == '' )
 
 assert( data[1].type == 'M' )
-assert( data[1][1].type == 'default' )
-assert( data[1][1].type == 'default' )
+assert( data[1][1].type == '' )
+assert( data[1][1].type == '' )
 assert( data[1][1][1] == 'a' )
 
 assert( data[2] == ' b ' )
@@ -67,39 +57,44 @@ assert( data[2] == ' b ' )
 assert( data[3].type == 'X' )
 
 assert( data[3][1] == ' ' )
-assert( data[3][2].type == 'default' )
+assert( data[3][2].type == '' )
 assert( data[3][2][1] == 'c' )
 assert( data[3][3] == ' ' )
 ----
 
 ]===]
 
-local function rawmark(str, typ)
-  if not typ or typ == '' then typ = 'default' end
-  local result = {type = typ}
+local function rawmark( str, typ )
 
-  if str == '' then
-    result[1+#result] = str
-    return result
-  end
+  -- Special cases
+  typ = typ or ''
+  if str == '' then return { str, type = typ } end
 
-  local cur = str
-  while cur and cur ~= '' do
+  local result, merge = { type = typ }, false
+  while str and str ~= '' do
+
     -- Split verbatim and container parts
-    -- local ver, exp, res, typ = cur:match('^(.-)@(%b{})(.*)$')
-    local ver, typ, exp, res = cur:match('^(.-)@([A-Za-z0-9_/=,%.%-%+%%]*)(%b{})(.*)$')
-    if not ver then ver = cur end
+    local ver, exp, rest = str:match('^(.-)(%b{})(.*)$')
+    if ver == nil then ver = str end
+    str = rest -- Prepare next iteration
 
-    -- Substitute escape sequences
-    ver = ver:gsub('{(.)}', function(c)
-      local escape = ({ ['+']='{', ['-']='}', ['=']='@' }) [c]
-      return escape or c
-    end)
-
+    -- Append verbatim prefix
     if ver and ver ~= '' then result[1+#result] = ver end
-    if exp then result[1+#result] = rawmark(exp:sub(2,-2), typ) end
 
-    cur = res
+    -- Handle escape sequences
+    local sub = exp and ({ ['{+}']='{', ['{-}']='}', ['{=}']=':' })[exp]
+    if sub then
+      merge = true
+      result[1+#result] = sub
+      exp = nil
+    end
+
+    -- Parse tag
+    if exp and exp ~= '' then
+      local typ, col, exp = exp:match('^{([^:]*)(:?)(.*)}$')
+      if col == '' then exp, typ = typ, '' end
+      result[1+#result] = rawmark( exp, typ )
+    end
   end
 
   return result
