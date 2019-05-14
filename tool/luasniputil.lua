@@ -14,9 +14,9 @@ appropriate order.
 
 == Test suite
 
-Each module came with one ore more test files named
-`test/module.ex1.lua`, `test/module.ex2.lua` and so on. Moreover,
-in the module documentation there are example tests.
+Each module came with one ore more test files named `test/module.ex1.lua`,
+`test/module.ex2.lua` and so on. Moreover, in the module documentation there
+are example tests. This utility let you to run all of these tests.
 
 The output of each test is in the TAP format. you can use the
 `luasniputility.lua` with `test` argument to automatically run all the test and

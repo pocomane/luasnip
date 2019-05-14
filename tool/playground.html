@@ -1562,8 +1562,8 @@ rawhtml = (function()
 local function rawhtml( inStr ) --> outStr
   if inStr == '' then return '' end
   local outStr = inStr
-  outStr = outStr:gsub('([{@}])',{['{']='{+}',['}']='{-}',['@']='{=}' })
-  outStr = outStr:gsub('<!%-%-','@=comment={')
+  outStr = outStr:gsub('([{:}])',{['{']='{+}',['}']='{-}',[':']='{=}' })
+  outStr = outStr:gsub('<!%-%-','{=comment=:')
   outStr = outStr:gsub('%-%->','}')
   outStr = outStr:gsub('<(/?)([^>]-)(/?)>',function(p,a,s)
     a = a:gsub('^[ \t]*(.-)[ \t]*$','%1')
@@ -1572,9 +1572,9 @@ local function rawhtml( inStr ) --> outStr
     if s == '/' then s = '}' end
     if b and b ~= '' then
       b = b:gsub('^[ \t]*(.-)[ \t]*$','%1')
-      b = '@=attribute={'..b..'}'
+      b = '{=attribute=:'..b..'}'
     end
-    return '@'..a..'{'..b..s
+    return '{'..a..':'..b..s
 
   end)
   return outStr
@@ -1588,32 +1588,37 @@ end)()
 rawmark = (function()
 
 
-local function rawmark(str, typ)
-  if not typ or typ == '' then typ = 'default' end
-  local result = {type = typ}
+local function rawmark( str, typ )
 
-  if str == '' then
-    result[1+#result] = str
-    return result
-  end
+  -- Special cases
+  typ = typ or ''
+  if str == '' then return { str, type = typ } end
 
-  local cur = str
-  while cur and cur ~= '' do
+  local result, merge = { type = typ }, false
+  while str and str ~= '' do
+
     -- Split verbatim and container parts
-    -- local ver, exp, res, typ = cur:match('^(.-)@(%b{})(.*)$')
-    local ver, typ, exp, res = cur:match('^(.-)@([A-Za-z0-9_/=,%.%-%+%%]*)(%b{})(.*)$')
-    if not ver then ver = cur end
+    local ver, exp, rest = str:match('^(.-)(%b{})(.*)$')
+    if ver == nil then ver = str end
+    str = rest -- Prepare next iteration
 
-    -- Substitute escape sequences
-    ver = ver:gsub('{(.)}', function(c)
-      local escape = ({ ['+']='{', ['-']='}', ['=']='@' }) [c]
-      return escape or c
-    end)
-
+    -- Append verbatim prefix
     if ver and ver ~= '' then result[1+#result] = ver end
-    if exp then result[1+#result] = rawmark(exp:sub(2,-2), typ) end
 
-    cur = res
+    -- Handle escape sequences
+    local sub = exp and ({ ['{+}']='{', ['{-}']='}', ['{=}']=':' })[exp]
+    if sub then
+      merge = true
+      result[1+#result] = sub
+      exp = nil
+    end
+
+    -- Parse tag
+    if exp and exp ~= '' then
+      local typ, col, exp = exp:match('^{([^:]*)(:?)(.*)}$')
+      if col == '' then exp, typ = typ, '' end
+      result[1+#result] = rawmark( exp, typ )
+    end
   end
 
   return result
