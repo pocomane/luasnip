@@ -41,8 +41,9 @@ t( chca( "toplevel<-'a','b'", "a" ),  nil,  t.deepsame )
 t( chca( "toplevel<-'a','b'", "b" ),  nil,  t.deepsame )
 t( chca( "toplevel<-'a','b','c'", "abc" ),  { tag="toplevel", {"a"}, {"b"}, {"c"}},  t.deepsame )
 
-t( chca( "toplevel<-'a'/'b'", "a" ), { tag="toplevel", selected=1, {"a"}},   t.deepsame )
-t( chca( "toplevel<-'a'/'b'", "b" ), { tag="toplevel", selected=2, {"b"}},   t.deepsame )
+t( chca( "toplevel<-'a'/'b'", "a" ),     { tag="toplevel", selected=1, {"a"}},   t.deepsame )
+t( chca( "toplevel<-'a'/'b'", "b" ),     { tag="toplevel", selected=2, {"b"}},   t.deepsame )
+t( chca( "toplevel<-'a'/'b'/'c'", "c" ), { tag="toplevel", selected=3, {"c"}}, t.deepsame )
 t( chca( "toplevel<-'a'/'b'", "c" ), nil )
 
 t( chca( "toplevel<-'a'+", "a" ),  { tag="toplevel", {"a"}, { tag="z" }},   t.deepsame )
@@ -101,12 +102,12 @@ t( chca( "toplevel<-~/'a'", "a" ), { tag="toplevel", selected=1, { tag="e" }}, t
 
 -- , precedence over /
 t( chca( "toplevel<-'a','b'/'c'/'d','e'", "ab" ),  { tag="toplevel", selected=1, { tag="s", {"a"}, {"b"}}},   t.deepsame )
-t( chca( "toplevel<-'a','b'/'c'/'d','e'", "c" ),   { tag="toplevel", selected=2, { tag="a1", selected=1, {"c"}}},   t.deepsame )
-t( chca( "toplevel<-'a','b'/'c'/'d','e'", "de" ),  { tag="toplevel", selected=2, { tag="a2", selected=2, { tag="s", {"d"},{"e"}}}},   t.deepsame )
+t( chca( "toplevel<-'a','b'/'c'/'d','e'", "c" ),   { tag="toplevel", selected=2, {"c"}},   t.deepsame )
+t( chca( "toplevel<-'a','b'/'c'/'d','e'", "de" ),  { tag="toplevel", selected=3, { tag="s", {"d"},{"e"}}},   t.deepsame )
 t( chca( "toplevel<-'a','b'/'c'/'d','e'", "abe" ), { tag="toplevel", selected=1, { tag="s", {"a"},{"b"}}},  t.deepsame )
-t( chca( "toplevel<-'a'/'b','c','d'/'e'", "bcd" ), { tag="toplevel", selected=2, { tag="a1", selected=1, { tag="s", {"b"}, {"c"},{"d"}}}},   t.deepsame )
+t( chca( "toplevel<-'a'/'b','c','d'/'e'", "bcd" ), { tag="toplevel", selected=2, {tag="s", {"b"}, {"c"}, {"d"}}},   t.deepsame )
 t( chca( "toplevel<-'a'/'b','c','d'/'e'", "a" ),   { tag="toplevel", selected=1, {"a"}},   t.deepsame )
-t( chca( "toplevel<-'a'/'b','c','d'/'e'", "e" ),   { tag="toplevel", selected=2, { tag="a2", selected=2,{"e"}}},   t.deepsame )
+t( chca( "toplevel<-'a'/'b','c','d'/'e'", "e" ),   { tag="toplevel", selected=3, {"e"}},   t.deepsame )
 t( chca( "toplevel<-'a'/'b','c','d'/'e'", "ace" ), { tag="toplevel", selected=1, {"a"}}, t.deepsame )
 
 -----------------------------------------------------------------------
