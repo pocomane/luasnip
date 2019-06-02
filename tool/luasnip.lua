@@ -3459,10 +3459,14 @@ local function create_compiler( match_handler )
   function T.identifier(x)   return REF( x[2][1] ) end
   function T.sequence(x)
     if 0 == #(x[2]) then return x[1].func end
-    local seq = {x[1].func}
-    for _, v in ipairs(x[2]) do
-      seq[1+#seq] = v[3].func
-    end
+    local seqa = x[1].seq
+    if not seqa then seqa = { x[1].func } end
+    local seqb = x[2][1][3].seq
+    if not seqb then seqb = { x[2][1][3].func } end
+    local seq = {}
+    for _, v in ipairs(seqa) do seq[1+#seq] = v end
+    for _, v in ipairs(seqb) do seq[1+#seq] = v end
+    x.seq = seq
     return peg_sequence(seq)
   end
   function T.alternation(x)
