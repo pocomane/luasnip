@@ -3532,7 +3532,7 @@ local function peg_alternation( alternatives )
     for p = 1, np do
       local X, r = alternatives[p]( DATA, CURR )
       if nil ~= r then
-        r = { r, selected = p }
+        r = { r, tag = "a"..tostring(p), selected = p }
         return X, r
       end
     end
@@ -3545,7 +3545,7 @@ local function peg_sequence( sequence )
   for p = 1, np do local P = sequence[p] end
   return function( DATA, CURR )
     CURR = CURR or 1
-    local OLD, ast = CURR, {}
+    local OLD, ast = CURR, {tag="s"}
     for p = 1, np do
       local X, r = sequence[p]( DATA, CURR )
       if nil == r then
@@ -3560,7 +3560,7 @@ end
 
 local function peg_not( child_parser )
   return function( DATA, CURR )
-    local ast = {}
+    local ast = { tag = "n" }
     local X, r = child_parser( DATA, CURR )
     if nil == r then
       return 0, ast
@@ -3571,7 +3571,7 @@ end
 
 local function peg_empty( )
   return function( DATA, CURR )
-    local ast = {}
+    local ast = { tag = "e" }
     return 0, ast
   end
 end
@@ -3608,7 +3608,7 @@ local function peg_zero_or_more( child_parser )
 --   return rec
   return function( DATA, CURR )
     CURR = CURR or 1
-    local OLD, ast = CURR, {}
+    local OLD, ast = CURR, { tag = "z" }
     while true do
       local X, r = child_parser( DATA, CURR )
       if nil == r then break end
