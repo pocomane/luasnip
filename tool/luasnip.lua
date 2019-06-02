@@ -3491,9 +3491,19 @@ local function create_compiler( match_handler )
   function T.suffix(x)
     local o = x[3][1]
     if     o == '*' then return peg_zero_or_more( x[1].func )
-    elseif o == '+' then return peg_sequence{ x[1].func, peg_zero_or_more( x[1].func ) }
     elseif o == '?' then return peg_alternation{ x[1].func, peg_empty() }
     elseif o == ''  then return x[1].func
+    elseif o == '+' then return function(...)
+        local y, z = (peg_sequence{ x[1].func, peg_zero_or_more( x[1].func ) })(...)
+        if not z then return y, z end
+        local w = {}
+        w.tag = 'o'
+        w[1] = z[1]
+        for _, k in ipairs(z[2]) do
+          w[1+#w] = k
+        end
+        return y, w
+      end
     end
   end
   function T.empty(x)        return peg_empty() end
