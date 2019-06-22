@@ -225,10 +225,22 @@ assert( ast[3][3][4][1] == 'shark' )
 
 -- TODO : CLEAN UP ! -- THIS IS A DRAFT ! -- 
 
+local debug = false
+LOG = function(...)
+  if not debug then return end
+  io.write("#")
+  local vp = require'valueprint'
+  for _, s in pairs({...}) do
+    io.write(" ",vp(s):gsub('\n','\n# '),'')
+  end
+  io.write("\n")
+end
+
 local function peg_pattern_matcher( pattern )
   -- TODO : memo ?
   pattern = '^(' .. pattern .. ')'
   result = function( DATA, CURR )
+    LOG('trying pattern ', pattern, ' at',DATA:sub(CURR or 1),'...')
     CURR = CURR or 1
     local d = DATA:sub( CURR )
     local ast = { d:match( pattern ) }
@@ -250,6 +262,7 @@ local function peg_alternation( alternatives )
   local np = #alternatives
   for p = 1, np do local P = alternatives[p] end
   return function( DATA, CURR )
+    LOG('trying alternation at',DATA:sub(CURR or 1),'...')
     for p = 1, np do
       local X, r = alternatives[p]( DATA, CURR )
       if nil ~= r then
@@ -265,6 +278,7 @@ local function peg_sequence( sequence )
   local np = #sequence
   for p = 1, np do local P = sequence[p] end
   return function( DATA, CURR )
+    LOG('trying sequence at',DATA:sub(CURR or 1),'...')
     CURR = CURR or 1
     local OLD, ast = CURR, { tag = "s" }
     for p = 1, np do
@@ -281,6 +295,7 @@ end
 
 local function peg_not( child_parser )
   return function( DATA, CURR )
+    LOG('trying not-operator at',DATA:sub(CURR or 1),'...')
     local ast = { tag = "n" }
     local X, r = child_parser( DATA, CURR )
     if nil == r then
@@ -290,16 +305,16 @@ local function peg_not( child_parser )
   end
 end
 
-local function peg_empty( )
-  return function( DATA, CURR )
-    local ast = { tag = "e" }
-    return 0, ast
-  end
+local function peg_empty( DATA, CURR )
+  LOG('trying empty at',DATA:sub(CURR or 1),'...')
+  local ast = { tag = "e" }
+  return 0, ast
 end
 
 local function peg_non_terminal( match_handler, grammar, rule )
   -- TODO : memo
   return function( data, curr )
+    LOG('trying non-terminal', rule, 'at',data:sub(curr or 1),'...')
     local p
     if 'function' == type(grammar) then
       p = grammar(rule)
@@ -325,9 +340,10 @@ end
 local function peg_zero_or_more( child_parser )
 --   local rec
 --   local function REC(...) return rec(...) end
---   rec = peg_alternation({peg_sequence({x,REC}),peg_empty()})
+--   rec = peg_alternation({peg_sequence({x,REC}),peg_empty})
 --   return rec
   return function( DATA, CURR )
+    LOG('trying zero-or-more at',DATA:sub(CURR or 1),'...')
     CURR = CURR or 1
     local OLD, ast = CURR, { tag = "z" }
     while true do
@@ -420,7 +436,7 @@ local function create_compiler( match_handler )
   function T.suffix(x)
     local o = x[3][1]
     if     o == '*' then return peg_zero_or_more( x[1].func )
-    elseif o == '?' then return peg_alternation{ x[1].func, peg_empty() }
+    elseif o == '?' then return peg_alternation{ x[1].func, peg_empty }
     elseif o == ''  then return x[1].func
     elseif o == '+' then return function(...)
         local y, z = (peg_sequence{ x[1].func, peg_zero_or_more( x[1].func ) })(...)
@@ -435,7 +451,7 @@ local function create_compiler( match_handler )
       end
     end
   end
-  function T.empty(x)        return peg_empty() end
+  function T.empty(x)        return peg_empty end
   function T.expression(x)   return x[3].func end
 
   function T.primary(x)   return x[1].func end
