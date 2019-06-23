@@ -113,6 +113,19 @@ t( chca( "toplevel<-'a'/'b','c','d'/'e'", "ace" ), { tag="toplevel", selected=1,
 
 -----------------------------------------------------------------------
 
+-- captures
+t( chca( "a<-'a'+   toplevel<-a,'b',:a", "aabaaa" ),  { tag="toplevel", {tag='a',{"a"},{"a"}}, {"b"}, {tag='c',"aa"}},   t.deepsame )
+t( chca( "a<-'a'+   toplevel<-a,'b',:a", "aaba" ),  nil,   t.deepsame )
+
+-- undefined capture
+t( chca( "toplevel<-'b',:a,'b'", "bb" ), { tag="toplevel", {"b"}, {tag="e"}, {"b"}}, t.deepsame )
+t( chca( "a<-'a'   toplevel<-'b',:a,'b'", "bb" ), { tag="toplevel", {"b"}, {tag="e"}, {"b"}}, t.deepsame )
+
+-- multiple captures
+t( chca( "a<-'a'   b<-'b'   toplevel<-a,b,:a,:b", "abab" ),  { tag="toplevel", {tag='a',"a"}, {tag="b","b"}, {tag='c',"a"}, {tag='c',"b"}},   t.deepsame )
+
+-----------------------------------------------------------------------
+
 t( chca( "toplevel<-'a'*", "" ),    { tag="toplevel", }, t.deepsame )
 t( chca( "toplevel<-'a'*", "a" ),   { tag="toplevel", {"a"}}, t.deepsame )
 t( chca( "toplevel<-'a'*", "aa" ),  { tag="toplevel", {"a"}, {"a"} }, t.deepsame )

@@ -311,29 +311,53 @@ local function peg_empty( DATA, CURR )
   return 0, ast
 end
 
-local function peg_non_terminal( match_handler, grammar, rule )
-  -- TODO : memo
-  return function( data, curr )
-    LOG('trying non-terminal', rule, 'at',data:sub(curr or 1),'...')
-    local p
-    if 'function' == type(grammar) then
-      p = grammar(rule)
-    else
-      p = grammar[rule]
+local function peg_non_terminal( match_handler , grammar )
+  local captured_grammar = {}
+  return function( rule, return_cather )
+    local capture = captured_grammar[rule]
+    if not capture then
+      capture = {}
+      captured_grammar[rule] = capture
     end
-    local a,b = p( data, curr )
-    if b then b.tag = rule end
-    if b and match_handler then
-      b = match_handler( b )
-      -- TODO : do not match if b == nil !!?
-    end
-    return a,b
-  end
-end
 
-local function peg_reference( match_handler , parser_getter )
-  return function( rule )
-    return peg_non_terminal( match_handler, parser_getter, rule )
+    local function define( data, curr )
+      LOG('trying non-terminal', rule, 'at',data:sub(curr or 1),'...')
+      local p
+      if 'function' == type(grammar) then
+        p = grammar(rule)
+      else
+        p = grammar[rule]
+      end
+      local a,b = p( data, curr )
+      if b then b.tag = rule end
+      if b and match_handler then
+        b = match_handler( b )
+        -- TODO : do not match if b == nil !!?
+      end
+
+      if a ~= nil then
+        curr = curr or 1
+        capture[1] = curr
+        capture[2] = curr + a -1
+      end
+
+      return a,b
+    end
+
+    local function refer( DATA, CURR )
+      CURR = CURR or 1
+      LOG('trying captured at', DATA:sub(CURR), '...')
+      local cap = capture
+      if not capture[1] then return peg_empty( DATA, CURR ) end
+      cap = DATA:sub( capture[1], capture[2] )
+      local siz = #cap
+      local cur = DATA:sub( CURR, CURR + siz -1 )
+      if cap ~= cur then return nil, nil end
+      return siz, { cap, tag = 'c', }
+    end
+
+    if not return_cather then return define end
+    return define, refer
   end
 end
 
@@ -360,7 +384,7 @@ end
 
 local function create_core_parser( match_handler )
   local rules
-  local REF = peg_reference( match_handler, function( r ) return rules[r] end )
+  local REF = peg_non_terminal( match_handler, function( r ) return rules[r] end )
 
   local EMP, PAT, ALT, SEQ = peg_empty, peg_pattern_matcher, peg_alternation, peg_sequence
   local NOT, ZER = peg_not, peg_zero_or_more
@@ -372,8 +396,9 @@ local function create_core_parser( match_handler )
     pattern =      SEQ{ REF'whitespace', PAT"'[^']*'", },
     empty =        SEQ{ REF'whitespace', PAT'~', },
     expression =   SEQ{ REF'whitespace', PAT'%(', REF'alternation', REF'whitespace', PAT'%)', },
+    capture =      SEQ{ PAT':', REF'identifier', },
 
-    primary =      ALT{  REF'expression', REF'pattern', REF'empty', REF'identifier', NOT( PAT'<%-' ), }, -- TODO : !<- should be in a sequence
+    primary =      ALT{  REF'expression', REF'pattern', REF'empty', REF'capture', REF'identifier', NOT( PAT'<%-' ), }, -- TODO : !<- should be in a sequence
 
     suffix =       SEQ{ REF'primary', REF'whitespace', PAT'[*+?]?', },
     prefix =       SEQ{ REF'whitespace', PAT'[&!]?', REF'suffix', },
@@ -390,7 +415,7 @@ end
 
 local function create_compiler( match_handler )
   local R = {} -- parsed rules
-  local REF = peg_reference( match_handler, R )
+  local REF = peg_non_terminal( match_handler, R )
 
   local T = {} -- sub-transformer
 
@@ -402,6 +427,12 @@ local function create_compiler( match_handler )
   end
 
   function T.identifier(x)   return REF( x[2][1] ) end
+
+  function T.capture(x)
+    local _, result = REF( x[2][2][1], true )
+    return result
+  end
+
   function T.sequence(x)
     if 0 == #(x[2]) then return x[1].func end
     local seqa = x[1].seq
