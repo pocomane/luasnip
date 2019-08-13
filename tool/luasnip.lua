@@ -2868,19 +2868,27 @@ local type, select, setmetatable = type, select, setmetatable
 local function factory( initializer )
 
   local made_here = setmetatable({},{__mode='kv'})
-  local function checker(i) return made_here[i] or false end
+
+  local function checker(i)
+    if i == 'all' then
+      return pairs( made_here )
+    else
+      return made_here[i] or false
+    end
+  end
 
   local function constructor( instance )
     instance = instance or {}
     made_here[instance] = true
 
-    local replace, err = initializer( instance )
-    if nil ~= err then
-      return replace, err
-    elseif nil ~= replace then
-      instance = replace
-      made_here[instance] = true
+    local err = nil
+    if initializer then
+      local protect = instance
+      instance, err = initializer( instance )
+      if nil == instance then instance = protect end
     end
+
+    made_here[instance] = true
 
     return instance, err
   end

@@ -23,22 +23,27 @@ calls the `initFunc` on the `initTab` (or a new one if `nil` is passed).
 nil. If both are nil, `buildFunc` returns `initTab` as `objectTab` and nil as
 `error`.
 
-The `checkFunc`:
+The `checkFunc` can be used in two ways:
 
 [source,lua]
 ----
-function checkFunc( aTab ) --> truthnessBool 
+function checkFunc( aTab ) --> truthnessBool
+function checkFunc( 'all' ) --> iterator
 ----
 
-takes any `aTab` table as input and checks if it was constructed with the
-associated `buildFunc`.
+In the first form, it takes any `aTab` table as input and checks if it was
+constructed with the associated `buildFunc`. In the second form, i.e. when the
+string `'all'` is passed as argument, it returns an iterator to be used in a
+for/in loop. The iteration will span all the tables constructed with the
+associated `buildFunc` that are not already collected by the GC.
 
-To inherit method you can simply call the `buildFunc` of the base object from
-the initializer of the derived one. However this allows a subsequent removal of
-a inherited method. If this is not the wanted beavior, the initilizer function
-can make and return an empty object, setting its __index metamethod to the
-`initTab` instance. So any field access to the derived `buildFunc` will be
-dispatched to `initTab`, but not the write ones.
+To "Inherit" a method you can simply call the `buildFunc` of the base object
+from the initializer of the derived one.
+
+Please note that a method/field can be removed from the object after its
+creation. To avoid this, the constructor have to deal with the __index
+metamethod of the returned table. In the same way a more conventional
+inheritance behaviour can be implemented.
 
 == Example
 
@@ -119,19 +124,27 @@ local type, select, setmetatable = type, select, setmetatable
 local function factory( initializer )
 
   local made_here = setmetatable({},{__mode='kv'})
-  local function checker(i) return made_here[i] or false end
+
+  local function checker(i)
+    if i == 'all' then
+      return pairs( made_here )
+    else
+      return made_here[i] or false
+    end
+  end
 
   local function constructor( instance )
     instance = instance or {}
     made_here[instance] = true
 
-    local replace, err = initializer( instance )
-    if nil ~= err then
-      return replace, err
-    elseif nil ~= replace then
-      instance = replace
-      made_here[instance] = true
+    local err = nil
+    if initializer then
+      local protect = instance
+      instance, err = initializer( instance )
+      if nil == instance then instance = protect end
     end
+
+    made_here[instance] = true
 
     return instance, err
   end

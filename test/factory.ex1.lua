@@ -58,6 +58,29 @@ t( 'p1', E[1] )
 t( 'p2', C[1] )
 t( 'p2', F[1] )
 
+-- Iteration
+
+makeA, isA = factory(function()end)
+local a, b
+a = makeA()
+b = makeA()
+
+local C = {}
+for i in isA('all') do
+  C[1+#C] = i
+end
+
+t( a, C[1] )
+t( b, C[2] )
+
+-- Empty constructor
+
+makeA, isA = factory()
+local a = makeA()
+
+t( a ~= nil, true )
+t( isA( a ), true )
+
 -- Method protection example
 makeA, isA = factory(function(ins)
   ins.t = 'a'
