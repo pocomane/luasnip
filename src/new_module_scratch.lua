@@ -51,19 +51,20 @@ end
 
 do
   local function dispatcher( a, b, c )
-    local read, write
-    if a == 'hide' then
-      if b then read = function(t,k) return b[k] end end
-      if c then write = function(t,k,v) c[k]=v end end
+    local meta, read, write, pair
+    if a ~= 'hide' then
+      read, write, pair = a, b, a
     else
-      read = a
-      write = b
+      meta = 'hidden'
+      read, write = b, c
+      pair = b -- wrong ???
     end
     return setmetatable({},{
+      __metatable = meta,
       __newindex = write,
       __index = read,
-      __pairs = read, -- wrong when 'hide' ?!!!
-      __ipairs = read, -- wrong when 'hide' ?!!!
+      __pairs = pair,
+      __ipairs = pair,
     })
   end
 
@@ -255,6 +256,29 @@ do
   end
 
   new_module_scratch.loadfunc = loadfunc
+end
+
+----------------------------------------------------------
+
+do
+  local coresume = coroutine.resume
+
+  local coyield = coroutine.yield
+  local taunpack = table.unpack
+
+  local function auxpack( a, b, ... )
+    return a, b, { ... }
+  end
+
+  local function cocatch( wait_for, co, ... )
+    local status, signal, rest = auxpack( coresume( co, ... ))
+    while wait_for ~= nil and signal ~= wait_for do
+      status, signal, rest = auxpack( coresume( co, coyield( wait_for, taunpack( rest) )))
+    end
+    return status, signal, taunpack( rest )
+  end
+
+  new_module_scratch.cocatch = cocatch
 end
 
 ----------------------------------------------------------

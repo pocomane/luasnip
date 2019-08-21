@@ -74,8 +74,7 @@ local a, b = {}, {}
 local c = dispatcher( 'hide', a, b )
 local m = getmetatable(c)
 
-t( type(m.__newindex), 'function' )
-t( type(m.__newindex), 'function' )
+t( m, 'hidden' )
 
 a.x = 1
 t( c.x, 1 )
@@ -177,6 +176,172 @@ local f = loadfunc [[ return x ]]
 
 t( f{x=1}, 1 )
 t( f{x=2}, 2 )
+
+--------------------------------------------------------------------------
+
+local cocatch = new_module_scratch.cocatch
+
+local res = ""
+local function out(x) res = res .. x end
+
+local A,B,C,coA,coB,coC
+
+-- coroutine.resume like usage: catching any yielded value
+
+coA = coroutine.create(function()
+  out'a'
+  coroutine.yield('c')
+  out'b'
+  return 'x'
+end)
+res = ""
+
+cocatch(nil, coA)
+
+t( res, 'a' )
+
+cocatch(nil, coA)
+
+t( res, 'ab' )
+
+-- Return value
+
+coA = coroutine.create(function()
+  coroutine.yield('a')
+end)
+
+A, B, C = cocatch(nil, coA)
+
+t( A, true )
+t( B, 'a' )
+t( C, nil )
+
+-- Deep coroutine.resume like usage
+
+coA = coroutine.create(function()
+  out'b'
+  coroutine.yield('c')
+  out'd'
+end)
+coB = coroutine.create(function()
+  out'a'
+  cocatch(nil, coA)
+  out'c'
+  cocatch(nil, coA)
+  out'e'
+  return 'x'
+end)
+res = ""
+
+cocatch(nil, coB)
+
+t( res, 'abcde' )
+
+-- coroutine.resume like with nil yield
+
+coA = coroutine.create(function()
+  out'b'
+  coroutine.yield(nil)
+  out'd'
+end)
+coB = coroutine.create(function()
+  out'a'
+  cocatch(nil, coA)
+  out'c'
+  cocatch(nil, coA)
+  out'e'
+  return 'x'
+end)
+res = ""
+
+cocatch(nil, coB)
+
+t( res, 'abcde' )
+
+-- Catch specific yielded value
+
+coA = coroutine.create(function()
+  out'b'
+  coroutine.yield('x')
+  out'd'
+end)
+coB = coroutine.create(function()
+  out'a'
+  cocatch('x', coA)
+  out'c'
+  return 'y'
+end)
+res = ""
+
+cocatch(nil, coB)
+
+t( res, 'abc' )
+
+-- Catching nil
+
+coA = coroutine.create(function()
+  out'b'
+  coroutine.yield(nil)
+  out'x'
+end)
+coB = coroutine.create(function()
+  out'a'
+  cocatch('y', coA)
+  out'x'
+  return 'x'
+end)
+res = ""
+
+cocatch(nil, coB)
+
+t( res, 'ab' )
+
+-- Pass through unmatching catch
+
+coA = coroutine.create(function()
+  out'c'
+  coroutine.yield('w')
+  out'p'
+end)
+coB = coroutine.create(function()
+  out'b'
+  cocatch('x', coA)
+  out'q'
+  return 'z'
+end)
+coC = coroutine.create(function()
+  out'a'
+  cocatch(nil, coB)
+  out'd'
+  return 'w'
+end)
+res = ""
+
+cocatch(nil, coC)
+
+t( res, 'abcd' )
+
+-- Multiple resume
+
+coA = coroutine.create(function()
+  out'b'
+  coroutine.yield('x')
+  out'c'
+  coroutine.yield('x')
+  out'y'
+end)
+coB = coroutine.create(function()
+  out'a'
+  cocatch('z', coA)
+  out'z'
+  return 'z'
+end)
+res = ""
+
+cocatch(nil, coB)
+cocatch(nil, coB)
+
+t( res, 'abc' )
 
 --------------------------------------------------------------------------
 -- TODO : delete !!! just some benchmarks !!! vvvvvvvvvvvvvvvvvvvvvvvvvvvv
