@@ -4474,10 +4474,10 @@ Will be substituted with the result of the Lua expression.
 `@{{luastm}}`::
 Embeds the Lua statement. This allow to mix Lua code and verbatim text.
 
-From the code in the statement pattern, the a global function can be used to
-produce the `template` output. The function is in `_ENV[_ENv]`. If you need to
-use it several times, you can consider to place on the top of the template
-somethink like '${{ O = _ENV[_ENV] }}'.
+From the code in the statement pattern, an utility function can be used to
+produce the `template` output. The function is in the local variable `out`. If
+you need to access a field of the passed environment that have the same name,
+you can use '_ENV.out'.
 
 The `sandbox` table is used as the  environment of the Lua code (both
 expressions and statements). This allows you to pass parameters to the
@@ -4512,7 +4512,7 @@ local fmt, tostring = string.format, tostring
 local error = error
 
 local function templua( template ) --> ( sandbox ) --> expstr, err
-   local function expr(e) return ' _ENV[_ENV]('..e..')' end
+   local function expr(e) return ' out('..e..')' end
   
    -- Generate a script that expands the template
    local script = template:gsub( '(.-)@(%b{})([^@]*)',
@@ -4539,26 +4539,21 @@ local function templua( template ) --> ( sandbox ) --> expstr, err
      return function() return script end
    end
 
-   -- Template expander basic environmnent
-   local expstr = ''
-   local metaenv = {}
-   local env = setmetatable( {}, metaenv )
-   env[env] = function( out ) expstr = expstr..tostring(out) end
-
-   -- Compile the template expander
+   -- Compile the template expander in a empty environment
+   local env = {}
+   script = 'local out = _ENV.out; local _ENV = _ENV.env; ' .. script
    local generate, err = load( script, 'templua_script', 't', env )
    if err ~= nil then return report_error( err ) end
 
    -- Return a function that runs the expander with a custom environment
    return function( sandbox )
-     expstr = ''
-     if sandbox then
-       metaenv.__index = sandbox
-       metaenv.__newindex = sandbox
-     else
-       metaenv.__index = nil
-       metaenv.__newindex = nil
-     end
+
+     -- Template environment and utility function
+     local expstr = ''
+     env.env = sandbox
+     env.out = function( out ) expstr = expstr..tostring(out) end
+
+     -- Run the template
      local ok, err = pcall(generate)
      if not ok then return report_error( err ) end
      return expstr
