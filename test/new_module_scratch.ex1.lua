@@ -344,6 +344,47 @@ cocatch(nil, coB)
 t( res, 'abc' )
 
 --------------------------------------------------------------------------
+
+local bafind = new_module_scratch.bafind
+local s, f
+
+s, f = bafind( 'a', 'b', 'ab' )
+t( s, 1 )
+t( f, 2 )
+
+s, f = bafind( 'a', 'b', 'xaxbx' )
+t( s, 2 )
+t( f, 4 )
+
+s, f = bafind( 'a', 'b', 'aabb' )
+t( s, 1 )
+t( f, 4 )
+
+s, f = bafind( 'a', 'b', 'aababb' )
+t( s, 1 )
+t( f, 6 )
+
+s, f = bafind( 'a+', 'b+', 'aaabb' )
+t( s, 1 )
+t( f, 5 )
+
+s, f = bafind( 'a', 'b', 'a' )
+t( s, nil )
+t( f, nil )
+
+s, f = bafind( 'a', 'b', 'b' )
+t( s, nil )
+t( f, nil )
+
+s, f = bafind( 'a', 'b', 'ba' )
+t( s, nil )
+t( f, nil )
+
+s, f = bafind( 'a', 'b', 'aab' )
+t( s, nil )
+t( f, nil )
+
+--------------------------------------------------------------------------
 -- TODO : delete !!! just some benchmarks !!! vvvvvvvvvvvvvvvvvvvvvvvvvvvv
 local do_banchmark = false if do_banchmark then
 

@@ -283,4 +283,40 @@ end
 
 ----------------------------------------------------------
 
+do
+
+  local function bafind( openpat, closepat, text, init )
+    local current = init or 1
+    local count = 0
+    local start, finish
+    local a, b, c, d
+    repeat
+      if not a then a, b = text:find( openpat, current ) end
+      if not c then c, d = text:find( closepat, current ) end
+      if a and (not c or a < c) then
+        current = b + 1
+        count = count + 1
+        start = start or a
+        a, b = nil, nil
+      elseif c and (not a or c < a) then
+        current = d + 1
+        count = count - 1
+        if count == 0 then
+          finish = d
+        end
+        c, d = nil, nil
+      else
+        break
+      end
+    until count <= 0
+    start = finish and start
+    finish = start and finish
+    return start, finish
+  end
+  
+  new_module_scratch.bafind = bafind
+end
+
+----------------------------------------------------------
+
 return new_module_scratch
