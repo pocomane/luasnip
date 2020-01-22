@@ -118,6 +118,7 @@ local modules = [[
  module  ; locktable  ; tab
  module  ; logline    ; deb
  module  ; pathpart  ; fs
+ module  ; simplepath  ; fs
  module  ; rawhtml  ; parse
  module  ; rawmark    ; parse
  module  ; readfile  ; fs
@@ -939,6 +940,7 @@ local to_benchmark = {
   -- -- 'lambda',
   -- -- 'locktable',
   -- -- 'pathpart',
+  -- -- 'simplepath',
   -- 'rawhtml',
   -- 'rawmark',
   -- 'searchluakeyword',

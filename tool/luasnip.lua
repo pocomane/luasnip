@@ -33,6 +33,7 @@ local localbind;
 local locktable;
 local logline;
 local pathpart;
+local simplepath;
 local rawhtml;
 local rawmark;
 local readfile;
@@ -1327,10 +1328,8 @@ end
 
 local function path_split( pathStr )
   local result = {}
-  for c in pathStr:gmatch( '[^/\\]*' ) do
-    if c ~= '' then
-      result[1+#result] = c
-    end
+  for c in pathStr:gmatch( '[^/\\]+' ) do
+    result[1+#result] = c
   end
   return result
 end
@@ -1344,6 +1343,41 @@ local function pathpart( pathIn ) --> pathOut, errorStr
 end
 
 return pathpart
+
+
+end)()
+
+simplepath = (function()
+
+
+local dirsep = package.config:sub(1,1)
+local splitpat = '[^'..dirsep..']+'
+
+local function simplepath( pathIn ) --> pathOut, errorStr
+  local result = {}
+  for part in pathIn:gmatch( splitpat ) do
+    if part ~= '.' then
+      if part ~= '..' then
+        table.insert( result, part )
+      else
+        local nres = #result
+        if nres > 0 and result[nres] ~= '..' then
+          result[nres] = nil
+        else
+          table.insert( result, '..' )
+        end
+      end
+    end
+  end
+  local pathOut = table.concat( result, dirsep )
+  if pathIn:sub(1,1) == dirsep then pathOut = dirsep..pathOut end
+  if pathOut == '' then
+    pathOut = '.'
+  end
+  return pathOut
+end
+
+return simplepath
 
 
 end)()
@@ -3619,6 +3653,7 @@ return {
   locktable = locktable,
   logline = logline,
   pathpart = pathpart,
+  simplepath = simplepath,
   rawhtml = rawhtml,
   rawmark = rawmark,
   readfile = readfile,

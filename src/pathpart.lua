@@ -49,10 +49,8 @@ end
 
 local function path_split( pathStr )
   local result = {}
-  for c in pathStr:gmatch( '[^/\\]*' ) do
-    if c ~= '' then
-      result[1+#result] = c
-    end
+  for c in pathStr:gmatch( '[^/\\]+' ) do
+    result[1+#result] = c
   end
   return result
 end
