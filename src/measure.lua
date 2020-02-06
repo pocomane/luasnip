@@ -14,6 +14,9 @@ to add repeted measurement of a quantity, and get the following sample statisitc
 - Standard deviation
 - Skewness (i.e. sqrt(sample-number) * 3rd-momentum / 2nd-momentum^(3/2) )
 - Kurtosis
+- Sample size
+- Minimum
+- Maximum
 
 If the `partMea` table is passed, it will be interpreted as a seqeunce of different
 `sampleFunc`. The returned `sampleFunc` will be intialized as the union of all
@@ -25,7 +28,7 @@ The `sampleFunc` can be used in two forms:
 [source,lua]
 ----
 function sampleFunc( valueNum ) --> nil
-function sampleFunc( nil ) --> meanNum, deviationNum, SkewnessNum, kurtosisNum, sizeNum
+function sampleFunc( nil ) --> meanNum, deviationNum, SkewnessNum, kurtosisNum, sizeNum, minValue, maxValue
 ----
 
 In the first form, the `valueNum` number will be added to the measurements. This
