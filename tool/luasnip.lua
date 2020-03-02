@@ -60,6 +60,7 @@ local datestd;
 local lineposition;
 local memo;
 local pegcore;
+local get;
 
 appendfile = (function()
 
@@ -3623,6 +3624,27 @@ return pegcore
 
 end)()
 
+get = (function()
+
+
+local select = select
+local pcall = pcall
+
+local function get_rec(count, parent, child, ...)
+  return count < 2 and parent or get_rec(count-1, parent[child], ...)
+end
+
+return function(...) -- get
+  local ok, data = pcall(function(...)
+    return get_rec(select('#', ...), ...)
+  end, ...)
+  local result = ok and data or nil
+  return result, not ok and data or nil
+end
+
+
+end)()
+
 return {
   appendfile = appendfile,
   argcheck = argcheck,
@@ -3680,4 +3702,5 @@ return {
   lineposition = lineposition,
   memo = memo,
   pegcore = pegcore,
+  get = get,
 }

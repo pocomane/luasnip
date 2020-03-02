@@ -145,6 +145,7 @@ local modules = [[
  module  ; lineposition ; str
  module  ; memo ; type
  module  ; pegcore ; str
+ module  ; get ; tab
 
  module  ; new_module_scratch ; draft
 

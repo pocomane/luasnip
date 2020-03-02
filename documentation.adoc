@@ -96,7 +96,7 @@ in the `src/luasnip.lua` amalgamation it is used to collect the functions (e.g.
 
 - TAB - These modules work on tables: +
 // [SNIP:function_index_section_tab[
-<<clone, clone>>, <<combinetab, combinetab>>, <<deepsame, deepsame>>, <<differencetab, differencetable>>, <<flatarray, flatarray>>, <<intersecationtab, intersecationtab>>, <<locktable, locktable>>, <<toposort, toposort>>, <<uniontab, uniontab>>
+<<clone, clone>>, <<combinetab, combinetab>>, <<deepsame, deepsame>>, <<differencetab, differencetable>>, <<flatarray, flatarray>>, <<get, get>>, <<intersecationtab, intersecationtab>>, <<locktable, locktable>>, <<toposort, toposort>>, <<uniontab, uniontab>>
 // ]SNIP:function_index_section_tab]
 
 - CLI - These modules deal with command line interface: +
@@ -6642,6 +6642,56 @@ local function pegcore( peg_rules, rule_handler )
 end
 
 return pegcore
+
+------------
+
+
+[#get]
+Return to <<reference_rendez_vous,Module index>>
+
+=== get
+
+[source,lua]
+----
+function get( parent [, ...] ) --> content
+----
+
+Get content trashing any access error. In case of access error, nil plus
+an error messate are returned. The `parent` lua value is recursively
+searched for the field passed as subsequent arguments.
+
+Note: the __index metamethod is used when found.
+
+==== Example
+
+[source,lua,example]
+----
+local get = require 'get'
+
+local data = {a={b={c='d'}}}
+assert( 'd' == get(data,'a','b','c'))
+assert( nil == get(data,'a','x','c'))
+
+----
+
+==== Code
+
+[source,lua]
+------------
+local select = select
+local pcall = pcall
+
+local function get_rec(count, parent, child, ...)
+  return count < 2 and parent or get_rec(count-1, parent[child], ...)
+end
+
+return function(...) -- get
+  local ok, data = pcall(function(...)
+    return get_rec(select('#', ...), ...)
+  end, ...)
+  local result = ok and data or nil
+  return result, not ok and data or nil
+end
 
 ------------
 // ]SNIP:function_reference]
