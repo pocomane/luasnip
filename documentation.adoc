@@ -146,7 +146,7 @@ in the amalgamation and they can be accessed just through the files in the
 "Complex" usage example of the LuaSnip functionalities. Some of this could be
 useful in the real world. +
 // [SNIP:tool_index_section[
-<<climint, Template expander>>, <<debugger_stdinout, Command line debugger>>, <<luasniputil, Utility script>>, <<playground, In-Browser playground>>
+<<climint, Template expander>>, <<debugger_stdinout, Command line debugger>>, <<luasniputil, Utility script>>
 // ]SNIP:tool_index_section]
 
 Return to <<top>>
@@ -6825,22 +6825,6 @@ then run the inject utility. It will insert the referred code.
 Note: this tools generate also the global `src/luasnip.lua`; in this case no
 expansion is performed: it just overwrite all the contents with the new
 generated code.
-
-
-[#playground]
-Return to <<tool_rendez_vous,tool>>
-
-=== In-Browser playground
-
-The `tool/playground.html` file contains an in-browser editor and a Lua VM. By
-default LuaSnip is loaded in the `luasnip` global table so you can quickly test
-LuaSnip features.
-
-This app is powered by:
-
-- https://lua.org, the official lua VM implementation.
-- https://webassembly.org and https://emscripten.org, to compile it for the browser.
-- https://ace.c9.io[ACE], a code editor implemented in html5/javascript.
 // ]SNIP:tool_reference]
 
 == Conclusion

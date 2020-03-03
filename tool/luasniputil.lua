@@ -154,7 +154,6 @@ local modules = [[
  tool  ; climint.lua ; tool
  tool  ; debugger_stdinout.lua ; tool
  tool  ; luasniputil.lua ; tool
- tool  ; playground.lua ; tool
 
  doc ; documentation
 ]]
@@ -448,18 +447,6 @@ local function generate_documentation(ent)
   end
 end
 
-local function fix_embed(ent)
-  -- quick fix. find a general solution?
-  -- When linked in the playground.html, the first line is
-  -- merged to the tagline in playground.html. So the first line
-  -- is commented out.
-  if ent.name == 'luasnip_embed' then
-    local n = #(ent.content_pieces)
-    ent.content_pieces[1] = '\n' .. ent.content_pieces[1]
-    ent.content_pieces[n] = ent.content_pieces[n] .. '\n'
-  end
-end
-
 local function snippet_link(ent)
   if not ent.content_pieces then return end
   local linked = {}
@@ -589,7 +576,6 @@ local function generate_main()
 
   -- TODO : put in the module description string
   in_cache('luasnip_embed',{onfile=toolpath('luasnip.lua'),tag_prefix='%-%- ',skip_tag=true})
-  in_cache('htmltool',{onfile = toolpath('playground.html'),tolink=true,tag_prefix='-- '})
 
   apply(load_file_content)
   apply(cut_lua_documentation)
@@ -603,7 +589,6 @@ local function generate_main()
   apply(generate_collection)
   apply(generate_section_link)
   apply(generate_documentation)
-  apply(fix_embed)
   apply(snippet_link)
   apply(merge_content_pieces)
   apply(generate_amalgamation)
