@@ -43,10 +43,6 @@ http://unlicense.org/[Unlicense]. You are pratically allowed to do anything you
 want with this code, and you have not any obligation, as described in the
 COPYING.txt file.
 
-Some code is not part of LuaSnip and have a different license. The proper
-license is described at the top of the file tha contains it. E.g. in the `tool`
-directory there is some library needed for the <<playground,playground>>.
-
 Return to <<top>>
 
 == Status
@@ -58,7 +54,6 @@ of LuaSnip 1.0. More realistically, this list will never be empty.
 
 // TODO - the TODO list follows
 - Cleanup pegcore module and documentation !
-- Currently luasniputil must be run twice to regenerate playground.html. Why?
 - extract some sensible example from the following tests and put them in the source file documentation: stepdebug.ex1.lua , object.ex1.lua , searchluakeyword.ex1.lua , timeprof.ex1.lua ,
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
