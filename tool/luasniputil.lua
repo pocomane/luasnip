@@ -889,7 +889,7 @@ end
 
 local function lua_process_ram( script_path )
   local aux, out = gen_aux_script()
-  local cmd = 'lua' .. ' ' .. aux .. ' ' .. script_path
+  local cmd = LUA .. ' ' .. aux .. ' ' .. script_path
   os.execute(cmd)
   local f, err = io.open(out,"r")
   if not f or err then error(err) end
