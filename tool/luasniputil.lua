@@ -146,6 +146,7 @@ local modules = [[
  module  ; memo ; type
  module  ; pegcore ; str
  module  ; get ; tab
+ module  ; lzw ; parse
 
  module  ; new_module_scratch ; draft
 
@@ -948,6 +949,8 @@ local to_benchmark = {
   -- 'lineposition',
   -- -- 'memo',
   'pegcore',
+  -- -- 'get',
+  'lzw',
 }
 
 local function benchmark_main( ARG )
