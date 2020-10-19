@@ -24,12 +24,12 @@ purpose.
 
 local setmetatable, move = setmetatable, table.move
 
-local prototype_map = setmetatable({},{__mode="kv"})
+local prototype_map = setmetatable({},{__mode="k"})
 local function protoadd( instance, protochain )
 
   local protos = prototype_map[instance]
   if not protos then
-    protos = setmetatable( {meta={}}, {__mode="kv"} )
+    protos = setmetatable( {meta={}}, {__mode="k"} )
     prototype_map[instance] = protos
   end
   local meta = protos.meta
@@ -39,17 +39,13 @@ local function protoadd( instance, protochain )
     move( protos, 1, #protos, pn+1)
   end
   move( protochain, 1, pn, 1, protos )
-  pn = #protos
 
-  if pn == 1 then
-    meta.__index = protos[1]
-  else
-    meta.__index = function( _, k )
-      for p = 1, pn do
-        local field = protos[p][k]
-        if field ~= nil then
-          return field
-        end
+  meta.__index = function( _, k )
+    local pn = #protos
+    for p = 1, pn do
+      local field = protos[p][k]
+      if field ~= nil then
+        return field
       end
     end
   end
@@ -64,6 +60,7 @@ end
 
 local function has_proto( derived, base )
   local protos = prototype_map[derived]
+
   if protos then
     for _, b in pairs(protos) do
       if b == base then return true end

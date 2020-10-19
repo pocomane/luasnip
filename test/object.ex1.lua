@@ -123,5 +123,11 @@ t( object.isderived( e, b ), false )
 t( object.isderived( a, e ), true )
 t( object.isderived( b, e ), true )
 
+a = {method=function()end}
+b = object.inherit{ a }
+a = {}
+collectgarbage()
+t( type(b.method), 'function')
+
 t()
 
