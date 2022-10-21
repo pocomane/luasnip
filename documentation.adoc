@@ -55,6 +55,8 @@ of LuaSnip 1.0. More realistically, this list will never be empty.
 // TODO - the TODO list follows
 - Cleanup pegcore module and documentation !
 - extract some sensible example from the following tests and put them in the source file documentation: stepdebug.ex1.lua , object.ex1.lua , searchluakeyword.ex1.lua , timeprof.ex1.lua ,
+- improve shellcommand: option to change-directory before the command ?
+- improve shellcommand: companion function to merge two command so that they can run in the same shell ?
 - Simplify searchluakeyword : infinite-loop detection only ?
 - Split from searchluakeyword: move the comment and string detection in a dedicated module ?
 - Refactor names: argument and return value names should be more coherent in all the modules
