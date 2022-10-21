@@ -1,5 +1,6 @@
 
-local pegcore = require 'pegcore'
+local peg = require 'pegcore'
+local pegcore = peg.pegcore
 
 local peg_rule_str = [[
   toplevel <- expression

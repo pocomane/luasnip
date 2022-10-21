@@ -1,4 +1,4 @@
-local pegcore = require 'pegcore'
+local peg = require 'pegcore'
 local t = require 'testhelper'
 
 local P, S, A, Z, N, E = peg.PAT, peg.SEQ, peg.ALT, peg.ZER, peg.NOT, peg.EMP
@@ -94,6 +94,8 @@ t( G('a'), 0)
 t( G('b'), nil)
 
 -- TODO : move the rest somewhere else ! (maybe remove?)
+
+local pegcore = peg.pegcore
 
 local function chca( peg_rule_str, text, callb )
   local a, b = pegcore(peg_rule_str,callb)
