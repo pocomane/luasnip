@@ -245,12 +245,11 @@ local function peg_pattern_matcher( pattern )
     LOG('trying pattern ', pattern, ' at',DATA:sub(CURR or 1),'...')
     CURR = CURR or 1
     local d = DATA:sub( CURR )
-    local ast = { d:match( pattern ) }
-    if #ast == 0 then
-      return nil, nil
+    local m = d:match( pattern )
+    if not m then
+      return nil
     end
-    local size = #(ast[1])
-    return size, ast
+    return #m
   end
 
   return result
@@ -263,9 +262,8 @@ local function peg_alternation( alternatives )
     LOG('trying alternation at',DATA:sub(CURR or 1),'...')
     for p = 1, np do
       local X, r = alternatives[p]( DATA, CURR )
-      if nil ~= r then
-        r = { r, tag = "a"..tostring(p), selected = p }
-        return X, r
+      if nil ~= X then
+        return X, { p, r }
       end
     end
     return nil, nil
@@ -278,36 +276,34 @@ local function peg_sequence( sequence )
   return function( DATA, CURR )
     LOG('trying sequence at',DATA:sub(CURR or 1),'...')
     CURR = CURR or 1
-    local OLD, ast = CURR, { tag = "s" }
+    local OLD, ext = CURR, {}
     for p = 1, np do
       local X, r = sequence[p]( DATA, CURR )
-      if nil == r then
+      if nil == X then
         return nil, nil
       end
       CURR = CURR + X
-      ast[1+#ast] = r
+      ext[1+#ext] = r
     end
-    return CURR-OLD, ast
+    return CURR-OLD, ext
   end
 end
 
 local function peg_not( child_parser )
   return function( DATA, CURR )
     LOG('trying not-operator at',DATA:sub(CURR or 1),'...')
-    local ast = { tag = "n" }
     local X, r = child_parser( DATA, CURR )
-    if nil == r then
-      return 0, ast
+    if not X then
+      return 0
     end
-    return nil, nil
+    return nil
   end
 end
 
-local function peg_empty()
-  return function( DATA, CURR)
+local function peg_empty( )
+  return function( DATA, CURR )
     LOG('trying empty at',DATA:sub(CURR or 1),'...')
-    local ast = { tag = "e" }
-    return 0, ast
+    return 0
   end
 end
 
@@ -319,54 +315,46 @@ local function peg_zero_or_more( child_parser )
   return function( DATA, CURR )
     LOG('trying zero-or-more at',DATA:sub(CURR or 1),'...')
     CURR = CURR or 1
-    local OLD, ast = CURR, { tag = "z" }
+    local OLD = CURR
+    local ext = {}
     while true do
       local X, r = child_parser( DATA, CURR )
-      if nil == r then break end
+      if nil == X then break end
       CURR = CURR + X
-      ast[1+#ast] = r
+      ext[1+#ext] = r
     end
-    return CURR-OLD, ast
+    return CURR-OLD, ext
   end
 end
 
 -- usability wrappers
-local parser_wrapper_mt
-local function peg_operator_wrap(op)
-  if not parser_wrapper_mt then
-    local function geti(t, k)
-      if k == 'PEG' then
-        if rawget(t, 1) then error('parser alread have a PEG expression set', 3) end
-        return 1
-      elseif k == 'EXT' then
-        if rawget(t, 2) then error('parser alread have an exteral handler set', 3) end
-        return 2
+local parser_wrapper_mt = {
+  __index = function( t, k ) error( "The access to the PEG fields is not allowed", 2 ) end,
+  __newindex = function( t, k, v )
+    if k ~= 'EXT' then
+      error( 'The only allowed field is "EXT"', 2 )
+    end
+    local n = rawget( t, 'n' )+1
+    rawset( t, 'n', n )
+    return rawset( t, n, v )
+  end,
+  __call = function( t, ... )
+    local function chain_call( t, n, d, c, ... )
+      local f = rawget( t, n )
+      if n == 1 then
+        return f( d, c, ... )
       else
-        error('unsupported PEG field "'..tostring(k)..'"', 3)
+        return f( d, c, chain_call( t, n-1, d, c, ... ))
       end
     end
-    parser_wrapper_mt = {
-      __call = function(t, d, ...)
-        local s1 = rawget(t, 1)
-        local s2 = rawget(t, 2)
-        if s2 then
-          return s2(d, s1(d, ...))
-        else
-          return s1(d, ...)
-        end
-      end,
-    __index = function(t, k) return rawget(t, geti(t, k)) end,
-    __newindex = function(t, k, v) return rawset(t, geti(t, k), v) end,
-    }
-  end
-  if op then
-    return function(...)
-      return setmetatable({op(...), false}, parser_wrapper_mt)
-    end
-  else
-    return function(...)
-      return setmetatable({false, false}, parser_wrapper_mt)
-    end
+    local n = rawget( t, 'n' )
+    return chain_call( t, n, ... )
+  end,
+}
+local function peg_operator_wrap( op )
+  return function( ... ) return setmetatable(
+    op and {op( ... ), n = 1} or {false, n = 0},
+    parser_wrapper_mt)
   end
 end
 
@@ -378,22 +366,44 @@ local _M = {
   SEQ = peg_operator_wrap(peg_sequence),
   ALT = peg_operator_wrap(peg_alternation),
   PAT = peg_operator_wrap(peg_pattern_matcher),
-  REC = peg_operator_wrap(),
+  COM = peg_operator_wrap(),
 }
+peg=_M
 
 --------------------------------------------------------7
 -- TODO : move somewhere else ! (maybe remove ?)
 
+local function astwrap(op, aster)
+  return function(...)
+    local result = op(...)
+    result.EXT = aster
+    return result
+  end
+end
+
 local function create_core_parser( match_handler )
-  local EMP, PAT, ALT, SEQ = _M.EMP, _M.PAT, _M.ALT, _M.SEQ
-  local NOT, ZER, REC = _M.NOT, _M.ZER, _M.REC
+  local COM = _M.COM
+  local EMP = astwrap(_M.EMP, function(_, _, r, _) return r, r and { tag = 'e' } or nil end)
+  local PAT = astwrap(_M.PAT, function(d, c, r, _) return r, r and { d:sub( c, c+r-1 ) } or nil end)
+  local NOT = astwrap(_M.NOT, function(_, _, r, _) return  r, r and { tag = 'n' } or nil end)
+  local ALT = astwrap(_M.ALT, function(_, _, r, x) return r, r and { x[2], tag = "a"..tostring(x[1]), selected = x[1] } or nil end)
+  local SEQ = astwrap(_M.SEQ, function(_, _, r, x)
+    if nil == r then return nil, nil end
+    x.tag = 's'
+    return r, x
+  end)
+  local ZER = astwrap(_M.ZER, function(_, _, r, x)
+    if nil == r then return nil, nil end
+    x.tag = 'z'
+    return r, x
+  end)
 
   local whitespace =   PAT'[ \t\n\r]*'
 
   local identifier =   SEQ{ whitespace, PAT'[a-zA-Z][_0-9a-zA-Z]*', }
   local pattern =      SEQ{ whitespace, PAT"'[^']*'", }
   local empty =        SEQ{ whitespace, PAT'~', }
-  local alternation =  REC()
+  local alternation =  COM()
   local expression =   SEQ{ whitespace, PAT'%(', alternation, whitespace, PAT'%)', }
   local capture =      SEQ{ PAT':', identifier, }
 
@@ -402,9 +412,9 @@ local function create_core_parser( match_handler )
   local suffix =       SEQ{ primary, whitespace, PAT'[*+?]?', }
   local prefix =       SEQ{ whitespace, PAT'[&!]?', suffix, }
 
-  local sequence =     REC()
-  sequence.PEG =       SEQ{ prefix,   ZER( SEQ{ whitespace, PAT',', sequence, }), }
-  alternation.PEG =    SEQ{ sequence, ZER( SEQ{ whitespace, PAT'/', alternation, }), }
+  local sequence =     COM()
+  sequence.EXT =       SEQ{ prefix,   ZER( SEQ{ whitespace, PAT',', sequence, }), }
+  alternation.EXT =    SEQ{ sequence, ZER( SEQ{ whitespace, PAT'/', alternation, }), }
 
   local rule =         SEQ{ identifier, whitespace, PAT'<%-', alternation, whitespace, }
   local toplevel =     ZER( rule )
@@ -428,6 +438,7 @@ local function create_core_parser( match_handler )
       else
         p = parsed_grammar[rule]
       end
+      curr = curr or 1
       local a,b = p( data, curr )
       if b then b.tag = rule end
       if b and rule_handler then
@@ -460,7 +471,7 @@ local function create_core_parser( match_handler )
     return define, refer
   end
 
-  identifier.EXT = function(d, c, x)
+  identifier.EXT = function(_, _, c, x)
     if c and c >= 0 then
       local name = x[2][1]
       x.func = parsed_ref( name )
@@ -468,7 +479,7 @@ local function create_core_parser( match_handler )
     return c, x
   end
 
-  pattern.EXT = function(d, c, x)
+  pattern.EXT = function(_, _, c, x)
     if c and c >= 0 then
       local y = x
       y = y[2][1]:sub( 2, -2 ):gsub( '\\%x%x', function( h )
@@ -479,21 +490,21 @@ local function create_core_parser( match_handler )
     return c, x
   end
 
-  empty.EXT = function(d, c, x)
+  empty.EXT = function(_, _, c, x)
     if c and c >= 0 then
       x.func = EMP()
     end
     return c, x
   end
 
-  expression.EXT = function(d, c, x)
+  expression.EXT = function(_, _, c, x)
     if c and c >= 0 then
       x.func = x[3].func
     end
     return c, x
   end
 
-  capture.EXT = function(d, c, x)
+  capture.EXT = function(_, _, c, x)
     if c and c >= 0 then
       local _, f = parsed_ref( x[2][2][1], true )
       x.func = f
@@ -501,14 +512,14 @@ local function create_core_parser( match_handler )
     return c, x
   end
 
-  primary.EXT = function(d, c, x)
+  primary.EXT = function(_, _, c, x)
     if c and c >= 0 then
       x.func = x[1].func
     end
     return c, x
   end
 
-  suffix.EXT = function(d, c, x)
+  suffix.EXT = function(_, _, c, x)
     if c and c >= 0 then
       local o = x[3][1]
       if     o == '*' then x.func = ZER( x[1].func )
@@ -530,7 +541,7 @@ local function create_core_parser( match_handler )
     return c, x
   end
 
-  prefix.EXT = function(d, c, x)
+  prefix.EXT = function(_, _, c, x)
     if c and c >= 0 then
       local o = x[2][1]
       if     o == '!' then x.func = NOT( x[3].func )
@@ -541,7 +552,7 @@ local function create_core_parser( match_handler )
     return c, x
   end
 
-  sequence.EXT = function(d, c, x)
+  sequence.EXT = function(_, _, c, x)
     if c and c >= 0 then
       if 0 == #(x[2]) then
         x.func = x[1].func
@@ -560,7 +571,7 @@ local function create_core_parser( match_handler )
     return c, x
   end
 
-  alternation.EXT = function(d, c, x)
+  alternation.EXT = function(_, _, c, x)
     if c and c >= 0 then
       if 0 == #(x[2]) then
         x.func = x[1].func
@@ -579,7 +590,7 @@ local function create_core_parser( match_handler )
     return c, x
   end
 
-  rule.EXT = function(d, c, x)
+  rule.EXT = function(_, _, c, x)
     if c and c >= 0 then
       local tag = x[1][2][1]
       local func = x[4].func
@@ -588,7 +599,7 @@ local function create_core_parser( match_handler )
     return c, x
   end
 
-  toplevel.EXT = function(d, c, x)
+  toplevel.EXT = function(_, _, c, x)
     if c and c >= 0 then
       x.func = parsed_grammar.toplevel and parsed_ref'toplevel'
     end
