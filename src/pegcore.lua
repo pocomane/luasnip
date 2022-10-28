@@ -77,20 +77,20 @@ will try to match `y`. More than two alternation can be given, e.g.
 `ALT{PAT'x',PAT'y',PAT'x'}`. If none of the alternatve match, the wole
 alternation will fail.
 
-The last composition mechanism is recursion. To express a pair of parser that
-call each other, the following syntax can be used:
+The last composition mechanism is recursion, supported directly by lua. Please
+note that to express a pair of mutually recursive pareser, you need to add a
+level of indirection:
 
 ```
-local r = PAT''
-local s = SEQ{PAT'y', r}
-r.EXT   = SEQ{PAT'x', s}
+local r
+local s = SEQ{PAT'y', function(...) return r(...) end}
+r =       SEQ{PAT'x', s}
 ```
 
-The pecise working of the `EXT` field is described in the section about the
-extendability. Here it is used just to override the temporary parser `r`, that
-was originally created to act as a "Placeholder" to pass to `SEQ`.
+To avoid the long boilerplate, there is a workaround using the `COM()` function,
+described described in the section about the extendability.
 
-Please note that using recursive pattern can generate infinite loops.
+Please note that using recursive parsers can generate infinite loops.
 
 == Other commons parser operators
 
@@ -140,9 +140,10 @@ bla bla
 ----
 local peg = require 'pegcore'
 
-local P, S, Z = peg.PAT, peg.SEQ, peg.ZER
+local P, S, Z, C = peg.PAT, peg.SEQ, peg.ZER, peg.COM
 local whitespace = P'[ \t]*'
-local name = P'[a-z]+'
+local name = C()
+name.EXT = P'[a-z]+'
 local list = S{ whitespace, name, Z(S{
   whitespace, P',', whitespace, name
 })}
@@ -282,32 +283,38 @@ local function peg_check_no_consume( child_parser )
 end
 
 -- usability wrappers
-local parser_wrapper_mt = {
-  __index = function( t, k ) error( "The access to the PEG fields is not allowed", 2 ) end,
-  __newindex = function( t, k, v )
-    if k ~= 'EXT' then error( 'The only allowed field is "EXT"', 2 ) end
-    local n = rawget( t, 'n' )+1
-    rawset( t, 'n', n )
-    return rawset( t, n, v )
-  end,
-  __call = function( t, ... )
-    local function chain_call( t, n, d, c, ... )
-      local f = rawget( t, n )
-      if n == 1 then
-        return f( d, c, ... )
-      else
-        return f( d, c, chain_call( t, n-1, d, c, ... ))
-      end
+local function new_peg_parser( core )
+  local extend, define_dispatch
+  local function define( parser )
+    if not core then
+      core = parser
+    elseif not extend then
+      extend, define_dispatch = new_peg_parser( parser)
+    else
+      define_dispatch( parser )
     end
-    local n = rawget( t, 'n' )
-    return chain_call( t, n, ... )
-  end,
-}
-local function peg_operator_wrap( op )
-  return function( ... ) return setmetatable(
-    op and {op( ... ), n = 1} or {false, n = 0},
-    parser_wrapper_mt)
   end
+  local function call( d, c, ... )
+    if not extend then
+      return core( d, c, ...)
+    else
+      return extend( d, c, core( d, c, ...))
+    end
+  end
+  return setmetatable({}, {
+    __call = function( t, ... ) return call( ... ) end,
+    __index = function( t, k )
+      if k ~= 'EXT' then error( 'The only allowed field is "EXT"', 2 ) end
+      return define
+    end,
+    __newindex = function( t, k, v )
+      if k ~= 'EXT' then error( 'The only allowed field is "EXT"', 2 ) end
+      define( v )
+    end,
+  }), define
+end
+local function peg_operator_wrap( op )
+  return function( ... ) return new_peg_parser( op and op( ...)), nil end
 end
 
 local _M = {
@@ -573,4 +580,3 @@ end
 
 _M.pegcore = pegcore
 return _M
-
