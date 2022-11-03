@@ -21,7 +21,7 @@ function ZER(parser) -> parser
 function ONE(parser) -> parser
 function OPT(parser) -> parser
 function CHE(parser) -> parser
-function COM() -> parser
+function COM(parser, extraFunc) -> parser
 ----
 
 This is a module to write parser though PEG.
@@ -78,7 +78,7 @@ will try to match `y`. More than two alternation can be given, e.g.
 alternation will fail.
 
 The last composition mechanism is recursion, supported directly by lua. Please
-note that to express a pair of mutually recursive pareser, you need to add a
+note that to express a pair of mutually recursive paresers, you need to add a
 level of indirection:
 
 ```
@@ -108,7 +108,7 @@ character sets like `PAT'[a-zA-Z]'`.
 `EMP()` returns a parser equivalent to `ALT{NOT(PAT'a'),NOT(NOT(PAT'a'))}`. It
 always matches the empty string i.e. it always returns 0. [1]
 
-`y = ZER(x)` is the same of `y = COM() ; y.EXT = SEQ{x,ALT{y,EMP()}}`. It
+`y = ZER(x)` is the same of `y = COM() ; COM(y, SEQ{x,ALT{y,EMP()}})`. It
 continues to match `z` until it fails. Then it retuns the whole match. If `x`
 never matches, it matches the empty strings.
 
@@ -140,18 +140,17 @@ bla bla
 ----
 local peg = require 'pegcore'
 
-local P, S, Z, C = peg.PAT, peg.SEQ, peg.ZER, peg.COM
+local P, S, Z, COM = peg.PAT, peg.SEQ, peg.ZER, peg.COM
 local whitespace = P'[ \t]*'
-local name = C()
-name.EXT = P'[a-z]+'
+local name = P'[a-z]+'
 local list = S{ whitespace, name, Z(S{
   whitespace, P',', whitespace, name
 })}
 
-name.EXT = function(d, c, m, r)
+COM(name, function(d, c, m, r)
   if m then r = d:sub(c,c+m-1) end
   return m, r
-end
+end)
 
 local p, ast = list'horse, cat, duck, shark'
 assert( p == 23 )
@@ -283,41 +282,32 @@ local function peg_check_no_consume( child_parser )
 end
 
 -- usability wrappers
-local function new_peg_parser( core )
-  local extend, define_dispatch
-  local function define( parser )
-    if not core then
-      core = parser
-    elseif not extend then
-      extend, define_dispatch = new_peg_parser( parser)
-    else
-      define_dispatch( parser )
-    end
+local function peg_wrap( wrapper, extra )
+  if wrapper then
+    wrapper.EXT(extra)
+  else
+    local inner = extra
+    local wrapper = { EXT = function(extra)
+      local old = inner
+      inner = not old and extra or function( d, c, ...)
+        return extra( d, c, old( d, c, ...))
+      end
+    end}
+    return setmetatable( wrapper, {
+      __call = function( t, d, c, ...) return inner( d, c, ...) end,
+      -- __add = function(t,o) end,
+      -- __sub = function(t,o) end,
+      -- __mul = function(t,o) end,
+    })
   end
-  local function call( d, c, ... )
-    if not extend then
-      return core( d, c, ...)
-    else
-      return extend( d, c, core( d, c, ...))
-    end
-  end
-  return setmetatable({}, {
-    __call = function( t, ... ) return call( ... ) end,
-    __index = function( t, k )
-      if k ~= 'EXT' then error( 'The only allowed field is "EXT"', 2 ) end
-      return define
-    end,
-    __newindex = function( t, k, v )
-      if k ~= 'EXT' then error( 'The only allowed field is "EXT"', 2 ) end
-      define( v )
-    end,
-  }), define
+  return wrapper
 end
 local function peg_operator_wrap( op )
-  return function( ... ) return new_peg_parser( op and op( ...)), nil end
+  return function( ... ) return peg_wrap( nil,  op( ...)) end
 end
 
 local _M = {
+  COM = peg_wrap,
   CHE = peg_operator_wrap(peg_check_no_consume),
   OPT = peg_operator_wrap(peg_optional),
   ONE = peg_operator_wrap(peg_one_or_more),
@@ -327,7 +317,6 @@ local _M = {
   SEQ = peg_operator_wrap(peg_sequence),
   ALT = peg_operator_wrap(peg_alternation),
   PAT = peg_operator_wrap(peg_pattern_matcher),
-  COM = peg_operator_wrap(),
 }
 
 --------------------------------------------------------7
@@ -336,7 +325,7 @@ local _M = {
 local function astwrap(op, aster)
   return function(...)
     local result = op(...)
-    result.EXT = aster
+    _M.COM(result, aster)
     return result
   end
 end
@@ -373,8 +362,8 @@ local function create_core_parser( match_handler )
   local prefix =       SEQ{ whitespace, PAT'[&!]?', suffix, }
 
   local sequence =     COM()
-  sequence.EXT =       SEQ{ prefix,   ZER( SEQ{ whitespace, PAT',', sequence, }), }
-  alternation.EXT =    SEQ{ sequence, ZER( SEQ{ whitespace, PAT'/', alternation, }), }
+  COM(  sequence,      SEQ{ prefix,   ZER( SEQ{ whitespace, PAT',', sequence, }), })
+  COM(  alternation,   SEQ{ sequence, ZER( SEQ{ whitespace, PAT'/', alternation, }), })
 
   local rule =         SEQ{ identifier, whitespace, PAT'<%-', alternation, whitespace, }
   local toplevel =     ZER( rule )
@@ -431,15 +420,15 @@ local function create_core_parser( match_handler )
     return define, refer
   end
 
-  identifier.EXT = function(_, _, c, x)
+  COM(identifier, function(_, _, c, x)
     if c and c >= 0 then
       local name = x[2][1]
       x.func = parsed_ref( name )
     end
     return c, x
-  end
+  end)
 
-  pattern.EXT = function(_, _, c, x)
+  COM(pattern, function(_, _, c, x)
     if c and c >= 0 then
       local y = x
       y = y[2][1]:sub( 2, -2 ):gsub( '\\%x%x', function( h )
@@ -448,38 +437,38 @@ local function create_core_parser( match_handler )
       x.func = PAT( y )
     end
     return c, x
-  end
+  end)
 
-  empty.EXT = function(_, _, c, x)
+  COM(empty, function(_, _, c, x)
     if c and c >= 0 then
       x.func = EMP()
     end
     return c, x
-  end
+  end)
 
-  expression.EXT = function(_, _, c, x)
+  COM(expression, function(_, _, c, x)
     if c and c >= 0 then
       x.func = x[3].func
     end
     return c, x
-  end
+  end)
 
-  capture.EXT = function(_, _, c, x)
+  COM(capture, function(_, _, c, x)
     if c and c >= 0 then
       local _, f = parsed_ref( x[2][2][1], true )
       x.func = f
     end
     return c, x
-  end
+  end)
 
-  primary.EXT = function(_, _, c, x)
+  COM(primary, function(_, _, c, x)
     if c and c >= 0 then
       x.func = x[1].func
     end
     return c, x
-  end
+  end)
 
-  suffix.EXT = function(_, _, c, x)
+  COM(suffix, function(_, _, c, x)
     if c and c >= 0 then
       local o = x[3][1]
       if     o == '*' then x.func = ZER( x[1].func )
@@ -499,9 +488,9 @@ local function create_core_parser( match_handler )
       end
     end
     return c, x
-  end
+  end)
 
-  prefix.EXT = function(_, _, c, x)
+  COM(prefix, function(_, _, c, x)
     if c and c >= 0 then
       local o = x[2][1]
       if     o == '!' then x.func = NOT( x[3].func )
@@ -510,9 +499,9 @@ local function create_core_parser( match_handler )
       end
     end
     return c, x
-  end
+  end)
 
-  sequence.EXT = function(_, _, c, x)
+  COM(sequence, function(_, _, c, x)
     if c and c >= 0 then
       if 0 == #(x[2]) then
         x.func = x[1].func
@@ -529,9 +518,9 @@ local function create_core_parser( match_handler )
       x.func = SEQ(seq)
     end
     return c, x
-  end
+  end)
 
-  alternation.EXT = function(_, _, c, x)
+  COM(alternation, function(_, _, c, x)
     if c and c >= 0 then
       if 0 == #(x[2]) then
         x.func = x[1].func
@@ -548,23 +537,23 @@ local function create_core_parser( match_handler )
       x.func = ALT(alt)
     end
     return c, x
-  end
+  end)
 
-  rule.EXT = function(_, _, c, x)
+  COM(rule, function(_, _, c, x)
     if c and c >= 0 then
       local tag = x[1][2][1]
       local func = x[4].func
       parsed_grammar[tag] = func
     end
     return c, x
-  end
+  end)
 
-  toplevel.EXT = function(_, _, c, x)
+  COM(toplevel, function(_, _, c, x)
     if c and c >= 0 then
       x.func = parsed_grammar.toplevel and parsed_ref'toplevel'
     end
     return c, x
-  end
+  end)
 
   return toplevel
 end
