@@ -59,7 +59,7 @@ local clone;
 local datestd;
 local lineposition;
 local memo;
-local pegcore;
+local peg;
 local get;
 local lzw;
 
@@ -3327,7 +3327,7 @@ return memo
 
 end)()
 
-pegcore = (function()
+peg = (function()
 
 
 -- TODO : CLEAN UP ! -- THIS IS A DRAFT ! --
@@ -3797,7 +3797,7 @@ return {
   datestd = datestd,
   lineposition = lineposition,
   memo = memo,
-  pegcore = pegcore,
+  peg = peg,
   get = get,
   lzw = lzw,
 }

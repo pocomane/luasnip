@@ -1,4 +1,4 @@
-local peg = require 'pegcore'
+local peg = require 'peg'
 local t = require 'testhelper'
 
 local P, N, S, A, Z, E, O, M, C =

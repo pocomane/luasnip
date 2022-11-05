@@ -1,5 +1,5 @@
 
-local peg = require 'pegcore'
+local peg = require 'peg'
 local pegcore = peg.pegcore
 
 local peg_rule_str = [[

@@ -1,9 +1,9 @@
 --[===[DOC
 
-= pegcore
+= peg
 
 -- TODO : CLEAN UP ! -- THIS IS A DRAFT ! --
--- TODO : SYNC : doc and pegcore api
+-- TODO : SYNC : doc and peg api
 -- TODO : REMOVE grammar !!?
 -- TODO : ADD comment in grammar ?
 -- TODO : SYNC : doc and matchHandlerFunc api
@@ -95,7 +95,7 @@ Please note that using recursive parsers can generate infinite loops.
 == Other commons parser operators
 
 Every parser can be composed from the basic ones with the shown mchanism,
-however some other parser and operation are defined by default in `pegcore` to
+however some other parser and operation are defined by default in `peg` to
 make easier to write grammars.
 
 The parser `PAT'abc'` is the same of `SEQ{PAT'a',PAT'b',PAT'c'}`; escapes can
@@ -138,7 +138,7 @@ bla bla
 
 [source,lua,example]
 ----
-local peg = require 'pegcore'
+local peg = require 'peg'
 
 local P, S, Z, COM = peg.PAT, peg.SEQ, peg.ZER, peg.COM
 local whitespace = P'[ \t]*'
