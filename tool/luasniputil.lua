@@ -948,7 +948,7 @@ local to_benchmark = {
   -- 'datestd',
   -- 'lineposition',
   -- -- 'memo',
-  'pegcore',
+  'peg',
   -- -- 'get',
   'lzw',
 }

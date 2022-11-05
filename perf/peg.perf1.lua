@@ -1,37 +1,31 @@
 
 local peg = require 'peg'
-local pegcore = peg.pegcore
 
-local peg_rule_str = [[
-  toplevel <- expression
+local number = peg.PAT'%-?[0-9]+'
 
-  expression <- term, (term_operator, term)?
-  term <- factor, (factor_operator, factor)?
-  factor <- number / sub_expression
-  sub_expression <- '%(', expression, '%)'
+local factor_operator = peg.PAT'%*' / peg.PAT'/'
+local term_operator =   peg.PAT'%+' / peg.PAT'%-'
 
-  number <- '%-?[0-9]+'
-  term_operator <- '%+' / '%-'
-  factor_operator <- '%*' / '%/'
-]]
+local expression =      peg.COM()
 
-local text = "2*(-3+5)"
+local sub_expression =  peg.PAT'%(' + expression + peg.PAT'%)'
+local factor =          number / sub_expression
+local term =            factor + (factor_operator + factor) ^0
+
+expression.EXT(         term + (term_operator + term)^0)
+
+local toplevel =        expression
+
+local base = "(1+2)*(-3-4)/50"
+base = base .. '*(' .. base .. '*(' .. base .. '))'
+base = base .. '+(' .. base .. '+(' .. base .. '))'
+local good = '0+(' .. (base .. '+' .. base .. '*'):rep(10) .. base .. ')'
+local bad = '(' .. good
 
 return function()
-  local a, b = pegcore(peg_rule_str,nil)
-  local CURR, ast
-  if a ~= #peg_rule_str then
-    CURR, ast = a, nil, b
-  else
-    CURR, ast = a, b
-  end
-  local POS = CURR and CURR+1 or 1
-  if not CURR or not ast or not ast.func then
-    error("invalid rules")
-  end
-  local last = ast.func(text)
-  if last ~= #text then
-    error("invalid text")
-  end
+  local last = toplevel(good)
+  if last ~= #good then error("text not parsed") end
+  local last = toplevel(bad)
+  if last ~= nil then error("error not catched") end
 end
 
