@@ -3352,7 +3352,7 @@ local function peg_pattern_matcher( pattern )
     local d = DATA:sub( CURR )
     local m = d:match( pattern )
     if not m then return nil end
-    return #m
+    return #m, {} -- TODO : do not return {} ???
   end
 
   return result
@@ -3392,7 +3392,7 @@ local function peg_not( child_parser )
   return function( DATA, CURR )
     LOG('trying not-operator at',DATA:sub(CURR or 1),'...')
     local m, r = child_parser( DATA, CURR )
-    if not m then return 0 end
+    if not m then return 0, {} end -- TODO : do not return {} ???
     return nil
   end
 end
@@ -3434,7 +3434,7 @@ local function peg_optional( child_parser )
   return function( DATA, CURR )
     LOG('trying optional at',DATA:sub(CURR or 1),'...')
     local m, r = child_parser( DATA, CURR )
-    if not m then return 0, nil end
+    if not m then return 0, {} end -- TODO : do not return {} ???
     return m, r
   end
 end
@@ -3448,23 +3448,35 @@ local function peg_check_no_consume( child_parser )
   end
 end
 
--- usability wrappers
+-- usability wrapper
 local function peg_wrap( wrapper, extra )
+  if '' == wrapper then return peg_wrap(nil, peg_empty()) end
+  if 'string' == type(wrapper) then return peg_wrap(nil, peg_pattern_matcher(wrapper)) end
   if wrapper then
     wrapper.EXT(extra)
   else
     local inner = extra
-    local wrapper = { EXT = function(extra)
-      local old = inner
-      inner = not old and extra or function( d, c, ...)
-        return extra( d, c, old( d, c, ...))
+    wrapper = setmetatable({
+      EXT = function(extra)
+        local old = inner
+        inner = not old and extra or function( d, c, ...)
+          return extra( d, c, old( d, c, ...))
+        end
       end
-    end}
-    return setmetatable( wrapper, {
+    },{
       __call = function( t, d, c, ...) return inner( d, c, ...) end,
-      -- __add = function(t,o) end,
-      -- __sub = function(t,o) end,
-      -- __mul = function(t,o) end,
+      __add =  function(t,o) return peg_wrap( nil, peg_sequence{ t, o }) end,
+      __unm =  function(t)   return peg_wrap( nil, peg_not( t )) end,
+      __sub =  function(t,o) return peg_wrap( nil, peg_sequence{t,peg_not(o)}) end,
+      __div =  function(t,o) return peg_wrap( nil, peg_alternation{t,o}) end,
+      __bnot = function(t)   return peg_wrap( nil, peg_check_no_consume(t)) end,
+      __bxor = function(t,o) return peg_wrap( nil, peg_sequence{t,peg_check_no_consume(o)}) end,
+      __pow =  function(t,o)
+        -- TODO : better and more generic definition !
+        if 0 == o then  return peg_wrap( nil, peg_zero_or_more(t)) end
+        if 1 == o then  return peg_wrap( nil, peg_one_or_more(t)) end
+        if -1 == o then return peg_wrap( nil, peg_optional(t)) end
+      end,
     })
   end
   return wrapper
@@ -3474,7 +3486,7 @@ local function peg_operator_wrap( op )
 end
 
 local _M = {
-  COM = peg_wrap,
+  COM = peg_wrap, -- Only this is actually needed: the others can be generated in other ways
   CHE = peg_operator_wrap(peg_check_no_consume),
   OPT = peg_operator_wrap(peg_optional),
   ONE = peg_operator_wrap(peg_one_or_more),
