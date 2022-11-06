@@ -17,9 +17,7 @@ function NOT(parser) -> parser
 function SEQ{parser1, parser2, ...} -> parser
 function ALT{parser1, parser2, ...} -> parser
 function EMP() -> parser
-function ZER(parser) -> parser
-function ONE(parser) -> parser
-function OPT(parser) -> parser
+function REP(parser, minInt, maxInt) -> parser
 function CHE(parser) -> parser
 function COM(parser, extraFunc) -> parser
 ----
@@ -108,15 +106,16 @@ character sets like `PAT'[a-zA-Z]'`.
 `EMP()` returns a parser equivalent to `ALT{NOT(PAT'a'),NOT(NOT(PAT'a'))}`. It
 always matches the empty string i.e. it always returns 0. [1]
 
-`y = ZER(x)` is the same of `y = COM() ; COM(y, SEQ{x,ALT{y,EMP()}})`. It
+`y = REP(x)` is the same of `y = COM() ; COM(y, SEQ{x,ALT{y,EMP()}})`. It
 continues to match `z` until it fails. Then it retuns the whole match. If `x`
 never matches, it matches the empty strings.
 
-Similarly, `y = ONE(x)` returns all the repeated matches of `x`, but it fails if
-no one is found.
-
-The function `OPT(x)` returns a parser that is equivalent to `ALT{x,EMP()}`. It
-matches `x` otherwise it match the empty string.
+You can sepcify a minimum and maximum number of repetition with `y = REP(x,
+min, max)`.  If not enough items are found the parser will fail. If more of the
+maximum are present, only a number equal to the maximum will be matched.  The
+maximum can be omitted to accept all of them. Other common usages are: `REP(x,
+0, 1)` to optionally accept a string, or `REP(x, 1)` to accept any number of
+them, but at least one.
 
 The function `CHE(x)` returns a parser equivalent to `NOT(NOT(x))`. It mathces the
 empty string if `x` matches, otherwise it fails. It is similar to `x` but it
@@ -127,6 +126,20 @@ never consumes the input.
     construct any parser that a fully featured PEG can construct, with the
     following exception: if the full-PEG parser match the empty string, the
     sub-PEG one will match any string.
+
+== Math operation
+
+Some of the parser operations seen before are mapped to classical mathematical
+operator on the parser objects. The following equivalence list holds:
+
+- `x / y` is the same of `ALT{x, y}`
+- `x + y` is the same of `SEQ{x, y}`
+- `-x` is the same of `NOT(x)`
+- `x - y` is the same of `SEQ{x, NOT(y)}`
+- `x ^N`, whre N is zero or a positive integer, is the same of `REP(x, N)`
+- `x ^-N`, whre N is a positive integer, is the same of `REP(x, nil, N)`
+- `~x`, is the same of `CHE(x)`
+- `x ~ y` is the same of `SEQ{x, CHE(y)}`
 
 == Extendability
 
@@ -140,10 +153,10 @@ bla bla
 ----
 local peg = require 'peg'
 
-local P, S, Z, COM = peg.PAT, peg.SEQ, peg.ZER, peg.COM
+local P, S, R, COM = peg.PAT, peg.SEQ, peg.REP, peg.COM
 local whitespace = P'[ \t]*'
 local name = P'[a-z]+'
-local list = S{ whitespace, name, Z(S{
+local list = S{ whitespace, name, R(S{
   whitespace, P',', whitespace, name
 })}
 
@@ -238,38 +251,28 @@ local function peg_empty( )
   end
 end
 
-local function peg_zero_or_more( child_parser )
+local function peg_repetition( child_parser, min, max )
+  for _, x in ipairs{ min, max} do
+    local xt = type(x)
+    if ('number' ~= xt and 'nil' ~= xt)
+    or ('number' == xt and 0 > x)
+    or ('number' == xt and 0 ~= select(2, math.modf(x)))
+    then error('second and third parameter of repetition must be nil, zero or a positive integer', 3) end
+  end
   return function( DATA, CURR )
-    LOG('trying zero-or-more at',DATA:sub(CURR or 1),'...')
+    LOG('trying repetition at',DATA:sub(CURR or 1),'...')
     CURR = CURR or 1
-    local OLD = CURR
-    local ext = {}
+    local OLD, ext, count = CURR, {}, 0
     while true do
+      if max and max <= count then break end
       local m, r = child_parser( DATA, CURR )
       if not m then break end
+      count = count + 1
       CURR = CURR + m
       ext[1+#ext] = r
     end
+    if min and count < min then return nil, nil end
     return CURR-OLD, ext
-  end
-end
-
-local function peg_one_or_more( child_parser )
-  local p = peg_zero_or_more( child_parser )
-  return function( DATA, CURR )
-    LOG('trying one-or-more at',DATA:sub(CURR or 1),'...')
-    local m, r = p( DATA, CURR )
-    if 0 == m then return nil, nil end
-    return m, r
-  end
-end
-
-local function peg_optional( child_parser )
-  return function( DATA, CURR )
-    LOG('trying optional at',DATA:sub(CURR or 1),'...')
-    local m, r = child_parser( DATA, CURR )
-    if not m then return 0, {} end -- TODO : do not return {} ???
-    return m, r
   end
 end
 
@@ -306,10 +309,8 @@ local function peg_wrap( wrapper, extra )
       __bnot = function(t)   return peg_wrap( nil, peg_check_no_consume(t)) end,
       __bxor = function(t,o) return peg_wrap( nil, peg_sequence{t,peg_check_no_consume(o)}) end,
       __pow =  function(t,o)
-        -- TODO : better and more generic definition !
-        if 0 == o then  return peg_wrap( nil, peg_zero_or_more(t)) end
-        if 1 == o then  return peg_wrap( nil, peg_one_or_more(t)) end
-        if -1 == o then return peg_wrap( nil, peg_optional(t)) end
+        if 0 >  o then return peg_wrap( nil, peg_repetition(t, 0, -o)) end
+        if 0 <= o then return peg_wrap( nil, peg_repetition(t, o, nil)) end
       end,
     })
   end
@@ -320,14 +321,12 @@ local function peg_operator_wrap( op )
 end
 
 return {
-  COM = peg_wrap, -- Only this is actually needed: the others can be generated in other ways
-  CHE = peg_operator_wrap(peg_check_no_consume),
-  OPT = peg_operator_wrap(peg_optional),
-  ONE = peg_operator_wrap(peg_one_or_more),
-  ZER = peg_operator_wrap(peg_zero_or_more),
+  COM = peg_wrap, -- Only this is actually needed: the others can be generated with math operators
   EMP = peg_operator_wrap(peg_empty),
+  PAT = peg_operator_wrap(peg_pattern_matcher),
   NOT = peg_operator_wrap(peg_not),
   SEQ = peg_operator_wrap(peg_sequence),
   ALT = peg_operator_wrap(peg_alternation),
-  PAT = peg_operator_wrap(peg_pattern_matcher),
+  CHE = peg_operator_wrap(peg_check_no_consume),
+  REP = peg_operator_wrap(peg_repetition),
 }
