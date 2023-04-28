@@ -847,6 +847,8 @@ jsonish = (function()
 
 local function json_to_table_literal(s)
 
+  s = s:gsub('([^\\])""',"%1''")
+
   s = s:gsub([[\\]],[[\u{5C}]])
   s = (' '..s):gsub('([^\\])(".-[^\\]")', function( prefix, quoted )
     -- Matched string: quoted, non empty
@@ -3439,42 +3441,44 @@ local function peg_check_no_consume( child_parser )
 end
 
 -- usability wrapper
-local function peg_wrap( wrapper, extra )
-  if '' == wrapper then return peg_wrap(nil, peg_empty()) end
-  if 'string' == type(wrapper) then return peg_wrap(nil, peg_pattern_matcher(wrapper)) end
-  if wrapper then
-    wrapper.EXT(extra)
-  else
-    local inner = extra
-    wrapper = setmetatable({
-      EXT = function(extra)
-        local old = inner
-        inner = not old and extra or function( d, c, ...)
-          return extra( d, c, old( d, c, ...))
-        end
+local function peg_wrap( inner )
+  return setmetatable({
+    EXT = function(extra)
+      local old = inner
+      inner = not old and extra or function( d, c, ...)
+        return extra( d, c, old( d, c, ...))
       end
-    },{
-      __call = function( t, d, c, ...) return inner( d, c, ...) end,
-      __add =  function(t,o) return peg_wrap( nil, peg_sequence{ t, o }) end,
-      __unm =  function(t)   return peg_wrap( nil, peg_not( t )) end,
-      __sub =  function(t,o) return peg_wrap( nil, peg_sequence{t,peg_not(o)}) end,
-      __div =  function(t,o) return peg_wrap( nil, peg_alternation{t,o}) end,
-      __bnot = function(t)   return peg_wrap( nil, peg_check_no_consume(t)) end,
-      __bxor = function(t,o) return peg_wrap( nil, peg_sequence{t,peg_check_no_consume(o)}) end,
-      __pow =  function(t,o)
-        if 0 >  o then return peg_wrap( nil, peg_repetition(t, 0, -o)) end
-        if 0 <= o then return peg_wrap( nil, peg_repetition(t, o, nil)) end
-      end,
-    })
-  end
-  return wrapper
+    end
+  },{
+    __call = function( t, d, c, ...) return inner( d, c, ...) end,
+    __add =  function(t,o) return peg_wrap( peg_sequence{ t, o }) end,
+    __unm =  function(t)   return peg_wrap( peg_not( t )) end,
+    __sub =  function(t,o) return peg_wrap( peg_sequence{t,peg_not(o)}) end,
+    __div =  function(t,o) return peg_wrap( peg_alternation{t,o}) end,
+    __bnot = function(t)   return peg_wrap( peg_check_no_consume(t)) end,
+    __bxor = function(t,o) return peg_wrap( peg_sequence{t,peg_check_no_consume(o)}) end,
+    __pow =  function(t,o)
+      if 0 >  o then return peg_wrap( peg_repetition(t, 0, -o)) end
+      if 0 <= o then return peg_wrap( peg_repetition(t, o, nil)) end
+    end,
+  })
 end
-local function peg_operator_wrap( op )
-  return function( ... ) return peg_wrap( nil,  op( ...)) end
+local function peg_compose( base, extra )
+  if '' == base then base = peg_wrap( peg_empty())
+  elseif 'string' == type(base) then base = peg_wrap( peg_pattern_matcher(base))
+  elseif nil == base then base = peg_wrap( extra)
+  end
+  if extra then
+    base.EXT(extra)
+  end
+  return base
 end
 
+local function peg_operator_wrap( op )
+  return function( ... ) return peg_wrap( op( ...)) end
+end
 return {
-  COM = peg_wrap, -- Only this is actually needed: the others can be generated with math operators
+  COM = peg_compose, -- Only this is actually needed: the others can be generated with math operators
   EMP = peg_operator_wrap(peg_empty),
   PAT = peg_operator_wrap(peg_pattern_matcher),
   NOT = peg_operator_wrap(peg_not),

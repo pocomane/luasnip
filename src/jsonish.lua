@@ -33,6 +33,8 @@ assert( data.b[3] == 101 )
 
 local function json_to_table_literal(s)
 
+  s = s:gsub('([^\\])""',"%1''")
+
   s = s:gsub([[\\]],[[\u{5C}]])
   s = (' '..s):gsub('([^\\])(".-[^\\]")', function( prefix, quoted )
     -- Matched string: quoted, non empty
