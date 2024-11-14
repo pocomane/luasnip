@@ -24,6 +24,10 @@ t( ' hello world! hello world! hello world!', m{ item = 'world' } )
 m = templua( "@{{for i=1,3 do out(' hello '..item..'!') end}}" )
 t( ' hello dude! hello dude! hello dude!', m{ item = 'dude' } )
 
+-- Statement that do not cover all the string
+m = templua( "hello @{{a=1}} world" )
+t( 'hello  world', m{} )
+
 -- Last text appending
 m = templua( "@{'true'} ok" )
 t( 'true ok', m{} )

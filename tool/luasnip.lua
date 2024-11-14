@@ -2490,7 +2490,7 @@ local function templua( template ) --> ( sandbox ) --> expstr, err
        if start > position then
          script = script .. expr( fmt( '%q', template:sub(position, start-1) ) )
        end
-       if template:match( '^@{{.*}}$', start ) then
+       if template:match( '^@{{.*}}', start ) then
           script = script .. template:sub( start+3, finish-2 )
        else
           script = script .. expr( template:sub( start+2, finish-1 ) )
