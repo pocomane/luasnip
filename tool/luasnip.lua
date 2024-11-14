@@ -2199,7 +2199,7 @@ local function subbyte_alphabet_invert( map )
   local imap = {}
 
   -- cache standard inverse alphabets
-  if map == subbyte_multipurpose_alphabet or map == subbyte_base64_alphabe then
+  if map == subbyte_multipurpose_alphabet or map == subbyte_base64_alphabet then
     local s = subbyte_inverse_cache[map]
     if s then return s end
     subbyte_inverse_cache[map] = s
@@ -2478,21 +2478,26 @@ local error = error
 
 local function templua( template ) --> ( sandbox ) --> expstr, err
    local function expr(e) return ' out('..e..')' end
-  
-   -- Generate a script that expands the template
-   local script = template:gsub( '(.-)@(%b{})([^@]*)',
-     function( prefix, code, suffix )
-        prefix = expr( fmt( '%q', prefix ) )
-        suffix = expr( fmt( '%q', suffix ) )
-        code = code:sub( 2, #code-1 )
 
-        if code:match( '^{.*}$' ) then
-           return prefix .. code:sub( 2, #code-1 ) .. suffix
-        else
-           return prefix .. expr( code ) .. suffix
-        end
+   -- Generate a script that expands the template
+   local script, position, max = '', 1, #template
+   while position <= max do -- TODO : why '(.-)@(%b{})([^@]*)' is so much slower? The loop is needed to avoid a simpler gsub on that pattern!
+     local start, finish = template:find('@%b{}', position)
+     if not start then
+       script = script .. expr( fmt( '%q', template:sub(position, max) ) )
+       position = max + 1
+     else
+       if start > position then
+         script = script .. expr( fmt( '%q', template:sub(position, start-1) ) )
+       end
+       if template:match( '^@{{.*}}$', start ) then
+          script = script .. template:sub( start+3, finish-2 )
+       else
+          script = script .. expr( template:sub( start+2, finish-1 ) )
+       end
+       position = finish + 1
      end
-   )
+   end
 
    -- Utility to append the script to the error string
    local function report_error( err )

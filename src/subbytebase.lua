@@ -169,7 +169,7 @@ local function subbyte_alphabet_invert( map )
   local imap = {}
 
   -- cache standard inverse alphabets
-  if map == subbyte_multipurpose_alphabet or map == subbyte_base64_alphabe then
+  if map == subbyte_multipurpose_alphabet or map == subbyte_base64_alphabet then
     local s = subbyte_inverse_cache[map]
     if s then return s end
     subbyte_inverse_cache[map] = s
