@@ -58,6 +58,14 @@ function s.nestcall()
 end
 t( templua( "@{nestcall()}@{nestcall()}" )( s ), 'BB' )
 
+-- Transform
+t( templua( "xxx", function(a) return a:upper() end)(), 'XXX')
+
+-- Change the transform inside the template
+local transform = function(a) return a end
+local change = function() transform = function(a) return a:upper() end end
+t( templua( "xxx @{{change()}} xxx", function(a) return transform(a) end)({change = change}), 'xxx  XXX')
+
 t.test_embedded_example()
 
 t()

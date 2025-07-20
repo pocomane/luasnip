@@ -2476,7 +2476,7 @@ local setmetatable, load = setmetatable, load
 local fmt, tostring = string.format, tostring
 local error = error
 
-local function templua( template ) --> ( sandbox ) --> expstr, err
+local function templua( template, transform ) --> ( sandbox ) --> expstr, err
    local function expr(e) return ' out('..e..')' end
 
    -- Generate a script that expands the template
@@ -2510,23 +2510,30 @@ local function templua( template ) --> ( sandbox ) --> expstr, err
    end
 
    -- Compile the template expander in a empty environment
-   local env = {}
-   script = 'local out = _ENV.out; local _ENV = _ENV.env; ' .. script
-   local generate, err = load( script, 'templua_script', 't', env )
+   local env, outfunc -- set into the returned function
+   local generate, err = load(
+     'local _ENV, out = _ENV(); ' ..  script,
+     'templua_script', 't',
+     function() return env, outfunc end
+   )
    if err ~= nil then return report_error( err ) end
 
    -- Return a function that runs the expander with a custom environment
    return function( sandbox )
+     local result = {}
 
-     -- Template environment and utility function
-     local expstr = ''
-     env.env = sandbox
-     env.out = function( out ) expstr = expstr..tostring(out) end
+     -- Template environment and output generation
+     env = sandbox
+     if not transform then
+       outfunc = function( out ) result[1+#result] = tostring( out ) end
+     else
+       outfunc = function( out ) result[1+#result] = transform( tostring( out )) end
+     end
 
      -- Run the template
      local ok, err = pcall(generate)
      if not ok then return report_error( err ) end
-     return expstr
+     return table.concat(result)
   end
 end
 
